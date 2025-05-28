@@ -161,10 +161,9 @@ class RequestController extends Controller
             'status' => 'in_progress'
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Demande assignée avec succès'
-        ]);
+        // Rediriger vers la page de traitement au lieu de retourner un JSON
+        return redirect()->route('agent.requests.process', $citizenRequest->id)
+            ->with('success', 'Demande assignée avec succès. Vous pouvez maintenant la traiter.');
     }
 
     /**

@@ -21,8 +21,13 @@ class CitizenRequest extends Model
         'description',
         'status',
         'admin_comments',
+        'additional_requirements',
         'attachments',
         'reference_number',
+        'assigned_to',
+        'processed_by',
+        'processed_at',
+        'is_read',
     ];
 
     /**
@@ -32,6 +37,7 @@ class CitizenRequest extends Model
      */
     protected $casts = [
         'attachments' => 'array',
+        'processed_at' => 'datetime',
     ];
 
     /**
@@ -74,5 +80,73 @@ class CitizenRequest extends Model
     public function document()
     {
         return $this->belongsTo(Document::class);
+    }
+
+    /**
+     * Get the agent assigned to this request
+     */
+    public function assignedAgent()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Get the agent who processed this request
+     */
+    public function processedBy()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    /**
+     * Get all attachments for this request
+     */
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class);
+    }
+
+    /**
+     * Get citizen attachments only
+     */
+    public function citizenAttachments()
+    {
+        return $this->hasMany(Attachment::class)->where('type', 'citizen');
+    }
+
+    /**
+     * Get agent attachments only
+     */
+    public function agentAttachments()
+    {
+        return $this->hasMany(Attachment::class)->where('type', 'agent');
+    }
+
+    /**
+     * Get status badge color
+     */
+    public function getStatusBadgeAttribute()
+    {
+        return match($this->status) {
+            'pending' => 'warning',
+            'in_progress' => 'info',
+            'approved' => 'success',
+            'rejected' => 'danger',
+            default => 'secondary'
+        };
+    }
+
+    /**
+     * Get status label
+     */
+    public function getStatusLabelAttribute()
+    {
+        return match($this->status) {
+            'pending' => 'En attente',
+            'in_progress' => 'En cours',
+            'approved' => 'Approuvée',
+            'rejected' => 'Rejetée',
+            default => 'Inconnu'
+        };
     }
 }

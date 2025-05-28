@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('layouts.admin')
 @section('content')
 <div class="container-fluid py-4">
     <div class="row">
@@ -65,6 +65,7 @@
                                     <label for="role" class="form-control-label">Rôle</label>
                                     <select class="form-control @error('role') is-invalid @enderror" id="role" name="role" {{ Auth::id() === $user->id ? 'disabled' : '' }}>
                                         <option value="citizen" {{ old('role', $user->role) == 'citizen' ? 'selected' : '' }}>Citoyen</option>
+                                        <option value="agent" {{ old('role', $user->role) == 'agent' ? 'selected' : '' }}>Agent</option>
                                         <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrateur</option>
                                     </select>
                                     @if(Auth::id() === $user->id)

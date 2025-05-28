@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\RequestController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Gestion des utilisateurs
 Route::resource('users', UserController::class);
+
+// Gestion des agents
+Route::resource('agents', AgentController::class);
 
 // Gestion des documents
 Route::resource('documents', DocumentController::class);

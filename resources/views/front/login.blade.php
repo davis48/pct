@@ -18,6 +18,7 @@
                             @endif
                             <form id="loginForm" method="POST" action="{{ route('login.post') }}">
                                 @csrf
+                                <input type="hidden" name="role" value="{{ $selectedRole }}">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror"

@@ -35,9 +35,19 @@
                             <i class="fas fa-user-circle me-2"></i>{{ Auth::user()->nom }} {{ Auth::user()->prenoms }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userMenuButton">
-                            <li><a class="dropdown-item" href="{{ url('/dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
-                            </a></li>
+                            <li>
+                                @php
+                                    $dashboardUrl = '/dashboard';
+                                    if (Auth::user()->isAdmin()) {
+                                        $dashboardUrl = '/admin/dashboard';
+                                    } elseif (Auth::user()->isAgent()) {
+                                        $dashboardUrl = '/agent/dashboard';
+                                    }
+                                @endphp
+                                <a class="dropdown-item" href="{{ url($dashboardUrl) }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                                </a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
@@ -51,7 +61,7 @@
                     </div>
                 @else
                     <div class="d-flex gap-2">
-                        <a href="{{ url('/connexion') }}" class="btn btn-outline-light btn-sm px-3 hover-grow" style="border-width: 2px; font-weight: 500;">
+                        <a href="{{ route('choose.role') }}" class="btn btn-outline-light btn-sm px-3 hover-grow" style="border-width: 2px; font-weight: 500;">
                             <i class="fas fa-sign-in-alt me-2"></i>Connexion
                         </a>
                         <a href="{{ url('/inscription') }}" class="btn btn-warning btn-sm px-3 hover-grow text-dark" style="font-weight: 500; background-color: #ffc107;">

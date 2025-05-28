@@ -20,6 +20,7 @@ use App\Http\Controllers\Front\ProfileController;
 
 // Routes publiques
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/choose-role', [HomeController::class, 'chooseRole'])->name('choose.role');
 Route::get('/connexion', [HomeController::class, 'login'])->name('login');
 Route::get('/inscription', [HomeController::class, 'register'])->name('register');
 
@@ -27,6 +28,13 @@ Route::get('/inscription', [HomeController::class, 'register'])->name('register'
 Route::post('/connexion', [HomeController::class, 'authenticate'])->name('login.post');
 Route::post('/inscription', [HomeController::class, 'store'])->name('register.post');
 Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
+
+// Routes d'authentification admin
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [\App\Http\Controllers\Admin\AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [\App\Http\Controllers\Admin\AuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [\App\Http\Controllers\Admin\AuthController::class, 'logout'])->name('logout');
+});
 
 // Route de réinitialisation mot de passe simple
 Route::get('/mot-de-passe-oublie', function() {

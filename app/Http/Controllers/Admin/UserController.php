@@ -52,7 +52,7 @@ class UserController extends Controller
             'prenoms' => 'required|string|max:155|regex:/^[a-zA-ZÀ-ÿ\s\'-]+$/',
             'email' => 'required|string|email|max:255|unique:users|filter:validate_email',
             'password' => 'required|string|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
-            'role' => 'required|string|in:admin,citizen',
+            'role' => 'required|string|in:admin,agent,citizen',
             'phone' => 'nullable|string|regex:/^[\+]?[0-9\s\-\(\)]+$/|max:20',
             'address' => 'nullable|string|max:500',
         ], [
@@ -107,7 +107,7 @@ class UserController extends Controller
             'nom' => 'required|string|max:100',
             'prenoms' => 'required|string|max:155',
             'email' => 'required|string|email|max:255|unique:users,email,'.$id,
-            'role' => 'required|string|in:admin,citizen',
+            'role' => 'required|string|in:admin,agent,citizen',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
             'password' => 'nullable|string|min:8|confirmed',

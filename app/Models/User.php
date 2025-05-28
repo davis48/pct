@@ -13,6 +13,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Les rôles disponibles dans le système
+     */
+    const ROLE_ADMIN = 'admin';
+    const ROLE_AGENT = 'agent';
+    const ROLE_CITIZEN = 'citizen';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -60,7 +67,69 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * Check if user is an agent
+     *
+     * @return bool
+     */
+    public function isAgent()
+    {
+        return $this->role === self::ROLE_AGENT;
+    }
+
+    /**
+     * Check if user is a citizen
+     *
+     * @return bool
+     */
+    public function isCitizen()
+    {
+        return $this->role === self::ROLE_CITIZEN;
+    }
+
+    /**
+     * Check if user has one of the given roles
+     *
+     * @param string|array $roles
+     * @return bool
+     */
+    public function hasRole($roles)
+    {
+        if (is_string($roles)) {
+            return $this->role === $roles;
+        }
+
+        return in_array($this->role, $roles);
+    }
+
+    /**
+     * Check if user has permission to perform an action
+     *
+     * @param string $action
+     * @return bool
+     */
+    public function hasPermission($action)
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->isAgent()) {
+            $agentPermissions = [
+                'view-requests',
+                'process-requests',
+                'update-requests',
+                'reject-requests',
+                'view-citizens',
+            ];
+
+            return in_array($action, $agentPermissions);
+        }
+
+        return false;
     }
 
     /**

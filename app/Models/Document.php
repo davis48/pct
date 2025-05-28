@@ -30,4 +30,12 @@ class Document extends Model
     {
         return $this->hasMany(CitizenRequest::class);
     }
+
+    /**
+     * Get all citizen requests related to this document
+     */
+    public function citizenRequests()
+    {
+        return $this->hasMany(CitizenRequest::class);
+    }
 }

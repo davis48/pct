@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('layouts.admin')
 @section('content')
 <div class="container-fluid py-4">
     <div class="row mb-4">

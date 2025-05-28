@@ -24,6 +24,9 @@
             <hr>
             <div class="text-center">
                 <p class="mb-0">&copy; 2023 AdminDocs. Tous droits réservés.</p>
+                <small class="text-muted">
+                    <a href="{{ route('admin.login') }}" class="text-muted text-decoration-none" style="opacity: 0.5;">Administration</a>
+                </small>
             </div>
         </div>
     </footer>

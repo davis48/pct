@@ -43,9 +43,9 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="document_id" class="form-label">Document associé (optionnel)</label>
-                        <select class="form-select @error('document_id') is-invalid @enderror" id="document_id" name="document_id">
-                            <option value="">Aucun document spécifique</option>
+                        <label for="document_id" class="form-label">Document associé <span class="text-danger">*</span></label>
+                        <select class="form-select @error('document_id') is-invalid @enderror" id="document_id" name="document_id" required>
+                            <option value="" selected disabled>Sélectionnez un document</option>
                             @foreach($documents as $document)
                             <option value="{{ $document->id }}" {{ old('document_id') == $document->id ? 'selected' : '' }}>
                                 {{ $document->title }}
@@ -55,6 +55,7 @@
                         @error('document_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        <div class="form-text">Veuillez sélectionner le document officiel associé à votre demande.</div>
                     </div>
 
                     <div class="mb-3">
@@ -67,8 +68,11 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="attachments" class="form-label">Pièces jointes (optionnel)</label>
-                        <input type="file" class="form-control @error('attachments.*') is-invalid @enderror" id="attachments" name="attachments[]" multiple>
+                        <label for="attachments" class="form-label">Pièces jointes <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control @error('attachments') is-invalid @enderror @error('attachments.*') is-invalid @enderror" id="attachments" name="attachments[]" multiple required>
+                        @error('attachments')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                         @error('attachments.*')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -84,4 +88,75 @@
         </div>
     </div>
 </section>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const fileInput = document.getElementById('attachments');
+        const documentSelect = document.getElementById('document_id');
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            let errorMessage = '';
+            
+            // Vérifier si des fichiers ont été sélectionnés
+            if (fileInput.files.length === 0) {
+                isValid = false;
+                errorMessage += 'Veuillez joindre au moins un document à votre demande.\n';
+                fileInput.classList.add('is-invalid');
+            } else {
+                fileInput.classList.remove('is-invalid');
+            }
+            
+            // Vérifier si un document a été sélectionné
+            if (documentSelect.value === '' || documentSelect.value === null) {
+                isValid = false;
+                errorMessage += 'Veuillez sélectionner un document associé à votre demande.\n';
+                documentSelect.classList.add('is-invalid');
+            } else {
+                documentSelect.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Veuillez corriger les erreurs suivantes :\n' + errorMessage);
+            }
+        });
+        
+        // Afficher les noms des fichiers sélectionnés
+        fileInput.addEventListener('change', function() {
+            const fileList = document.createElement('ul');
+            fileList.className = 'list-group mt-2';
+            
+            if (this.files.length > 0) {
+                for (let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    
+                    const fileName = document.createElement('span');
+                    fileName.textContent = file.name;
+                    
+                    const fileSize = document.createElement('span');
+                    fileSize.className = 'badge bg-primary rounded-pill';
+                    fileSize.textContent = Math.round(file.size / 1024) + ' KB';
+                    
+                    item.appendChild(fileName);
+                    item.appendChild(fileSize);
+                    fileList.appendChild(item);
+                }
+                
+                // Remplacer la liste précédente s'il y en a une
+                const existingList = fileInput.nextElementSibling;
+                if (existingList && existingList.tagName === 'UL') {
+                    existingList.remove();
+                }
+                
+                fileInput.parentNode.insertBefore(fileList, fileInput.nextSibling);
+            }
+        });
+    });
+</script>
 @endsection

@@ -49,19 +49,38 @@ class RequestController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'document_id' => 'nullable|exists:documents,id',
+            'document_id' => 'required|exists:documents,id',
             'type' => 'required|string',
             'description' => 'required|string',
-            'attachments.*' => 'nullable|file|max:2048',
+            'attachments' => 'required|array|min:1',
+            'attachments.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ], [
+            'document_id.required' => 'Veuillez sélectionner un document associé à votre demande.',
+            'attachments.required' => 'Veuillez joindre au moins un document à votre demande.',
+            'attachments.min' => 'Veuillez joindre au moins un document à votre demande.',
+            'attachments.*.required' => 'Le document joint est obligatoire.',
+            'attachments.*.mimes' => 'Le fichier doit être au format PDF, JPG ou PNG.',
+            'attachments.*.max' => 'La taille du fichier ne doit pas dépasser 2 Mo.',
         ]);
 
         // Gestion des pièces jointes
         $attachments = [];
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('attachments', 'public');
-                $attachments[] = $path;
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('attachments', $filename, 'public');
+                $attachments[] = [
+                    'name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'uploaded_at' => now()->toDateTimeString()
+                ];
             }
+        } else {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['attachments' => 'Veuillez joindre au moins un document à votre demande.']);
         }
 
         // Création de la demande
@@ -75,7 +94,7 @@ class RequestController extends Controller
         ]);
 
         return redirect()->route('requests.index')
-            ->with('success', 'Votre demande a été soumise avec succès.');
+            ->with('success', 'Votre demande a été soumise avec succès avec ' . count($attachments) . ' pièce(s) jointe(s).');
     }
 
     /**

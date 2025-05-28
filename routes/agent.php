@@ -36,8 +36,10 @@ Route::prefix('notifications')->name('notifications.')->group(function () {
 Route::prefix('requests')->name('requests.')->group(function () {
     Route::get('/', [RequestController::class, 'index'])->name('index');
     Route::get('/pending', [RequestController::class, 'pending'])->name('pending');
+    Route::get('/in-progress', [RequestController::class, 'inProgress'])->name('in-progress');
     Route::get('/my-assignments', [RequestController::class, 'myAssignments'])->name('my-assignments');
     Route::get('/my-completed', [RequestController::class, 'myCompleted'])->name('my-completed');
+    Route::get('/reminders', [RequestController::class, 'reminders'])->name('reminders');
     
     // Routes pour traiter les demandes
     Route::get('/{id}', [RequestController::class, 'show'])->name('show');

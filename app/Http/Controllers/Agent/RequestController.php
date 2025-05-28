@@ -502,4 +502,31 @@ class RequestController extends Controller
 
         return view('agent.requests.pending', compact('requests'));
     }
+
+    /**
+     * Liste les demandes en cours
+     */
+    public function inProgress()
+    {
+        $requests = CitizenRequest::with(['user', 'document', 'assignedAgent'])
+                                ->where('status', 'in_progress')
+                                ->latest()
+                                ->paginate(15);
+
+        return view('agent.requests.in_progress', compact('requests'));
+    }
+
+    /**
+     * Liste les demandes nécessitant un rappel
+     */
+    public function reminders()
+    {
+        $requests = CitizenRequest::with(['user', 'document'])
+                                ->where('status', 'pending')
+                                ->where('created_at', '<=', now()->subDays(3))
+                                ->latest()
+                                ->paginate(15);
+
+        return view('agent.requests.reminders', compact('requests'));
+    }
 }

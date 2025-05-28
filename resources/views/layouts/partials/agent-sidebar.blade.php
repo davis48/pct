@@ -48,6 +48,40 @@
                             @endif
                         </a>
                     </li>
+                    
+                    <!-- Demandes en cours -->
+                    <li>
+                        <a href="{{ route('agent.requests.in-progress') }}"
+                           class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white {{ request()->routeIs('agent.requests.in-progress') ? 'active' : '' }}">
+                            <i class="fas fa-spinner h-6 w-6 shrink-0"></i>
+                            Demandes en cours
+                            @if(isset($stats) && isset($stats['inProgressRequests']) && $stats['inProgressRequests'] > 0)
+                                <span data-stat="inProgressRequests" class="ml-auto bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
+                                    {{ $stats['inProgressRequests'] > 9 ? '9+' : $stats['inProgressRequests'] }}
+                                </span>
+                            @endif
+                        </a>
+                    </li>
+                    
+                    <!-- Rappels -->
+                    <li>
+                        <a href="{{ route('agent.requests.reminders') }}"
+                           class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white {{ request()->routeIs('agent.requests.reminders') ? 'active' : '' }}">
+                            <i class="fas fa-bell h-6 w-6 shrink-0"></i>
+                            Rappels
+                            @php
+                                $reminderCount = 0;
+                                if(isset($stats) && isset($remindersNeeded)) {
+                                    $reminderCount = count($remindersNeeded);
+                                }
+                            @endphp
+                            @if($reminderCount > 0)
+                                <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
+                                    {{ $reminderCount > 9 ? '9+' : $reminderCount }}
+                                </span>
+                            @endif
+                        </a>
+                    </li>
 
                     <!-- Citoyens -->
                     <li>

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\CitizenRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -25,6 +26,7 @@ class DashboardController extends Controller
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
                                                   ->whereIn('status', ['approved', 'rejected'])
                                                   ->count(),
+            'inProgressRequests' => CitizenRequest::where('status', 'in_progress')->count(),
             
             // Clés pour les statistiques du tableau de bord
             'pending' => CitizenRequest::where('status', 'pending')->count(),
@@ -36,6 +38,10 @@ class DashboardController extends Controller
                                            ->whereYear('updated_at', now()->year)
                                            ->whereMonth('updated_at', now()->month)
                                            ->count(),
+            'in_progress' => CitizenRequest::where('status', 'in_progress')->count(),
+            'reminders_needed' => CitizenRequest::where('status', 'pending')
+                                             ->where('created_at', '<=', now()->subDays(3))
+                                             ->count(),
             
             // Statistiques supplémentaires
             'totalRequests' => CitizenRequest::count(),
@@ -62,10 +68,25 @@ class DashboardController extends Controller
                        ->take(5)
                        ->get();
                        
+        // Demandes en cours
+        $inProgressRequests = CitizenRequest::with(['user', 'document', 'assignedAgent'])
+                            ->where('status', 'in_progress')
+                            ->latest()
+                            ->take(5)
+                            ->get();
+        
+        // Demandes nécessitant un rappel (plus de 3 jours sans traitement)
+        $remindersNeeded = CitizenRequest::with(['user', 'document'])
+                         ->where('status', 'pending')
+                         ->where('created_at', '<=', now()->subDays(3))
+                         ->latest()
+                         ->take(5)
+                         ->get();
+                       
         // Données pour les graphiques
         $chartData = $this->getChartData();
 
-        return view('agent.dashboard', compact('stats', 'pendingRequests', 'myAssignments', 'chartData'));
+        return view('agent.dashboard', compact('stats', 'pendingRequests', 'myAssignments', 'chartData', 'inProgressRequests', 'remindersNeeded'));
     }
     
     /**
@@ -194,6 +215,7 @@ class DashboardController extends Controller
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
                                                   ->whereIn('status', ['approved', 'rejected'])
                                                   ->count(),
+            'inProgressRequests' => CitizenRequest::where('status', 'in_progress')->count(),
         ];
         
         return response()->json($stats);

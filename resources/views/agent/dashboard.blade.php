@@ -23,9 +23,9 @@
 @section('content')
 <div class="space-y-8">
     <!-- Statistiques principales -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <!-- Demandes en attente -->
-        <div class="bg-gradient-to-br from-orange-400 to-red-500 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <a href="{{ route('agent.requests.pending') }}" class="bg-gradient-to-br from-orange-400 to-red-500 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-orange-100 text-sm font-medium">Demandes en attente</p>
@@ -39,27 +39,44 @@
                     <i class="fas fa-hourglass-half text-2xl"></i>
                 </div>
             </div>
-        </div>
+        </a>
+
+        <!-- Demandes en cours -->
+        <a href="{{ route('agent.requests.in-progress') }}" class="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-cyan-100 text-sm font-medium">Demandes en cours</p>
+                    <p class="text-3xl font-bold">{{ $stats['in_progress'] ?? 0 }}</p>
+                    <p class="text-cyan-100 text-xs mt-1">
+                        <i class="fas fa-spinner mr-1"></i>
+                        En traitement
+                    </p>
+                </div>
+                <div class="bg-white/20 rounded-full p-3">
+                    <i class="fas fa-spinner text-2xl"></i>
+                </div>
+            </div>
+        </a>
 
         <!-- Mes assignations -->
-        <div class="bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <a href="{{ route('agent.requests.my-assignments') }}" class="bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-100 text-sm font-medium">Mes assignations</p>
                     <p class="text-3xl font-bold">{{ $stats['assigned'] ?? 0 }}</p>
                     <p class="text-blue-100 text-xs mt-1">
                         <i class="fas fa-user-check mr-1"></i>
-                        En cours de traitement
+                        Assignées à moi
                     </p>
                 </div>
                 <div class="bg-white/20 rounded-full p-3">
                     <i class="fas fa-tasks text-2xl"></i>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Complétées aujourd'hui -->
-        <div class="bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <a href="{{ route('agent.requests.my-completed') }}" class="bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium">Complétées aujourd'hui</p>
@@ -73,10 +90,10 @@
                     <i class="fas fa-check-double text-2xl"></i>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Total ce mois -->
-        <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <a href="{{ route('agent.statistics') }}" class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-purple-100 text-sm font-medium">Total ce mois</p>
@@ -90,7 +107,7 @@
                     <i class="fas fa-calendar-alt text-2xl"></i>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Graphiques et métriques -->
@@ -193,11 +210,11 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                     @if($request->status === 'pending') bg-yellow-100 text-yellow-800
-                                    @elseif($request->status === 'processing') bg-blue-100 text-blue-800
+                                    @elseif($request->status === 'processing' || $request->status === 'in_progress') bg-blue-100 text-blue-800
                                     @elseif($request->status === 'completed') bg-green-100 text-green-800
                                     @else bg-gray-100 text-gray-800 @endif">
                                     @if($request->status === 'pending') En attente
-                                    @elseif($request->status === 'processing') En cours
+                                    @elseif($request->status === 'processing' || $request->status === 'in_progress') En cours
                                     @elseif($request->status === 'completed') Terminé
                                     @else {{ $request->status }} @endif
                                 </span>
@@ -206,22 +223,14 @@
                                 {{ $request->created_at->format('d/m/Y H:i') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex items-center justify-end space-x-2">
-                                    <a href="{{ route('agent.requests.process', $request) }}"
-                                       class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200">
-                                        <i class="fas fa-edit mr-1"></i>
-                                        @if($request->status === 'pending') Traiter @else Continuer @endif
-                                    </a>
-                                </div>
+                                <a href="{{ route('agent.requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900">Voir</a>
+                                <a href="{{ route('agent.requests.process', $request->id) }}" class="ml-3 text-green-600 hover:text-green-900">Traiter</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center">
-                                    <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
-                                    <p class="text-gray-500">Aucune demande en attente</p>
-                                </div>
+                            <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                Aucune demande en attente pour le moment.
                             </td>
                         </tr>
                     @endforelse

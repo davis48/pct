@@ -560,6 +560,194 @@
     </div>
 </div>
 
+<!-- Section Statistiques par Type de Document -->
+<div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">📋 Statistiques par Type de Document</h2>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="exportDocumentStats()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                📊 Exporter
+            </button>
+            <button onclick="refreshDocumentStats()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                🔄 Actualiser
+            </button>
+        </div>
+    </div>
+
+    <!-- Vue d'ensemble des documents -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-600 text-sm font-medium">Types disponibles</p>
+                    <p class="text-2xl font-bold text-blue-800" id="total-document-types">8</p>
+                </div>
+                <div class="bg-blue-500 p-3 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-600 text-sm font-medium">Taux de succès moyen</p>
+                    <p class="text-2xl font-bold text-green-800" id="avg-success-rate">-</p>
+                </div>
+                <div class="bg-green-500 p-3 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-yellow-600 text-sm font-medium">Temps moyen</p>
+                    <p class="text-2xl font-bold text-yellow-800" id="avg-processing-time">-</p>
+                </div>
+                <div class="bg-yellow-500 p-3 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-600 text-sm font-medium">Satisfaction moyenne</p>
+                    <p class="text-2xl font-bold text-purple-800" id="avg-satisfaction">-</p>
+                </div>
+                <div class="bg-purple-500 p-3 rounded-xl">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques principaux -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Volume par Type de Document -->
+        <div class="bg-gray-50 p-6 rounded-xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">📊 Volume par Type de Document</h3>
+                <div class="flex space-x-2">
+                    <button onclick="toggleDocumentVolumeView()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
+                        📈 Basculer Vue
+                    </button>
+                </div>
+            </div>
+            <div class="relative h-80">
+                <canvas id="documentVolumeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Performance par Type -->
+        <div class="bg-gray-50 p-6 rounded-xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">⚡ Performance par Type</h3>
+                <select id="performanceMetricSelect" onchange="updatePerformanceChart()" class="bg-white border border-gray-300 rounded px-3 py-1 text-sm">
+                    <option value="success_rate">Taux de Succès</option>
+                    <option value="processing_time">Temps de Traitement</option>
+                    <option value="satisfaction">Satisfaction</option>
+                    <option value="complexity">Complexité</option>
+                </select>
+            </div>
+            <div class="relative h-80">
+                <canvas id="documentPerformanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau détaillé des statistiques -->
+    <div class="bg-gray-50 p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-800">📋 Détails par Type de Document</h3>
+            <div class="flex space-x-2">
+                <input type="text" id="documentSearch" placeholder="Rechercher un type..." class="border border-gray-300 rounded px-3 py-1 text-sm" onkeyup="filterDocumentTable()">
+                <select id="sortSelect" onchange="sortDocumentTable()" class="bg-white border border-gray-300 rounded px-3 py-1 text-sm">
+                    <option value="volume">Volume</option>
+                    <option value="success_rate">Taux de succès</option>
+                    <option value="processing_time">Temps de traitement</option>
+                    <option value="satisfaction">Satisfaction</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm" id="documentStatsTable">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="text-left p-3 font-semibold">Type de Document</th>
+                        <th class="text-center p-3 font-semibold">Volume</th>
+                        <th class="text-center p-3 font-semibold">Taux de Succès</th>
+                        <th class="text-center p-3 font-semibold">Temps Moyen</th>
+                        <th class="text-center p-3 font-semibold">Satisfaction</th>
+                        <th class="text-center p-3 font-semibold">Complexité</th>
+                        <th class="text-center p-3 font-semibold">Coût Moyen</th>
+                        <th class="text-center p-3 font-semibold">Heures de Pointe</th>
+                        <th class="text-center p-3 font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="documentStatsTableBody">
+                    <!-- Les données seront remplies via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Analyse temporelle -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <!-- Évolution mensuelle -->
+        <div class="bg-gray-50 p-6 rounded-xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📅 Évolution Mensuelle</h3>
+            <div class="relative h-80">
+                <canvas id="documentMonthlyEvolutionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Documents -->
+        <div class="bg-gray-50 p-6 rounded-xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🏆 Top 5 Documents</h3>
+            <div id="topDocumentsList" class="space-y-4">
+                <!-- Les données seront remplies via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Widget d'Alerte et Recommandations -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl border border-orange-200">
+            <h3 class="text-lg font-semibold text-orange-800 mb-4">⚠️ Alertes Documents</h3>
+            <div id="documentAlerts" class="space-y-3">
+                <!-- Les alertes seront générées automatiquement -->
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200">
+            <h3 class="text-lg font-semibold text-green-800 mb-4">💡 Recommandations</h3>
+            <div id="documentRecommendations" class="space-y-3">
+                <!-- Les recommandations seront générées automatiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1444,6 +1632,486 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => { el.style.opacity = '1'; }, 200);
         });
     }, 30000);
+
+    // ============= SECTION STATISTIQUES PAR TYPE DE DOCUMENT =============
+    
+    // Variables globales pour les statistiques de documents
+    let documentData = null;
+    let documentVolumeChart = null;
+    let documentPerformanceChart = null;
+    let documentMonthlyChart = null;
+    let currentVolumeView = 'volume'; // 'volume' ou 'percentage'
+
+    // Initialisation des statistiques par document
+    function initializeDocumentStatistics() {
+        documentData = chartData.document_types_detailed;
+        
+        // Calculer les moyennes pour les KPI
+        calculateAverageKPIs();
+        
+        // Initialiser les graphiques
+        initializeDocumentVolumeChart();
+        initializeDocumentPerformanceChart();
+        initializeDocumentMonthlyChart();
+        
+        // Remplir le tableau
+        populateDocumentTable();
+        
+        // Générer le top 5
+        generateTopDocuments();
+        
+        // Générer les alertes et recommandations
+        generateDocumentAlerts();
+        generateDocumentRecommendations();
+    }
+
+    // Calculer les KPI moyens
+    function calculateAverageKPIs() {
+        const types = Object.keys(documentData);
+        let totalSuccessRate = 0;
+        let totalProcessingTime = 0;
+        let totalSatisfaction = 0;
+        
+        types.forEach(type => {
+            totalSuccessRate += documentData[type].success_rate;
+            totalProcessingTime += documentData[type].avg_processing_time;
+            totalSatisfaction += documentData[type].satisfaction_score;
+        });
+        
+        document.getElementById('avg-success-rate').textContent = Math.round(totalSuccessRate / types.length) + '%';
+        document.getElementById('avg-processing-time').textContent = Math.round(totalProcessingTime / types.length) + ' min';
+        document.getElementById('avg-satisfaction').textContent = Math.round(totalSatisfaction / types.length) + '/5';
+    }
+
+    // Initialiser le graphique de volume
+    function initializeDocumentVolumeChart() {
+        const ctx = document.getElementById('documentVolumeChart').getContext('2d');
+        const types = Object.keys(documentData);
+        const typeLabels = types.map(type => getDocumentTypeLabel(type));
+        const volumes = types.map(type => documentData[type].volume);
+        
+        documentVolumeChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: typeLabels,
+                datasets: [{
+                    data: volumes,
+                    backgroundColor: [
+                        '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                        '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label;
+                                const value = context.parsed;
+                                const type = types[context.dataIndex];
+                                const percentage = ((value / volumes.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                                return `${label}: ${value} demandes (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialiser le graphique de performance
+    function initializeDocumentPerformanceChart() {
+        const ctx = document.getElementById('documentPerformanceChart').getContext('2d');
+        updatePerformanceChart();
+    }
+
+    // Mettre à jour le graphique de performance
+    function updatePerformanceChart() {
+        const metric = document.getElementById('performanceMetricSelect').value;
+        const types = Object.keys(documentData);
+        const typeLabels = types.map(type => getDocumentTypeLabel(type));
+        
+        let data, backgroundColor, borderColor, unit;
+        
+        switch(metric) {
+            case 'success_rate':
+                data = types.map(type => documentData[type].success_rate);
+                backgroundColor = '#10B981';
+                borderColor = '#059669';
+                unit = '%';
+                break;
+            case 'processing_time':
+                data = types.map(type => documentData[type].avg_processing_time);
+                backgroundColor = '#F59E0B';
+                borderColor = '#D97706';
+                unit = ' min';
+                break;
+            case 'satisfaction':
+                data = types.map(type => documentData[type].satisfaction_score);
+                backgroundColor = '#8B5CF6';
+                borderColor = '#7C3AED';
+                unit = '/5';
+                break;
+            case 'complexity':
+                data = types.map(type => documentData[type].complexity_level);
+                backgroundColor = '#EF4444';
+                borderColor = '#DC2626';
+                unit = '/5';
+                break;
+        }
+        
+        if (documentPerformanceChart) {
+            documentPerformanceChart.destroy();
+        }
+        
+        const ctx = document.getElementById('documentPerformanceChart').getContext('2d');
+        documentPerformanceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: typeLabels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + unit;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + unit;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialiser le graphique d'évolution mensuelle
+    function initializeDocumentMonthlyChart() {
+        const ctx = document.getElementById('documentMonthlyEvolutionChart').getContext('2d');
+        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'];
+        
+        // Prendre les 3 types les plus populaires
+        const types = Object.keys(documentData)
+            .sort((a, b) => documentData[b].volume - documentData[a].volume)
+            .slice(0, 3);
+        
+        const datasets = types.map((type, index) => ({
+            label: getDocumentTypeLabel(type),
+            data: documentData[type].monthly_evolution,
+            borderColor: ['#3B82F6', '#10B981', '#F59E0B'][index],
+            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B'][index] + '20',
+            tension: 0.4
+        }));
+        
+        documentMonthlyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // Basculer la vue du graphique de volume
+    function toggleDocumentVolumeView() {
+        currentVolumeView = currentVolumeView === 'volume' ? 'percentage' : 'volume';
+        
+        const types = Object.keys(documentData);
+        const volumes = types.map(type => documentData[type].volume);
+        const total = volumes.reduce((a, b) => a + b, 0);
+        
+        let newData;
+        if (currentVolumeView === 'percentage') {
+            newData = volumes.map(vol => ((vol / total) * 100).toFixed(1));
+        } else {
+            newData = volumes;
+        }
+        
+        documentVolumeChart.data.datasets[0].data = newData;
+        documentVolumeChart.update();
+    }
+
+    // Remplir le tableau des statistiques
+    function populateDocumentTable() {
+        const tbody = document.getElementById('documentStatsTableBody');
+        const types = Object.keys(documentData);
+        
+        tbody.innerHTML = '';
+        
+        types.forEach(type => {
+            const data = documentData[type];
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-200 hover:bg-gray-50';
+            
+            row.innerHTML = `
+                <td class="p-3 font-medium">${getDocumentTypeLabel(type)}</td>
+                <td class="p-3 text-center">${data.volume.toLocaleString()}</td>
+                <td class="p-3 text-center">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSuccessRateColor(data.success_rate)}">
+                        ${data.success_rate}%
+                    </span>
+                </td>
+                <td class="p-3 text-center">${data.avg_processing_time} min</td>
+                <td class="p-3 text-center">${data.satisfaction_score}/5 ⭐</td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center">
+                        ${Array.from({length: 5}, (_, i) => 
+                            `<span class="${i < data.complexity_level ? 'text-red-500' : 'text-gray-300'}">●</span>`
+                        ).join('')}
+                    </div>
+                </td>
+                <td class="p-3 text-center">${(data.cost_per_request).toLocaleString()} FCFA</td>
+                <td class="p-3 text-center text-xs">${data.peak_hours.join(', ')}</td>
+                <td class="p-3 text-center">
+                    <button onclick="showDocumentDetails('${type}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600">
+                        Détails
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+
+    // Générer le top 5 des documents
+    function generateTopDocuments() {
+        const types = Object.keys(documentData)
+            .sort((a, b) => documentData[b].volume - documentData[a].volume)
+            .slice(0, 5);
+        
+        const container = document.getElementById('topDocumentsList');
+        container.innerHTML = '';
+        
+        types.forEach((type, index) => {
+            const data = documentData[type];
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between p-3 bg-white rounded-lg border';
+            
+            div.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="text-2xl font-bold text-gray-400">${index + 1}</div>
+                    <div>
+                        <div class="font-medium">${getDocumentTypeLabel(type)}</div>
+                        <div class="text-sm text-gray-500">${data.volume.toLocaleString()} demandes</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-medium ${getSuccessRateColor(data.success_rate)}">${data.success_rate}%</div>
+                    <div class="text-xs text-gray-500">${data.avg_processing_time} min</div>
+                </div>
+            `;
+            
+            container.appendChild(div);
+        });
+    }
+
+    // Générer les alertes automatiques
+    function generateDocumentAlerts() {
+        const container = document.getElementById('documentAlerts');
+        const alerts = [];
+        
+        Object.keys(documentData).forEach(type => {
+            const data = documentData[type];
+            
+            if (data.success_rate < 85) {
+                alerts.push({
+                    type: 'danger',
+                    message: `Taux de succès faible pour ${getDocumentTypeLabel(type)} (${data.success_rate}%)`
+                });
+            }
+            
+            if (data.avg_processing_time > 45) {
+                alerts.push({
+                    type: 'warning',
+                    message: `Temps de traitement élevé pour ${getDocumentTypeLabel(type)} (${data.avg_processing_time} min)`
+                });
+            }
+            
+            if (data.satisfaction_score < 3.5) {
+                alerts.push({
+                    type: 'info',
+                    message: `Satisfaction faible pour ${getDocumentTypeLabel(type)} (${data.satisfaction_score}/5)`
+                });
+            }
+        });
+        
+        if (alerts.length === 0) {
+            container.innerHTML = '<div class="text-green-600">✅ Aucune alerte détectée</div>';
+        } else {
+            container.innerHTML = alerts.map(alert => 
+                `<div class="flex items-center space-x-2 text-sm">
+                    <span class="${alert.type === 'danger' ? 'text-red-500' : alert.type === 'warning' ? 'text-yellow-500' : 'text-blue-500'}">
+                        ${alert.type === 'danger' ? '🔴' : alert.type === 'warning' ? '🟡' : '🔵'}
+                    </span>
+                    <span>${alert.message}</span>
+                </div>`
+            ).join('');
+        }
+    }
+
+    // Générer les recommandations
+    function generateDocumentRecommendations() {
+        const container = document.getElementById('documentRecommendations');
+        const recommendations = [];
+        
+        // Analyser les données pour générer des recommandations
+        const sortedByVolume = Object.keys(documentData)
+            .sort((a, b) => documentData[b].volume - documentData[a].volume);
+        
+        const highVolumeType = sortedByVolume[0];
+        const lowEfficiencyTypes = Object.keys(documentData)
+            .filter(type => documentData[type].success_rate < 90);
+        
+        recommendations.push(`💡 Optimiser le traitement des ${getDocumentTypeLabel(highVolumeType)} (volume le plus élevé)`);
+        
+        if (lowEfficiencyTypes.length > 0) {
+            recommendations.push(`⚡ Améliorer l'efficacité pour : ${lowEfficiencyTypes.map(type => getDocumentTypeLabel(type)).join(', ')}`);
+        }
+        
+        recommendations.push('📋 Mettre en place un système de pré-validation automatique');
+        recommendations.push('🎯 Former les agents aux types de documents les plus complexes');
+        
+        container.innerHTML = recommendations.map(rec => 
+            `<div class="text-sm text-green-700">${rec}</div>`
+        ).join('');
+    }
+
+    // Fonctions utilitaires
+    function getDocumentTypeLabel(type) {
+        const labels = {
+            'attestation': 'Attestation de Résidence',
+            'legalisation': 'Légalisation de Document',
+            'mariage': 'Acte de Mariage',
+            'extrait-acte': 'Extrait d\'Acte Civil',
+            'declaration-naissance': 'Déclaration de Naissance',
+            'certificat': 'Certificat de Nationalité',
+            'information': 'Demande d\'Information',
+            'autre': 'Autres Documents'
+        };
+        return labels[type] || type;
+    }
+
+    function getSuccessRateColor(rate) {
+        if (rate >= 95) return 'bg-green-100 text-green-800';
+        if (rate >= 85) return 'bg-yellow-100 text-yellow-800';
+        return 'bg-red-100 text-red-800';
+    }
+
+    // Fonctions d'interaction
+    window.showDocumentDetails = function(type) {
+        const data = documentData[type];
+        const details = `
+Détails pour ${getDocumentTypeLabel(type)}:
+
+📊 Volume: ${data.volume.toLocaleString()} demandes
+✅ Taux de succès: ${data.success_rate}%
+⏱️ Temps moyen: ${data.avg_processing_time} minutes
+⭐ Satisfaction: ${data.satisfaction_score}/5
+🔧 Complexité: ${data.complexity_level}/5
+💰 Coût moyen: ${data.cost_per_request.toLocaleString()} FCFA
+👥 Agents spécialisés: ${data.processing_agents}
+📱 Numérique: ${data.digital_percentage}%
+
+⏰ Heures de pointe:
+${data.peak_hours.join(', ')}
+
+⚠️ Problèmes courants:
+${data.common_issues.join('\n')}
+        `;
+        alert(details);
+    };
+
+    window.exportDocumentStats = function() {
+        // Simulation d'export
+        alert('📊 Export des statistiques par type de document généré !');
+    };
+
+    window.refreshDocumentStats = function() {
+        // Simulation de rafraîchissement
+        initializeDocumentStatistics();
+        alert('🔄 Statistiques actualisées !');
+    };
+
+    window.filterDocumentTable = function() {
+        const search = document.getElementById('documentSearch').value.toLowerCase();
+        const rows = document.querySelectorAll('#documentStatsTableBody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(search) ? '' : 'none';
+        });
+    };
+
+    window.sortDocumentTable = function() {
+        const sortBy = document.getElementById('sortSelect').value;
+        const tbody = document.getElementById('documentStatsTableBody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        
+        rows.sort((a, b) => {
+            let aVal, bVal;
+            switch(sortBy) {
+                case 'volume':
+                    aVal = parseInt(a.cells[1].textContent.replace(/,/g, ''));
+                    bVal = parseInt(b.cells[1].textContent.replace(/,/g, ''));
+                    break;
+                case 'success_rate':
+                    aVal = parseInt(a.cells[2].textContent);
+                    bVal = parseInt(b.cells[2].textContent);
+                    break;
+                case 'processing_time':
+                    aVal = parseInt(a.cells[3].textContent);
+                    bVal = parseInt(b.cells[3].textContent);
+                    break;
+                case 'satisfaction':
+                    aVal = parseFloat(a.cells[4].textContent);
+                    bVal = parseFloat(b.cells[4].textContent);
+                    break;
+            }
+            return bVal - aVal;
+        });
+        
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+    };
+
+    // Initialisation des statistiques au chargement
+    setTimeout(() => {
+        initializeDocumentStatistics();
+    }, 500);
 });
 </script>
 @endpush

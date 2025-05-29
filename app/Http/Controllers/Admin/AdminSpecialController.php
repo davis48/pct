@@ -871,6 +871,93 @@ class AdminSpecialController extends Controller
             'agent_performance' => [
                 'labels' => ['Martin', 'Dubois', 'Leroy', 'Bernard', 'Moreau'],
                 'data' => [rand(50, 200), rand(40, 180), rand(60, 220), rand(30, 150), rand(45, 190)]
+            ],
+            // Nouvelles données pour graphiques de performance améliorés
+            'performance_metrics' => [
+                'efficiency' => [
+                    'labels' => ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                    'current_week' => [85, 92, 78, 95, 88, 75, 82],
+                    'previous_week' => [78, 85, 82, 89, 91, 70, 85],
+                    'target' => [90, 90, 90, 90, 90, 90, 90],
+                    'hourly_today' => [
+                        'labels' => ['08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h'],
+                        'efficiency' => [78, 82, 88, 91, 87, 83, 79, 85, 92, 89, 86],
+                        'volume' => [12, 18, 25, 32, 28, 15, 35, 42, 38, 29, 18]
+                    ]
+                ],
+                'response_time' => [
+                    'labels' => ['08h', '10h', '12h', '14h', '16h', '18h', '20h'],
+                    'average_time' => [2.5, 3.2, 4.1, 5.8, 4.3, 3.7, 2.1],
+                    'peak_time' => [3.1, 4.5, 6.2, 8.3, 6.1, 5.2, 2.8],
+                    'target_time' => [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0],
+                    'sla_compliance' => [95, 88, 72, 45, 68, 82, 96]
+                ],
+                'satisfaction' => [
+                    'labels' => ['Acte Naissance', 'Acte Mariage', 'Cert. Nationalité', 'Décl. Naissance', 'Cert. Résidence'],
+                    'satisfaction_rate' => [95, 87, 92, 89, 85],
+                    'completion_rate' => [98, 94, 96, 91, 88],
+                    'error_rate' => [2, 6, 4, 9, 12],
+                    'complexity_score' => [2, 4, 3, 3, 5] // Sur 5
+                ],
+                'workload_distribution' => [
+                    'agents' => ['Martin', 'Dubois', 'Leroy', 'Bernard', 'Moreau'],
+                    'current_load' => [85, 92, 78, 95, 73],
+                    'capacity' => [100, 100, 100, 100, 100],
+                    'efficiency_score' => [94, 88, 92, 87, 89],
+                    'specializations' => [
+                        ['Actes civils', 'Nationalité'],
+                        ['Mariages', 'Résidences'],
+                        ['Naissances', 'Actes civils'],
+                        ['Résidences', 'Nationalité'],
+                        ['Polyvalent', 'Formation']
+                    ]
+                ],
+                'predictive_analytics' => [
+                    'next_hour_forecast' => [
+                        'expected_requests' => 45,
+                        'confidence' => 85,
+                        'recommended_agents' => 3,
+                        'bottleneck_risk' => 'moyen'
+                    ],
+                    'weekly_trend' => [
+                        'labels' => ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
+                        'forecast' => [180, 220, 195, 240, 210],
+                        'actual' => [175, 215, 198, 235, null] // null pour les jours futurs
+                    ]
+                ]
+            ],
+            'performance_trends' => [
+                'monthly' => [
+                    'labels' => ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                    'requests_handled' => [1250, 1380, 1156, 1420, 1650, 1789],
+                    'success_rate' => [92, 94, 89, 96, 93, 97],
+                    'avg_processing_time' => [4.2, 3.8, 4.5, 3.9, 3.6, 3.4]
+                ],
+                'quality_metrics' => [
+                    'labels' => ['Précision', 'Rapidité', 'Satisfaction', 'Conformité', 'Innovation'],
+                    'current_scores' => [92, 87, 94, 96, 78],
+                    'benchmarks' => [90, 85, 90, 95, 80],
+                    'targets' => [95, 90, 95, 98, 85]
+                ],
+                'comparative_analysis' => [
+                    'labels' => ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025'],
+                    'performance_index' => [78, 82, 85, 91, 94],
+                    'cost_efficiency' => [82, 79, 88, 92, 89],
+                    'customer_satisfaction' => [87, 89, 91, 93, 94],
+                    'innovation_score' => [65, 71, 78, 82, 85]
+                ],
+                'anomaly_detection' => [
+                    'anomalies_this_week' => [
+                        ['type' => 'pic_demandes', 'day' => 'Mercredi', 'severity' => 'moyenne', 'value' => '+45%'],
+                        ['type' => 'temps_reponse', 'day' => 'Jeudi', 'severity' => 'haute', 'value' => '8.2min'],
+                        ['type' => 'agent_absent', 'day' => 'Vendredi', 'severity' => 'faible', 'value' => '1 agent']
+                    ],
+                    'trend_analysis' => [
+                        'positive_trends' => ['Satisfaction client en hausse', 'Temps de traitement optimisé'],
+                        'negative_trends' => ['Surcharge aux heures de pointe'],
+                        'recommendations' => ['Renforcer équipe 14h-16h', 'Formation efficacité']
+                    ]
+                ]
             ]
         ];
     }
@@ -948,25 +1035,46 @@ class AdminSpecialController extends Controller
     private function getPerformanceMetrics()
     {
         return [
+            // Données compatibles avec le template existant
+            'best_agent' => 'Agent Smith',
+            'fastest_document' => 'Acte de Naissance',
+            'peak_hour' => '14h00',
+            
+            // Nouvelles métriques de performance détaillées
             'response_time' => [
                 'current' => 245,
                 'average' => 180,
-                'target' => 200
+                'target' => 200,
+                'trend' => 'improving'
             ],
             'throughput' => [
                 'requests_per_minute' => 45,
                 'peak_today' => 78,
-                'average_daily' => 52
+                'average_daily' => 52,
+                'trend' => 'stable'
             ],
             'error_rate' => [
                 'current' => 0.8,
                 'target' => 1.0,
-                'last_24h' => 1.2
+                'last_24h' => 1.2,
+                'trend' => 'improving'
             ],
             'availability' => [
                 'current' => 99.9,
                 'monthly' => 99.7,
-                'target' => 99.5
+                'target' => 99.5,
+                'trend' => 'excellent'
+            ],
+            'agent_performance' => [
+                'labels' => ['Agent A', 'Agent B', 'Agent C', 'Agent D', 'Agent E'],
+                'completed_requests' => [85, 72, 91, 68, 79],
+                'avg_processing_time' => [120, 145, 98, 156, 134],
+                'satisfaction_rate' => [95, 88, 97, 85, 92]
+            ],
+            'hourly_performance' => [
+                'labels' => ['08h', '10h', '12h', '14h', '16h', '18h'],
+                'response_times' => [180, 165, 210, 195, 175, 185],
+                'request_volume' => [15, 25, 45, 78, 35, 20]
             ]
         ];
     }

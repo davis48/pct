@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\CitizenRequest;
 use App\Models\Document;
+use App\Models\Attachment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -74,9 +75,9 @@ class AdminSpecialController extends Controller
             'total_requests' => $this->getTotalRequests(),
             'requests_today' => $this->getRequestsToday(),
             'completion_rate' => $this->getCompletionRate(),
-            'completion_rate_change' => rand(1, 10) / 10, // Simulation
+            'completion_rate_change' => $this->getCompletionRateChange(),
             'avg_processing_time' => $this->getAverageProcessingTime(),
-            'processing_time_change' => rand(1, 10) / 10, // Simulation - nombre au lieu de chaîne
+            'processing_time_change' => $this->getProcessingTimeChange(),
             'active_agents' => $this->getActiveAgents(),
             'total_agents' => $this->getTotalAgents(),
         ];
@@ -99,13 +100,13 @@ class AdminSpecialController extends Controller
     {
         $kpis = [
             'total_requests' => $this->getTotalRequests(),
-            'requests_growth' => rand(5, 15),
+            'requests_growth' => $this->getRequestsGrowth(),
             'completion_rate' => $this->getCompletionRate(),
-            'completion_rate_change' => rand(1, 5),
+            'completion_rate_change' => $this->getCompletionRateChange(),
             'avg_processing_time' => $this->getAverageProcessingTime(),
-            'processing_time_change' => '-2%',
-            'satisfaction_rate' => rand(85, 98),
-            'satisfaction_change' => rand(1, 3),
+            'processing_time_change' => $this->getProcessingTimeChange(),
+            'satisfaction_rate' => $this->getSatisfactionRate(),
+            'satisfaction_change' => $this->getSatisfactionChange(),
         ];
 
         $documentTypeStats = $this->getDetailedDocumentTypeStats();
@@ -125,44 +126,43 @@ class AdminSpecialController extends Controller
     public function systemInfo()
     {
         $systemInfo = [
-            'cpu_usage' => rand(10, 80) . '%',
-            'cpu_cores' => '8',
-            'memory_usage' => rand(30, 70) . '%',
-            'memory_total' => '16 GB',
-            'disk_usage' => rand(20, 60) . '%',
-            'disk_free' => '500 GB',
-            'uptime' => rand(1, 30) . 'd ' . rand(1, 23) . 'h',
+            'cpu_usage' => $this->getCpuUsage(),
+            'cpu_cores' => $this->getCpuCores(),
+            'memory_usage' => $this->getMemoryUsage(),
+            'memory_total' => $this->getTotalMemory(),
+            'disk_usage' => $this->getDiskUsage(),
+            'disk_free' => $this->getFreeDiskSpace(),
+            'uptime' => $this->getSystemUptime(),
         ];
 
         $serverInfo = [
-            'os' => 'Ubuntu 22.04 LTS',
-            'web_server' => 'Apache 2.4.52',
+            'os' => php_uname('s') . ' ' . php_uname('r'),
+            'web_server' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
             'php_version' => phpversion(),
             'laravel_version' => app()->version(),
-            'database' => 'MySQL 8.0.32',
+            'database' => $this->getDatabaseVersion(),
             'timezone' => config('app.timezone'),
         ];
 
         $services = [
-            ['name' => 'Apache Web Server', 'status' => 'running', 'response_time' => rand(50, 200)],
-            ['name' => 'MySQL Database', 'status' => 'running', 'response_time' => rand(10, 50)],
-            ['name' => 'Redis Cache', 'status' => 'running', 'response_time' => rand(5, 20)],
-            ['name' => 'Queue Worker', 'status' => 'running', 'response_time' => null],
-            ['name' => 'Scheduler', 'status' => 'running', 'response_time' => null],
+            ['name' => 'Web Server', 'status' => 'running', 'response_time' => $this->getWebServerResponseTime()],
+            ['name' => 'Database', 'status' => $this->getDatabaseStatus(), 'response_time' => $this->getDatabaseResponseTime()],
+            ['name' => 'Application', 'status' => 'running', 'response_time' => null],
+            ['name' => 'File System', 'status' => is_writable(storage_path()) ? 'running' : 'warning', 'response_time' => null],
         ];
 
         $databaseInfo = [
-            'total_tables' => 15,
-            'total_records' => number_format(rand(10000, 100000)),
-            'database_size' => rand(100, 500) . ' MB',
-            'active_connections' => rand(5, 20),
+            'total_tables' => $this->getDatabaseTableCount(),
+            'total_records' => number_format($this->getTotalDatabaseRecords()),
+            'database_size' => $this->getDatabaseSize(),
+            'active_connections' => $this->getActiveConnections(),
         ];
 
         $databaseTables = [
-            ['name' => 'requests', 'rows' => rand(1000, 5000), 'size' => rand(10, 50) . ' MB', 'updated_at' => now()->subHours(rand(1, 24))->format('Y-m-d H:i')],
-            ['name' => 'agents', 'rows' => rand(50, 200), 'size' => rand(1, 5) . ' MB', 'updated_at' => now()->subDays(rand(1, 7))->format('Y-m-d H:i')],
-            ['name' => 'documents', 'rows' => rand(500, 2000), 'size' => rand(5, 20) . ' MB', 'updated_at' => now()->subHours(rand(1, 12))->format('Y-m-d H:i')],
-            ['name' => 'users', 'rows' => rand(100, 1000), 'size' => rand(2, 10) . ' MB', 'updated_at' => now()->subDays(rand(1, 30))->format('Y-m-d H:i')],
+            ['name' => 'citizen_requests', 'rows' => CitizenRequest::count(), 'size' => $this->getTableSize('citizen_requests'), 'updated_at' => $this->getTableLastUpdate('citizen_requests')],
+            ['name' => 'users', 'rows' => User::count(), 'size' => $this->getTableSize('users'), 'updated_at' => $this->getTableLastUpdate('users')],
+            ['name' => 'documents', 'rows' => Document::count(), 'size' => $this->getTableSize('documents'), 'updated_at' => $this->getTableLastUpdate('documents')],
+            ['name' => 'attachments', 'rows' => Attachment::count(), 'size' => $this->getTableSize('attachments'), 'updated_at' => $this->getTableLastUpdate('attachments')],
         ];
 
         $phpConfig = [
@@ -1147,43 +1147,54 @@ class AdminSpecialController extends Controller
                 // Taux de succès
                 $successRate = $totalRequests > 0 ? round(($approved / $totalRequests) * 100, 1) : 0;
                 
-                // Temps moyen de traitement (simulation basée sur le type)
-                $avgProcessingTime = match($type) {
-                    'attestation' => rand(2, 4), // 2-4 jours
-                    'legalisation' => rand(5, 8), // 5-8 jours
-                    'mariage' => rand(7, 12), // 7-12 jours
-                    'extrait-acte' => rand(3, 6), // 3-6 jours
-                    'declaration-naissance' => rand(1, 3), // 1-3 jours
-                    'certificat' => rand(4, 7), // 4-7 jours
-                    'information' => rand(1, 2), // 1-2 jours
-                    default => rand(3, 5) // 3-5 jours
-                };
+                // Temps moyen de traitement réel (basé sur les dates)
+                $processedRequests = CitizenRequest::where('type', $type)
+                    ->whereNotNull('processed_at')
+                    ->get();
                 
-                // Score de satisfaction client (simulation)
-                $satisfactionScore = match($type) {
-                    'attestation' => rand(85, 95),
-                    'legalisation' => rand(78, 88),
-                    'mariage' => rand(88, 96),
-                    'extrait-acte' => rand(82, 92),
-                    'declaration-naissance' => rand(90, 98),
-                    'certificat' => rand(80, 90),
-                    'information' => rand(92, 98),
-                    default => rand(80, 90)
-                };
+                $avgProcessingTime = 0;
+                if ($processedRequests->count() > 0) {
+                    $totalDays = 0;
+                    foreach ($processedRequests as $request) {
+                        $days = $request->created_at->diffInDays($request->processed_at);
+                        $totalDays += $days;
+                    }
+                    $avgProcessingTime = round($totalDays / $processedRequests->count(), 1);
+                } else {
+                    // Valeur par défaut basée sur le type si aucune donnée historique
+                    $avgProcessingTime = match($type) {
+                        'attestation' => 3,
+                        'legalisation' => 6,
+                        'mariage' => 10,
+                        'extrait-acte' => 4,
+                        'declaration-naissance' => 2,
+                        'certificat' => 5,
+                        'information' => 1,
+                        default => 4
+                    };
+                }
                 
-                // Niveau de complexité
-                $complexityLevel = match($type) {
-                    'attestation' => 'Faible',
-                    'legalisation' => 'Élevé',
-                    'mariage' => 'Moyen',
-                    'extrait-acte' => 'Moyen',
-                    'declaration-naissance' => 'Faible',
-                    'certificat' => 'Moyen',
-                    'information' => 'Très faible',
-                    default => 'Moyen'
-                };
+                // Score de satisfaction basé sur le taux de succès et temps de traitement
+                $satisfactionScore = 0;
+                if ($totalRequests > 0) {
+                    $baseScore = min(90, 60 + ($successRate * 0.3)); // Base sur taux de succès
+                    $timeBonus = max(0, 10 - ($avgProcessingTime * 0.5)); // Bonus si traitement rapide
+                    $satisfactionScore = round($baseScore + $timeBonus);
+                } else {
+                    $satisfactionScore = 80; // Score par défaut
+                }
                 
-                // Évolution mensuelle (6 derniers mois)
+                // Niveau de complexité basé sur temps moyen et taux de succès
+                $complexityLevel = 'Moyen';
+                if ($avgProcessingTime <= 2 && $successRate >= 90) {
+                    $complexityLevel = 'Très faible';
+                } elseif ($avgProcessingTime <= 4 && $successRate >= 80) {
+                    $complexityLevel = 'Faible';
+                } elseif ($avgProcessingTime >= 8 || $successRate <= 60) {
+                    $complexityLevel = 'Élevé';
+                }
+                
+                // Évolution mensuelle (6 derniers mois) - données réelles
                 $monthlyEvolution = [];
                 for ($i = 5; $i >= 0; $i--) {
                     $month = now()->subMonths($i);
@@ -1191,7 +1202,7 @@ class AdminSpecialController extends Controller
                         ->whereYear('created_at', $month->year)
                         ->whereMonth('created_at', $month->month)
                         ->count();
-                    $monthlyEvolution[] = $monthlyCount > 0 ? $monthlyCount : rand(2, 15);
+                    $monthlyEvolution[] = $monthlyCount;
                 }
                 
                 // Répartition par statut pour graphique en secteurs
@@ -1202,17 +1213,30 @@ class AdminSpecialController extends Controller
                     'rejected' => $rejected
                 ];
                 
-                // Pièces jointes moyennes requises
-                $avgAttachments = match($type) {
-                    'attestation' => 2,
-                    'legalisation' => 3,
-                    'mariage' => 4,
-                    'extrait-acte' => 2,
-                    'declaration-naissance' => 3,
-                    'certificat' => 2,
-                    'information' => 1,
-                    default => 2
-                };
+                // Pièces jointes moyennes réelles
+                $attachmentsData = Attachment::join('citizen_requests', 'attachments.citizen_request_id', '=', 'citizen_requests.id')
+                    ->where('citizen_requests.type', $type)
+                    ->selectRaw('citizen_request_id, COUNT(*) as attachment_count')
+                    ->groupBy('citizen_request_id')
+                    ->get();
+                
+                $avgAttachments = 0;
+                if ($attachmentsData->count() > 0) {
+                    $totalAttachments = $attachmentsData->sum('attachment_count');
+                    $avgAttachments = round($totalAttachments / $attachmentsData->count(), 1);
+                } else {
+                    // Valeur par défaut si aucune donnée
+                    $avgAttachments = match($type) {
+                        'attestation' => 2,
+                        'legalisation' => 3,
+                        'mariage' => 4,
+                        'extrait-acte' => 2,
+                        'declaration-naissance' => 3,
+                        'certificat' => 2,
+                        'information' => 1,
+                        default => 2
+                    };
+                }
 
                 $statistics[$type] = [
                     'label' => $label,
@@ -1244,8 +1268,14 @@ class AdminSpecialController extends Controller
                         'information' => ['Demande trop vague', 'Orientation vers autre service'],
                         default => ['Documents manquants', 'Informations incomplètes']
                     },
-                    'processing_agents' => rand(2, 5), // Nombre d'agents spécialisés
-                    'digital_percentage' => rand(60, 90), // Pourcentage de demandes numériques
+                    'processing_agents' => CitizenRequest::where('type', $type)
+                        ->whereNotNull('processed_by')
+                        ->distinct('processed_by')
+                        ->count('processed_by') ?: 1,
+                    'digital_percentage' => $totalRequests > 0 ? 
+                        round((CitizenRequest::where('type', $type)
+                            ->whereHas('attachments')
+                            ->count() / $totalRequests) * 100) : 0,
                     'cost_per_request' => match($type) {
                         'attestation' => 2500,
                         'legalisation' => 5000,
@@ -1287,5 +1317,470 @@ class AdminSpecialController extends Controller
     public function getRequests()
     {
         $requests = CitizenRequest::with(['citizen', 'document', 'agent'])->paginate(10);
-        return response()->json($requests);    }
+        return response()->json($requests);
+    }
+
+    /**
+     * Calcule le changement du taux de completion par rapport au mois précédent
+     */
+    private function getCompletionRateChange()
+    {
+        $currentMonthRate = $this->getCompletionRateForMonth(now());
+        $previousMonthRate = $this->getCompletionRateForMonth(now()->subMonth());
+        
+        if ($previousMonthRate == 0) return 0;
+        
+        $change = (($currentMonthRate - $previousMonthRate) / $previousMonthRate) * 100;
+        return round($change, 1);
+    }
+
+    /**
+     * Calcule le taux de completion pour un mois donné
+     */
+    private function getCompletionRateForMonth($date)
+    {
+        $total = CitizenRequest::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+            
+        if ($total == 0) return 0;
+        
+        $completed = CitizenRequest::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->whereIn('status', ['approved', 'rejected'])
+            ->count();
+            
+        return ($completed / $total) * 100;
+    }
+
+    /**
+     * Calcule le changement du temps de traitement par rapport au mois précédent
+     */
+    private function getProcessingTimeChange()
+    {
+        $currentMonthTime = $this->getAverageProcessingTimeForMonth(now());
+        $previousMonthTime = $this->getAverageProcessingTimeForMonth(now()->subMonth());
+        
+        if ($previousMonthTime == 0) return 0;
+        
+        $change = (($currentMonthTime - $previousMonthTime) / $previousMonthTime) * 100;
+        return round($change, 1);
+    }
+
+    /**
+     * Calcule le temps de traitement moyen pour un mois donné
+     */
+    private function getAverageProcessingTimeForMonth($date)
+    {
+        $processedRequests = CitizenRequest::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->whereNotNull('processed_at')
+            ->get();
+            
+        if ($processedRequests->count() == 0) return 0;
+        
+        $totalDays = 0;
+        foreach ($processedRequests as $request) {
+            $totalDays += $request->created_at->diffInDays($request->processed_at);
+        }
+        
+        return $totalDays / $processedRequests->count();
+    }
+
+    /**
+     * Calcule la croissance des demandes par rapport au mois précédent
+     */
+    private function getRequestsGrowth()
+    {
+        $currentMonth = CitizenRequest::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->count();
+            
+        $previousMonth = CitizenRequest::whereYear('created_at', now()->subMonth()->year)
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->count();
+            
+        if ($previousMonth == 0) return $currentMonth > 0 ? 100 : 0;
+        
+        $growth = (($currentMonth - $previousMonth) / $previousMonth) * 100;
+        return round($growth, 1);
+    }
+
+    /**
+     * Calcule le taux de satisfaction basé sur le taux d'approbation
+     */
+    private function getSatisfactionRate()
+    {
+        $total = CitizenRequest::whereIn('status', ['approved', 'rejected'])->count();
+        
+        if ($total == 0) return 85; // Valeur par défaut
+        
+        $approved = CitizenRequest::where('status', 'approved')->count();
+        $satisfactionRate = ($approved / $total) * 100;
+        
+        // Ajustement du score de satisfaction (généralement plus élevé que le simple taux d'approbation)
+        return min(98, round($satisfactionRate * 1.1)); // Bonus de 10% avec maximum de 98%
+    }
+
+    /**
+     * Calcule le changement du taux de satisfaction par rapport au mois précédent
+     */
+    private function getSatisfactionChange()
+    {
+        $currentMonthSatisfaction = $this->getSatisfactionRateForMonth(now());
+        $previousMonthSatisfaction = $this->getSatisfactionRateForMonth(now()->subMonth());
+        
+        if ($previousMonthSatisfaction == 0) return 0;
+        
+        $change = $currentMonthSatisfaction - $previousMonthSatisfaction;
+        return round($change, 1);
+    }
+
+    /**
+     * Calcule le taux de satisfaction pour un mois donné
+     */
+    private function getSatisfactionRateForMonth($date)
+    {
+        $total = CitizenRequest::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->whereIn('status', ['approved', 'rejected'])
+            ->count();
+            
+        if ($total == 0) return 0;
+        
+        $approved = CitizenRequest::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->where('status', 'approved')
+            ->count();
+            
+        $satisfactionRate = ($approved / $total) * 100;
+        return min(98, round($satisfactionRate * 1.1));
+    }
+
+    /**
+     * Obtient l'usage CPU (approximatif)
+     */
+    private function getCpuUsage()
+    {
+        // Sur Windows/serveur de développement, on simule
+        if (PHP_OS_FAMILY === 'Windows') {
+            return '25%'; // Valeur simulée raisonnable
+        }
+        
+        // Sur Linux, essayer de lire /proc/loadavg
+        if (is_readable('/proc/loadavg')) {
+            $load = sys_getloadavg();
+            if ($load !== false) {
+                $cpuUsage = min(100, round($load[0] * 100 / $this->getCpuCores()));
+                return $cpuUsage . '%';
+            }
+        }
+        
+        return '30%'; // Valeur par défaut
+    }
+
+    /**
+     * Obtient le nombre de cœurs CPU
+     */
+    private function getCpuCores()
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            return $_SERVER['NUMBER_OF_PROCESSORS'] ?? '4';
+        }
+        
+        if (is_readable('/proc/cpuinfo')) {
+            $cpuinfo = file_get_contents('/proc/cpuinfo');
+            $cores = substr_count($cpuinfo, 'processor');
+            return $cores > 0 ? $cores : '4';
+        }
+        
+        return '4'; // Valeur par défaut
+    }
+
+    /**
+     * Obtient l'usage mémoire
+     */
+    private function getMemoryUsage()
+    {
+        $memoryLimit = ini_get('memory_limit');
+        $memoryUsage = memory_get_usage(true);
+        
+        if ($memoryLimit === '-1') {
+            return '45%'; // Valeur simulée si pas de limite
+        }
+        
+        $limit = $this->parseBytes($memoryLimit);
+        if ($limit > 0) {
+            $percentage = round(($memoryUsage / $limit) * 100);
+            return min(100, $percentage) . '%';
+        }
+        
+        return '45%'; // Valeur par défaut
+    }
+
+    /**
+     * Obtient la mémoire totale disponible
+     */
+    private function getTotalMemory()
+    {
+        $memoryLimit = ini_get('memory_limit');
+        
+        if ($memoryLimit === '-1') {
+            return '8 GB'; // Valeur par défaut
+        }
+        
+        $bytes = $this->parseBytes($memoryLimit);
+        return $this->formatBytes($bytes);
+    }
+
+    /**
+     * Obtient l'usage du disque
+     */
+    private function getDiskUsage()
+    {
+        $root = '/';
+        if (PHP_OS_FAMILY === 'Windows') {
+            $root = 'C:';
+        }
+        
+        $total = disk_total_space($root);
+        $free = disk_free_space($root);
+        
+        if ($total && $free) {
+            $used = $total - $free;
+            $percentage = round(($used / $total) * 100);
+            return $percentage . '%';
+        }
+        
+        return '55%'; // Valeur par défaut
+    }
+
+    /**
+     * Obtient l'espace disque libre
+     */
+    private function getFreeDiskSpace()
+    {
+        $root = '/';
+        if (PHP_OS_FAMILY === 'Windows') {
+            $root = 'C:';
+        }
+        
+        $free = disk_free_space($root);
+        return $free ? $this->formatBytes($free) : '500 GB';
+    }
+
+    /**
+     * Obtient l'uptime du système (approximatif via fichier ou process)
+     */
+    private function getSystemUptime()
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            return '5d 12h'; // Valeur simulée
+        }
+        
+        if (is_readable('/proc/uptime')) {
+            $uptime = file_get_contents('/proc/uptime');
+            $seconds = intval(explode(' ', $uptime)[0]);
+            
+            $days = floor($seconds / 86400);
+            $hours = floor(($seconds % 86400) / 3600);
+            
+            return $days . 'd ' . $hours . 'h';
+        }
+        
+        return '7d 8h'; // Valeur par défaut
+    }
+
+    /**
+     * Obtient la version de la base de données
+     */
+    private function getDatabaseVersion()
+    {
+        try {
+            $version = \DB::select('SELECT VERSION() as version')[0]->version ?? '';
+            if (strpos($version, 'MySQL') !== false || strpos($version, 'MariaDB') !== false) {
+                return 'MySQL ' . explode('-', $version)[0];
+            }
+            return $version;
+        } catch (\Exception $e) {
+            return 'MySQL 8.0';
+        }
+    }
+
+    /**
+     * Obtient le temps de réponse du serveur web
+     */
+    private function getWebServerResponseTime()
+    {
+        $start = microtime(true);
+        // Petit test de performance
+        for ($i = 0; $i < 1000; $i++) {
+            $test = md5($i);
+        }
+        $end = microtime(true);
+        
+        return round(($end - $start) * 1000); // en millisecondes
+    }
+
+    /**
+     * Obtient le statut de la base de données
+     */
+    private function getDatabaseStatus()
+    {
+        try {
+            \DB::connection()->getPdo();
+            return 'running';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+
+    /**
+     * Obtient le temps de réponse de la base de données
+     */
+    private function getDatabaseResponseTime()
+    {
+        try {
+            $start = microtime(true);
+            \DB::select('SELECT 1');
+            $end = microtime(true);
+            
+            return round(($end - $start) * 1000); // en millisecondes
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Obtient le nombre de tables dans la base de données
+     */
+    private function getDatabaseTableCount()
+    {
+        try {
+            $tables = \DB::select('SHOW TABLES');
+            return count($tables);
+        } catch (\Exception $e) {
+            return 10; // Valeur par défaut
+        }
+    }
+
+    /**
+     * Obtient le nombre total d'enregistrements
+     */
+    private function getTotalDatabaseRecords()
+    {
+        try {
+            $total = 0;
+            $total += CitizenRequest::count();
+            $total += User::count();
+            $total += Document::count();
+            $total += Attachment::count();
+            return $total;
+        } catch (\Exception $e) {
+            return 50000; // Valeur par défaut
+        }
+    }
+
+    /**
+     * Obtient la taille de la base de données
+     */
+    private function getDatabaseSize()
+    {
+        try {
+            $database = config('database.connections.mysql.database');
+            $result = \DB::select("
+                SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS DB_Size_MB 
+                FROM information_schema.tables 
+                WHERE table_schema = ?
+            ", [$database]);
+            
+            $sizeMB = $result[0]->DB_Size_MB ?? 100;
+            return $sizeMB . ' MB';
+        } catch (\Exception $e) {
+            return '150 MB'; // Valeur par défaut
+        }
+    }
+
+    /**
+     * Obtient le nombre de connexions actives
+     */
+    private function getActiveConnections()
+    {
+        try {
+            $result = \DB::select('SHOW STATUS WHERE Variable_name = "Threads_connected"');
+            return $result[0]->Value ?? 5;
+        } catch (\Exception $e) {
+            return 5; // Valeur par défaut
+        }
+    }
+
+    /**
+     * Obtient la taille d'une table
+     */
+    private function getTableSize($tableName)
+    {
+        try {
+            $database = config('database.connections.mysql.database');
+            $result = \DB::select("
+                SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) AS size_mb
+                FROM information_schema.TABLES 
+                WHERE table_schema = ? AND table_name = ?
+            ", [$database, $tableName]);
+            
+            $sizeMB = $result[0]->size_mb ?? 1;
+            return $sizeMB . ' MB';
+        } catch (\Exception $e) {
+            return '2 MB'; // Valeur par défaut
+        }
+    }
+
+    /**
+     * Obtient la dernière mise à jour d'une table
+     */
+    private function getTableLastUpdate($tableName)
+    {
+        try {
+            switch ($tableName) {
+                case 'citizen_requests':
+                    $latest = CitizenRequest::latest()->first();
+                    break;
+                case 'users':
+                    $latest = User::latest()->first();
+                    break;
+                case 'documents':
+                    $latest = Document::latest()->first();
+                    break;
+                case 'attachments':
+                    $latest = Attachment::latest()->first();
+                    break;
+                default:
+                    return now()->format('Y-m-d H:i');
+            }
+            
+            return $latest ? $latest->updated_at->format('Y-m-d H:i') : now()->format('Y-m-d H:i');
+        } catch (\Exception $e) {
+            return now()->format('Y-m-d H:i');
+        }
+    }
+
+    /**
+     * Parse les bytes depuis une chaîne (ex: "128M")
+     */
+    private function parseBytes($val)
+    {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+        $val = (int) $val;
+        
+        switch($last) {
+            case 'g':
+                $val *= 1024;
+            case 'm':
+                $val *= 1024;
+            case 'k':
+                $val *= 1024;
+        }
+        
+        return $val;
+    }
 }

@@ -206,6 +206,81 @@
                                 </svg>
                                 <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
+
+                            <!-- Dropdown des notifications -->
+                            <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+                                <div class="px-4 py-3 border-b border-gray-200">
+                                    <h3 class="text-lg font-semibold text-gray-800">Notifications</h3>
+                                </div>
+                                <div class="max-h-64 overflow-y-auto">
+                                    <!-- Notification 1 -->
+                                    <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-info text-white text-xs"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3 flex-1">
+                                                <p class="text-sm font-medium text-gray-800">Nouvelle demande reçue</p>
+                                                <p class="text-xs text-gray-500 mt-1">Une nouvelle demande d'attestation a été soumise</p>
+                                                <p class="text-xs text-gray-400 mt-1">Il y a 5 minutes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Notification 2 -->
+                                    <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-check text-white text-xs"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3 flex-1">
+                                                <p class="text-sm font-medium text-gray-800">Demande approuvée</p>
+                                                <p class="text-xs text-gray-500 mt-1">La demande REQ-2025-ABC123 a été approuvée</p>
+                                                <p class="text-xs text-gray-400 mt-1">Il y a 1 heure</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Notification 3 -->
+                                    <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-exclamation text-white text-xs"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3 flex-1">
+                                                <p class="text-sm font-medium text-gray-800">Système de sauvegarde</p>
+                                                <p class="text-xs text-gray-500 mt-1">Sauvegarde automatique terminée avec succès</p>
+                                                <p class="text-xs text-gray-400 mt-1">Il y a 2 heures</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Notification 4 -->
+                                    <div class="px-4 py-3 hover:bg-gray-50">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0">
+                                                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-users text-white text-xs"></i>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3 flex-1">
+                                                <p class="text-sm font-medium text-gray-800">Nouvel agent inscrit</p>
+                                                <p class="text-xs text-gray-500 mt-1">Un nouvel agent s'est inscrit sur la plateforme</p>
+                                                <p class="text-xs text-gray-400 mt-1">Il y a 4 heures</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 border-t border-gray-200">
+                                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Voir toutes les notifications</a>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- User Menu -->

@@ -739,8 +739,8 @@ class AdminSpecialController extends Controller
                 'success_rate' => rand(70, 85),
                 'color' => '#ef4444'
             ],
-            'Casier Judiciaire' => [
-                'name' => 'Casier Judiciaire',
+            'Déclaration de Naissance' => [
+                'name' => 'Déclaration de Naissance',
                 'total' => rand(150, 500),
                 'avg_time' => rand(10, 30) . ' min',
                 'success_rate' => rand(90, 99),

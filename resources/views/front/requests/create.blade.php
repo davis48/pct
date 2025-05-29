@@ -33,6 +33,7 @@
                             <option value="legalisation" {{ old('type') == 'legalisation' ? 'selected' : '' }}>Légalisation de document</option>
                             <option value="mariage" {{ old('type') == 'mariage' ? 'selected' : '' }}>Certificat de mariage</option>
                             <option value="extrait-acte" {{ old('type') == 'extrait-acte' ? 'selected' : '' }}>Extrait d'acte de naissance</option>
+                            <option value="declaration-naissance" {{ old('type') == 'declaration-naissance' ? 'selected' : '' }}>Déclaration de naissance</option>
                             <option value="certificat" {{ old('type') == 'certificat' ? 'selected' : '' }}>Certificat de célibat</option>
                             <option value="information" {{ old('type') == 'information' ? 'selected' : '' }}>Demande d'information</option>
                             <option value="autre" {{ old('type') == 'autre' ? 'selected' : '' }}>Autre</option>

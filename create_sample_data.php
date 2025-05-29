@@ -85,11 +85,11 @@ $documents = [
         'status' => 'active'
     ],
     [
-        'title' => 'Casier Judiciaire',
-        'description' => 'Bulletin de casier judiciaire',
-        'category' => 'judiciaire',
-        'file_path' => '/documents/templates/casier-judiciaire.pdf',
-        'is_public' => false,
+        'title' => 'Déclaration de Naissance',
+        'description' => 'Formulaire de déclaration de naissance',
+        'category' => 'etat-civil',
+        'file_path' => '/documents/templates/declaration-naissance.pdf',
+        'is_public' => true,
         'status' => 'active'
     ],
     [

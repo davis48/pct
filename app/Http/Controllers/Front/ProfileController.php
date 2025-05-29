@@ -26,6 +26,9 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        // Log les données soumises pour débogage
+        \Log::info('Données du formulaire de mise à jour de profil:', $request->all());
+
         $validated = $request->validate([
             'nom' => ['required', 'string', 'max:100'],
             'prenoms' => ['required', 'string', 'max:155'],
@@ -37,6 +40,9 @@ class ProfileController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'profile_photo' => ['nullable', 'image', 'max:2048'], // max 2MB
         ]);
+
+        // Log les données validées
+        \Log::info('Données validées:', $validated);
 
         if ($request->hasFile('profile_photo')) {
             // Supprimer l'ancienne photo si elle existe
@@ -51,17 +57,25 @@ class ProfileController extends Controller
 
         $user->nom = $validated['nom'];
         $user->prenoms = $validated['prenoms'];
+        $user->email = $validated['email'];
+        $user->phone = $validated['phone'] ?? null;
+        $user->address = $validated['address'] ?? null;
+        
+        // Correction pour date_naissance et genre
         $user->date_naissance = $validated['date_naissance'];
         $user->genre = $validated['genre'];
-        $user->email = $validated['email'];
-        $user->phone = $validated['phone'];
-        $user->address = $validated['address'];
+        
+        // Log les données avant enregistrement
+        \Log::info('Données utilisateur avant sauvegarde:', $user->toArray());
 
         if ($request->filled('password')) {
             $user->password = Hash::make($validated['password']);
         }
 
         $user->save();
+        
+        // Log après sauvegarde
+        \Log::info('Utilisateur sauvegardé avec ID: ' . $user->id);
 
         return redirect()->route('profile.edit')
             ->with('success', 'Profil mis à jour avec succès.');

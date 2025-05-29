@@ -974,13 +974,13 @@ class AdminSpecialController extends Controller
     private function getChartData()
     {
         $labels = [];
-        $requests = [];
+        $requestsData = [];
         $processed = [];
         
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
             $labels[] = $date->format('d/m');
-            $requests[] = rand(20, 80);
+            $requestsData[] = rand(20, 80);
             $processed[] = rand(15, 70);
         }
         
@@ -991,9 +991,14 @@ class AdminSpecialController extends Controller
         ];
         
         return [
-            'labels' => $labels,
-            'requests' => $requests,
-            'processed' => $processed,
+            'requests' => [
+                'labels' => $labels,
+                'data' => $requestsData
+            ],
+            'processed' => [
+                'labels' => $labels,
+                'data' => $processed
+            ],
             'document_types' => $documentTypesData
         ];
     }

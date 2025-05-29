@@ -20,12 +20,16 @@
                                 @csrf
                                 <input type="hidden" name="role" value="{{ $selectedRole }}">
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                           id="email" name="email" value="{{ old('email') }}" required autofocus>
-                                    @error('email')
+                                    <label for="login" class="form-label">Email ou Numéro de téléphone</label>
+                                    <input type="text" class="form-control @error('login') is-invalid @enderror"
+                                           id="login" name="login" value="{{ old('login') }}" required autofocus
+                                           placeholder="exemple@email.com ou +225 XX XX XX XX">
+                                    @error('login')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    <div class="form-text">
+                                        Vous pouvez vous connecter avec votre email ou votre numéro de téléphone.
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Mot de passe</label>

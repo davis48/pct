@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -83,30 +84,34 @@ class HomeController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'login' => ['required', 'string'], // Peut être email ou téléphone
             'password' => ['required'],
             'role' => ['required', 'string', 'in:agent,citizen'],
         ]);
 
-        // Get the user first to check their role
-        $user = User::where('email', $request->email)->first();
+        // Détecter si c'est un email ou un numéro de téléphone
+        $login = $request->login;
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        
+        // Rechercher l'utilisateur par email ou téléphone
+        $user = User::where($field, $login)->first();
 
         if (!$user) {
             return back()->withErrors([
-                'email' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
-            ])->onlyInput('email');
+                'login' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
+            ])->onlyInput('login');
         }
 
-        // Check if the selected role matches the user's role
+        // Vérifier si le rôle sélectionné correspond au rôle de l'utilisateur
         if ($user->role !== $request->role) {
             return back()->withErrors([
                 'role' => 'Vous ne pouvez pas vous connecter avec ce rôle.',
-            ])->onlyInput('email', 'role');
+            ])->onlyInput('login', 'role');
         }
 
-        // Attempt authentication with only email and password
+        // Tentative d'authentification
         $authCredentials = [
-            'email' => $request->email,
+            $field => $login,
             'password' => $request->password,
         ];
 
@@ -118,14 +123,15 @@ class HomeController extends Controller
                 return redirect()->intended('/admin/dashboard');
             } elseif (Auth::user()->isAgent()) {
                 return redirect()->intended('/agent/dashboard');
+            } else {
+                // Rediriger les citoyens vers leur espace dédié
+                return redirect()->intended(route('citizen.dashboard'));
             }
-
-            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('email');
+            'login' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
+        ])->onlyInput('login');
     }
 
     /**
@@ -140,7 +146,7 @@ class HomeController extends Controller
             'genre' => ['required', 'string', 'in:M,F,Autre'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['required', 'string', 'max:20', 'unique:users'], // Rendre le téléphone obligatoire
             'address' => ['nullable', 'string', 'max:255'],
             'role' => ['required', 'string', 'in:citizen'],
         ]);
@@ -159,6 +165,10 @@ class HomeController extends Controller
 
         event(new Registered($user));
 
+        // Envoyer une notification de bienvenue
+        $notificationService = new NotificationService();
+        $notificationService->sendWelcomeNotification($user);
+
         Auth::login($user);
 
         // Redirection selon le rôle
@@ -166,7 +176,8 @@ class HomeController extends Controller
             return redirect('/agent/dashboard');
         }
 
-        return redirect('/dashboard');
+        // Rediriger les citoyens vers leur espace dédié
+        return redirect()->route('citizen.dashboard');
     }
 
     /**

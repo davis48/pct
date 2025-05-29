@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CitizenRequest;
 use App\Models\Attachment;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -100,6 +101,7 @@ class RequestController extends Controller
         ]);
 
         $citizenRequest = CitizenRequest::findOrFail($id);
+        $oldStatus = $citizenRequest->status;
         
         $citizenRequest->update([
             'status' => $validated['status'],
@@ -107,6 +109,10 @@ class RequestController extends Controller
             'processed_by' => Auth::id(),
             'processed_at' => now()
         ]);
+
+        // Envoyer une notification au citoyen
+        $notificationService = new NotificationService();
+        $notificationService->sendStatusChangeNotification($citizenRequest, $oldStatus, $validated['status']);
 
         $statusMessage = $validated['status'] === 'approved' ? 'approuvée' : 'rejetée';
         
@@ -155,11 +161,19 @@ class RequestController extends Controller
     public function assign(Request $request, string $id)
     {
         $citizenRequest = CitizenRequest::findOrFail($id);
+        $oldStatus = $citizenRequest->status;
         
         $citizenRequest->update([
             'assigned_to' => Auth::id(),
             'status' => 'in_progress'
         ]);
+
+        // Envoyer une notification d'assignation au citoyen
+        $notificationService = new NotificationService();
+        $notificationService->sendAssignmentNotification($citizenRequest, Auth::user());
+        
+        // Envoyer aussi une notification de changement de statut
+        $notificationService->sendStatusChangeNotification($citizenRequest, $oldStatus, 'in_progress');
 
         // Rediriger vers la page de traitement au lieu de retourner un JSON
         return redirect()->route('agent.requests.process', $citizenRequest->id)

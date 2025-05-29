@@ -16,8 +16,13 @@
                 </li>
                 @auth
                 <li class="nav-item mx-2">
+                    <a class="nav-link px-3 py-2 rounded-pill {{ request()->is('dashboard') ? 'active bg-white bg-opacity-10' : '' }} hover-grow" href="{{ url('/dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                    </a>
+                </li>
+                <li class="nav-item mx-2">
                     <a class="nav-link px-3 py-2 rounded-pill {{ request()->is('requests*') ? 'active bg-white bg-opacity-10' : '' }} hover-grow" href="{{ url('/requests') }}">
-                        <i class="fas fa-file-alt me-2"></i>Faire une demande
+                        <i class="fas fa-file-alt me-2"></i>Mes demandes
                     </a>
                 </li>
                 <li class="nav-item mx-2">
@@ -31,10 +36,19 @@
             <div class="d-flex align-items-center">
                 @if (Auth::check())
                     <div class="dropdown">
-                        <button class="btn btn-link nav-link dropdown-toggle text-white text-decoration-none" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-2"></i>{{ Auth::user()->nom }} {{ Auth::user()->prenoms }}
+                        <button class="btn btn-link nav-link dropdown-toggle text-white text-decoration-none d-flex align-items-center" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            @if(Auth::user()->profile_photo)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" class="rounded-circle me-2" width="30" height="30" alt="Photo de profil">
+                            @else
+                                <i class="fas fa-user-circle me-2 fa-lg"></i>
+                            @endif
+                            <span>{{ Auth::user()->nom }} {{ Auth::user()->prenoms }}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userMenuButton">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenuButton">
+                            <li class="px-3 py-1 text-muted small">
+                                <i class="fas fa-id-badge me-1"></i>{{ Auth::user()->isAdmin() ? 'Administrateur' : (Auth::user()->isAgent() ? 'Agent' : 'Citoyen') }}
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 @php
                                     $dashboardUrl = '/dashboard';
@@ -46,6 +60,11 @@
                                 @endphp
                                 <a class="dropdown-item" href="{{ url($dashboardUrl) }}">
                                     <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                    <i class="fas fa-user-edit me-2"></i>Modifier mon profil
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>

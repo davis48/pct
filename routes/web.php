@@ -87,6 +87,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
     Route::post('/requests', [RequestController::class, 'store'])->name('requests.store');
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
+    
+    // Espace citoyen
+    Route::prefix('citizen')->name('citizen.')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Citizen\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/requests/updates', [\App\Http\Controllers\Citizen\DashboardController::class, 'getRequestUpdates'])->name('requests.updates');
+        Route::get('/notifications', [\App\Http\Controllers\Citizen\DashboardController::class, 'getNotifications'])->name('notifications');
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\Citizen\DashboardController::class, 'markNotificationAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\Citizen\DashboardController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
+        Route::get('/request/{id}', [\App\Http\Controllers\Citizen\DashboardController::class, 'showRequest'])->name('request.show');
+        Route::get('/request/{id}/updates', function($id) {
+            $request = \App\Models\CitizenRequest::findOrFail($id);
+            return response()->json(['status' => $request->status]);
+        })->name('request.updates');
+    });
 });
 
 // Les routes admin sont maintenant entièrement définies dans routes/admin.php

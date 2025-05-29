@@ -43,7 +43,16 @@ Route::get('/mot-de-passe-oublie', function() {
 
 // Routes protégées pour les utilisateurs connectés
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+    // Redirection automatique vers le bon tableau de bord selon le rôle
+    Route::get('/dashboard', function() {
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        } elseif (Auth::user()->isAgent()) {
+            return redirect()->route('agent.dashboard');
+        } else {
+            return redirect()->route('citizen.dashboard');
+        }
+    })->name('dashboard');
 });
 
 // Admin test route directly in web.php
@@ -72,8 +81,6 @@ Route::get('/admin-view-test', function() {
 
 // Routes protégées par authentification
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-
     // Gestion du profil
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
@@ -87,6 +94,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
     Route::post('/requests', [RequestController::class, 'store'])->name('requests.store');
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
+    
+    // Gestion des paiements
+    Route::get('/payments/{request}', [\App\Http\Controllers\Front\PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{request}/initialize', [\App\Http\Controllers\Front\PaymentController::class, 'initialize'])->name('payments.initialize');
+    Route::get('/payments/{payment}/process', [\App\Http\Controllers\Front\PaymentController::class, 'process'])->name('payments.process');
+    Route::post('/payments/{payment}/simulate', [\App\Http\Controllers\Front\PaymentController::class, 'simulateMobileMoneyPayment'])->name('payments.simulate');
+    Route::get('/payments/{payment}/status', [\App\Http\Controllers\Front\PaymentController::class, 'status'])->name('payments.status');
+    Route::get('/payments/{payment}/cancel', [\App\Http\Controllers\Front\PaymentController::class, 'cancel'])->name('payments.cancel');
     
     // Espace citoyen
     Route::prefix('citizen')->name('citizen.')->group(function () {

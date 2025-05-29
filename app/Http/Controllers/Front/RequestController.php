@@ -84,17 +84,20 @@ class RequestController extends Controller
         }
 
         // Création de la demande
-        CitizenRequest::create([
+        $citizenRequest = CitizenRequest::create([
             'user_id' => Auth::id(),
             'document_id' => $request->document_id,
             'type' => $request->type,
             'description' => $request->description,
             'attachments' => $attachments,
-            'status' => 'pending',
+            'status' => 'draft', // La demande est en brouillon jusqu'au paiement
+            'payment_status' => 'unpaid',
+            'payment_required' => true,
         ]);
 
-        return redirect()->route('requests.index')
-            ->with('success', 'Votre demande a été soumise avec succès avec ' . count($attachments) . ' pièce(s) jointe(s).');
+        // Rediriger vers la page de paiement
+        return redirect()->route('payments.show', $citizenRequest)
+            ->with('success', 'Votre demande a été créée avec succès. Veuillez procéder au paiement pour finaliser votre demande.');
     }
 
     /**

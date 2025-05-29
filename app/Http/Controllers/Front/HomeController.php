@@ -53,14 +53,6 @@ class HomeController extends Controller
     }
 
     /**
-     * Affiche le tableau de bord utilisateur
-     */
-    public function dashboard()
-    {
-        return view('front.dashboard');
-    }
-
-    /**
      * Affiche la page de sélection du rôle
      */
     public function chooseRole()
@@ -68,11 +60,11 @@ class HomeController extends Controller
         if (Auth::check()) {
             // Si l'utilisateur est déjà connecté, le rediriger selon son rôle
             if (Auth::user()->isAdmin()) {
-                return redirect('/admin/dashboard');
+                return redirect()->route('admin.dashboard');
             } elseif (Auth::user()->isAgent()) {
-                return redirect('/agent/dashboard');
+                return redirect()->route('agent.dashboard');
             }
-            return redirect('/dashboard');
+            return redirect()->route('citizen.dashboard');
         }
 
         return view('front.choose-role');

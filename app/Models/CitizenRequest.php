@@ -28,6 +28,8 @@ class CitizenRequest extends Model
         'processed_by',
         'processed_at',
         'is_read',
+        'payment_status',
+        'payment_required',
     ];
 
     /**
@@ -120,6 +122,46 @@ class CitizenRequest extends Model
     public function agentAttachments()
     {
         return $this->hasMany(Attachment::class)->where('type', 'agent');
+    }
+
+    /**
+     * Get the payments for the citizen request.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get the latest payment for the citizen request.
+     */
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latest();
+    }
+
+    /**
+     * Check if the request has a successful payment.
+     */
+    public function hasSuccessfulPayment()
+    {
+        return $this->payments()->where('status', Payment::STATUS_COMPLETED)->exists();
+    }
+
+    /**
+     * Check if the request has a pending payment.
+     */
+    public function hasPendingPayment()
+    {
+        return $this->payments()->where('status', Payment::STATUS_PENDING)->exists();
+    }
+
+    /**
+     * Check if payment is required for this request.
+     */
+    public function requiresPayment()
+    {
+        return $this->payment_required ?? true;
     }
 
     /**

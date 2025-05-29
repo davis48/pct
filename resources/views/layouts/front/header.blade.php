@@ -16,7 +16,13 @@
                 </li>
                 @auth
                 <li class="nav-item mx-2">
-                    <a class="nav-link px-3 py-2 rounded-pill {{ request()->is('dashboard') ? 'active bg-white bg-opacity-10' : '' }} hover-grow" href="{{ url('/dashboard') }}">
+                    @if(Auth::user()->isAdmin())
+                        <a class="nav-link px-3 py-2 rounded-pill {{ request()->is('admin/dashboard') ? 'active bg-white bg-opacity-10' : '' }} hover-grow" href="{{ route('admin.dashboard') }}">
+                    @elseif(Auth::user()->isAgent())
+                        <a class="nav-link px-3 py-2 rounded-pill {{ request()->is('agent/dashboard') ? 'active bg-white bg-opacity-10' : '' }} hover-grow" href="{{ route('agent.dashboard') }}">
+                    @else
+                        <a class="nav-link px-3 py-2 rounded-pill {{ request()->is('citizen/dashboard') ? 'active bg-white bg-opacity-10' : '' }} hover-grow" href="{{ route('citizen.dashboard') }}">
+                    @endif
                         <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
                     </a>
                 </li>

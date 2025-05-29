@@ -53,25 +53,25 @@
                     <li class="mb-3">
                         <div class="d-flex">
                             <i class="fas fa-map-marker-alt me-3 text-primary"></i>
-                            <span>123 Avenue de la République<br>75001 Paris, France</span>
+                            <span>Avenue Chardy, Cocody<br>Abidjan, Côte d'Ivoire</span>
                         </div>
                     </li>
                     <li class="mb-3">
                         <div class="d-flex">
                             <i class="fas fa-envelope me-3 text-primary"></i>
-                            <span>contact@actes-civils.gouv.fr</span>
+                            <span>contact@actes-civils.ci</span>
                         </div>
                     </li>
                     <li class="mb-3">
                         <div class="d-flex">
                             <i class="fas fa-phone-alt me-3 text-primary"></i>
-                            <span>+33 (0)1 23 45 67 89</span>
+                            <span>+225 01 02 03 04 05</span>
                         </div>
                     </li>
                     <li>
                         <div class="d-flex">
                             <i class="fas fa-clock me-3 text-primary"></i>
-                            <span>Lun-Ven: 9h-17h</span>
+                            <span>Lun-Ven: 8h-16h</span>
                         </div>
                     </li>
                 </ul>

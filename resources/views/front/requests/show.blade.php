@@ -105,6 +105,98 @@
             </div>
         </div>
         @endif
+        
+        <!-- Section de paiement -->
+        @if($request->requiresPayment() && ($request->payment_status === 'unpaid' || $request->payment_status === 'cancelled'))
+        <div class="card shadow mt-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Paiement requis</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Votre demande nécessite un paiement pour être traitée.
+                </div>
+                
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                        <h5>Frais de traitement</h5>
+                        <p>Pour finaliser votre demande de document, veuillez procéder au paiement des frais de traitement. Une fois le paiement effectué, votre demande sera transmise à nos services pour traitement.</p>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+                            <a href="{{ route('payments.show', $request) }}" class="btn btn-primary">
+                                <i class="fas fa-credit-card me-2"></i> Procéder au paiement
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-light p-4 rounded">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Frais de traitement</span>
+                                <span>{{ number_format(\App\Services\PaymentService::getPriceForDocumentType($request->type), 0, ',', ' ') }} FCFA</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Frais de service</span>
+                                <span>0 FCFA</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total à payer</span>
+                                <span class="text-primary">{{ number_format(\App\Services\PaymentService::getPriceForDocumentType($request->type), 0, ',', ' ') }} FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @elseif($request->payment_status === 'pending')
+        <div class="card shadow mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="mb-0">Paiement en cours</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-clock me-2"></i> Votre paiement est en cours de traitement.
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Statut du paiement</h5>
+                        <p>Votre paiement est en cours de traitement. Veuillez patienter ou vérifier son statut.</p>
+                    </div>
+                    
+                    @if($request->latestPayment)
+                        <a href="{{ route('payments.status', $request->latestPayment) }}" class="btn btn-warning">
+                            <i class="fas fa-sync-alt me-2"></i> Vérifier le statut
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @elseif($request->payment_status === 'paid')
+        <div class="card shadow mt-4">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">Paiement effectué</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i> Le paiement pour cette demande a été effectué avec succès.
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Votre demande est en cours de traitement</h5>
+                        <p>Nous avons bien reçu votre paiement et votre demande est maintenant en cours de traitement par nos services.</p>
+                    </div>
+                    
+                    @if($request->latestPayment)
+                        <a href="{{ route('payments.status', $request->latestPayment) }}" class="btn btn-outline-success">
+                            <i class="fas fa-receipt me-2"></i> Voir le reçu
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </section>
 @endsection

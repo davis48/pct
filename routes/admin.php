@@ -24,7 +24,6 @@ Route::get('/dashboard', [AdminSpecialController::class, 'dashboard'])->name('da
 
 // Interface admin moderne
 Route::get('/', [AdminSpecialController::class, 'dashboard'])->name('special.dashboard');
-Route::get('/special-dashboard', [AdminSpecialController::class, 'dashboard'])->name('special.dashboard');
 Route::get('/statistics', [AdminSpecialController::class, 'statistics'])->name('special.statistics');
 Route::get('/system-info', [AdminSpecialController::class, 'systemInfo'])->name('special.system-info');
 Route::get('/maintenance', [AdminSpecialController::class, 'maintenance'])->name('special.maintenance');

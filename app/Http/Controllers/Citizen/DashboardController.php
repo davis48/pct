@@ -25,20 +25,24 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Récupérer les demandes du citoyen avec relations
+          // Récupérer les demandes du citoyen avec relations
         $requests = CitizenRequest::where('user_id', $user->id)
             ->with(['document', 'assignedAgent', 'processedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Statistiques du citoyen
+        // Séparer les demandes en brouillon (non payées) et soumises (payées)
+        $submittedRequests = $requests->where('payment_status', 'paid');
+        $draftRequests = $requests->where('status', 'draft');
+
+        // Statistiques du citoyen (seulement les demandes soumises après paiement)
         $stats = [
-            'total_requests' => $requests->count(),
-            'pending_requests' => $requests->where('status', 'pending')->count(),
-            'in_progress_requests' => $requests->where('status', 'in_progress')->count(),
-            'approved_requests' => $requests->where('status', 'approved')->count(),
-            'rejected_requests' => $requests->where('status', 'rejected')->count(),
+            'total_requests' => $submittedRequests->count(),
+            'pending_requests' => $submittedRequests->where('status', 'pending')->count(),
+            'in_progress_requests' => $submittedRequests->where('status', 'in_progress')->count(),
+            'approved_requests' => $submittedRequests->where('status', 'approved')->count(),
+            'rejected_requests' => $submittedRequests->where('status', 'rejected')->count(),
+            'draft_requests' => $draftRequests->count(), // Demandes en attente de paiement
         ];
 
         // Notifications non lues

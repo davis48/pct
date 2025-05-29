@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CitizenRequest;
 use App\Models\Payment;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
 
 class PaymentService
@@ -66,10 +67,8 @@ class PaymentService
             'message' => 'Paiement simulé avec succès',
             'provider_reference' => $data['provider'] . '-' . rand(100000, 999999),
             'timestamp' => now()->toIso8601String(),
-        ];
-
-        // En mode simulation, on considère que 90% des paiements réussissent
-        $isSuccessful = rand(1, 100) <= 90;
+        ];        // En mode simulation, on considère que 99% des paiements réussissent
+        $isSuccessful = rand(1, 100) <= 99;
 
         if (!$isSuccessful) {
             $response['success'] = false;
@@ -82,10 +81,9 @@ class PaymentService
                 'transaction_id' => $response['transaction_id'],
                 'callback_data' => $response,
             ]);
-            
-            return $response;
+              return $response;
         }
-
+        
         // Mettre à jour le paiement
         $payment->update([
             'status' => Payment::STATUS_COMPLETED,
@@ -100,8 +98,11 @@ class PaymentService
             'status' => 'pending', // La demande passe en attente de traitement
         ]);
 
-        return $response;
-    }    /**
+        // Créer une notification de paiement effectué
+        $this->createPaymentSuccessNotification($payment->citizenRequest);        return $response;
+    }
+
+    /**
      * Calculer le montant à facturer selon le type de document
      *
      * @param CitizenRequest $request
@@ -177,8 +178,31 @@ class PaymentService
         // Mettre à jour la demande
         $payment->citizenRequest->update([
             'payment_status' => 'cancelled',
+        ]);        return true;
+    }
+
+    /**
+     * Créer une notification de paiement effectué
+     *
+     * @param CitizenRequest $request
+     * @return void
+     */    private function createPaymentSuccessNotification(CitizenRequest $request)
+    {
+        Notification::create([
+            'user_id' => $request->user_id,
+            'title' => 'Paiement effectué avec succès',
+            'message' => "Votre paiement pour la demande de {$request->type} (Référence: {$request->reference_number}) a été effectué avec succès. Votre demande est maintenant soumise et en cours de traitement.",
+            'type' => 'success',
+            'data' => [
+                'request_id' => $request->id,
+                'reference_number' => $request->reference_number,
+                'payment_status' => 'paid',
+                'request_status' => 'pending',
+                'payment_notification' => true
+            ],
+            'is_read' => false,
         ]);
 
-        return true;
+        Log::info("Notification de paiement créée pour l'utilisateur {$request->user_id}, demande {$request->id}");
     }
 }

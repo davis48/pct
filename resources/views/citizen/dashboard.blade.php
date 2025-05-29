@@ -136,6 +136,22 @@
         </div>
         
         <div class="col-lg col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-credit-card fa-2x opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="h3 mb-0" id="draftRequests">{{ $stats['draft_requests'] ?? 0 }}</div>
+                            <div class="small">À Payer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg col-md-4 col-sm-6 mb-3">
             <div class="card stat-card bg-warning text-white">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -173,8 +189,7 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
+                        </div>                        <div class="flex-grow-1 ms-3">
                             <div class="h3 mb-0" id="approvedRequests">{{ $stats['approved_requests'] }}</div>
                             <div class="small">Approuvées</div>
                         </div>
@@ -546,7 +561,7 @@ async function refreshNotifications() {
 // Rafraîchir les statistiques
 async function refreshStats() {
     try {        // Mettre à jour les compteurs visuellement
-        const elements = ['totalRequests', 'pendingRequests', 'inProgressRequests', 'approvedRequests', 'rejectedRequests'];
+        const elements = ['totalRequests', 'draftRequests', 'pendingRequests', 'inProgressRequests', 'approvedRequests', 'rejectedRequests'];
         elements.forEach(id => {
             const element = document.getElementById(id);
             if (element) {

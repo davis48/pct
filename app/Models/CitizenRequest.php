@@ -165,6 +165,30 @@ class CitizenRequest extends Model
     }
 
     /**
+     * Check if the request is in draft status (not submitted yet)
+     */
+    public function isDraft()
+    {
+        return $this->status === 'draft';
+    }
+
+    /**
+     * Check if the request is properly submitted (payment completed)
+     */
+    public function isSubmitted()
+    {
+        return !$this->isDraft() && $this->payment_status === 'paid';
+    }
+
+    /**
+     * Check if the request can be processed (payment is complete)
+     */
+    public function canBeProcessed()
+    {
+        return $this->payment_status === 'paid' && in_array($this->status, ['pending', 'in_progress']);
+    }
+
+    /**
      * Get status badge color
      */
     public function getStatusBadgeAttribute()

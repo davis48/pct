@@ -857,8 +857,12 @@ class AdminSpecialController extends Controller
     {
         return [
             'document_stats' => [
-                'labels' => ['Rapidité', 'Précision', 'Satisfaction', 'Complexité', 'Volume'],
-                'data' => [rand(70, 100), rand(80, 100), rand(75, 95), rand(60, 90), rand(50, 100)]
+                'labels' => ['Acte de Naissance', 'Acte de Mariage', 'Certificat de Nationalité', 'Déclaration de Naissance'],
+                'data' => [45, 30, 15, 10]
+            ],
+            'document_types' => [
+                'labels' => ['Acte de Naissance', 'Acte de Mariage', 'Certificat de Nationalité', 'Déclaration de Naissance', 'Certificat de Résidence'],
+                'data' => [45, 25, 15, 10, 5]
             ],
             'processing_time' => [
                 'labels' => collect(range(1, 30))->map(fn($d) => 'Jour ' . $d),
@@ -980,10 +984,17 @@ class AdminSpecialController extends Controller
             $processed[] = rand(15, 70);
         }
         
+        // Données pour le graphique de répartition par type de document
+        $documentTypesData = [
+            'labels' => ['Acte de Naissance', 'Acte de Mariage', 'Certificat de Nationalité', 'Déclaration de Naissance', 'Certificat de Résidence'],
+            'data' => [45, 25, 15, 10, 5]
+        ];
+        
         return [
             'labels' => $labels,
             'requests' => $requests,
-            'processed' => $processed
+            'processed' => $processed,
+            'document_types' => $documentTypesData
         ];
     }
 

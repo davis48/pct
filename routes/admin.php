@@ -1,10 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\AgentController;
-use App\Http\Controllers\Admin\DocumentController;
-use App\Http\Controllers\Admin\RequestController;
+use App\Http\Controllers\Admin\AdminSpecialController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,17 +19,20 @@ Route::get('/test', function() {
     return 'Admin route test works!';
 });
 
-// Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Interface admin moderne
+Route::get('/', [AdminSpecialController::class, 'dashboard'])->name('special.dashboard');
+Route::get('/dashboard', [AdminSpecialController::class, 'dashboard'])->name('special.dashboard');
+Route::get('/statistics', [AdminSpecialController::class, 'statistics'])->name('special.statistics');
+Route::get('/system-info', [AdminSpecialController::class, 'systemInfo'])->name('special.system-info');
+Route::get('/maintenance', [AdminSpecialController::class, 'maintenance'])->name('special.maintenance');
+Route::post('/backup', [AdminSpecialController::class, 'backup'])->name('special.backup');
+Route::get('/logs', [AdminSpecialController::class, 'logs'])->name('special.logs');
+Route::get('/performance', [AdminSpecialController::class, 'performance'])->name('special.performance');
 
-// Gestion des utilisateurs
-Route::resource('users', UserController::class);
-
-// Gestion des agents
-Route::resource('agents', AgentController::class);
-
-// Gestion des documents
-Route::resource('documents', DocumentController::class);
-
-// Gestion des demandes
-Route::resource('requests', RequestController::class);
+// Routes pour les actions administratives spécifiques
+Route::prefix('api')->name('api.')->group(function () {
+    Route::get('/users', [AdminSpecialController::class, 'getUsers'])->name('users');
+    Route::get('/documents', [AdminSpecialController::class, 'getDocuments'])->name('documents');
+    Route::get('/requests', [AdminSpecialController::class, 'getRequests'])->name('requests');
+    Route::get('/agents', [AdminSpecialController::class, 'getAgents'])->name('agents');
+});

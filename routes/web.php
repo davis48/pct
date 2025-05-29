@@ -89,23 +89,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
 });
 
-// Admin routes directly in web.php
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    // Apply the admin middleware directly using the class name
-    Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function () {
-        // Dashboard
-        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
-
-        // Users
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class, ['as' => 'admin']);
-
-        // Documents
-        Route::resource('documents', \App\Http\Controllers\Admin\DocumentController::class, ['as' => 'admin']);
-
-        // Requests
-        Route::resource('requests', \App\Http\Controllers\Admin\RequestController::class, ['as' => 'admin']);
-    });
-});
+// Les routes admin sont maintenant entièrement définies dans routes/admin.php
+// Voir RouteServiceProvider pour plus de détails
 
 // Routes d'authentification Laravel personnalisées
 // Auth::routes(); // Désactivées car nous utilisons nos propres routes

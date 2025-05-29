@@ -1,6 +1,26 @@
 @extends('layouts.admin')
 @section('content')
 <div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h5 class="mb-0">Tableau de bord Administrateur</h5>
+                            <p class="text-sm mb-0">Vue d'ensemble du système</p>
+                        </div>
+                        <div class="col-lg-6 text-end d-flex flex-column justify-content-center">
+                            <a href="{{ route('admin.statistics.index') }}" class="btn bg-gradient-primary btn-sm mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Statistiques détaillées
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="row">
         <div class="col-xl-3 col-sm-6 mb-4">
             <div class="card">

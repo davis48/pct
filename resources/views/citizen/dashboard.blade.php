@@ -466,11 +466,16 @@
                                         <a href="{{ route('citizen.request.show', $request->id) }}" 
                                            class="btn btn-sm btn-outline-primary action-btn">
                                             <i class="fas fa-eye"></i>
-                                        </a>
-                                        @if($request->status === 'approved' && $request->document_url)
-                                            <a href="{{ $request->document_url }}" 
-                                               class="btn btn-sm btn-outline-success action-btn" 
-                                               target="_blank">
+                                        </a>                                        @if($request->status === 'approved')
+                                            <a href="{{ route('documents.preview', $request) }}" 
+                                               class="btn btn-sm btn-outline-info action-btn" 
+                                               target="_blank"
+                                               title="Prévisualiser le document">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('documents.download', $request) }}" 
+                                               class="btn btn-sm btn-outline-success action-btn"
+                                               title="Télécharger le document">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         @endif

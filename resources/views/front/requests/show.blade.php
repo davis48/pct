@@ -80,27 +80,53 @@
             </div>
         </div>
 
-        @if($request->status == 'approved' && $request->document)
+        @if($request->status == 'approved')
         <div class="card shadow">
-            <div class="card-header bg-white">
-                <h3 class="mb-0">Document disponible</h3>
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Document approuvé - Téléchargement disponible
+                </h3>
             </div>
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    @if($request->document)
-                        <div>
-                            <h5>{{ $request->document->title }}</h5>
-                            <p class="text-muted mb-0">Vous pouvez télécharger ce document</p>
+                <div class="alert alert-success">
+                    <i class="fas fa-info-circle me-2"></i> 
+                    Votre demande a été approuvée ! Vous pouvez maintenant télécharger votre document officiel.
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>{{ $request->document ? $request->document->title : 'Document administratif' }}</h5>
+                        <p class="text-muted">Document officiel généré automatiquement</p>
+                        <p><strong>Date d'approbation :</strong> {{ $request->updated_at->format('d/m/Y à H:i') }}</p>
+                        @if($request->processed_by)
+                        <p><strong>Traité par :</strong> {{ $request->processed_by }}</p>
+                        @endif
+                    </div>
+                    
+                    <div class="col-md-4 text-end">
+                        <div class="d-grid gap-2">
+                            <a href="{{ route('documents.preview', $request) }}" 
+                               class="btn btn-outline-primary" 
+                               target="_blank">
+                                <i class="fas fa-eye me-2"></i>Prévisualiser
+                            </a>
+                            
+                            <a href="{{ route('documents.download', $request) }}" 
+                               class="btn btn-success">
+                                <i class="fas fa-file-download me-2"></i>Télécharger le document
+                            </a>
                         </div>
-                        <a href="{{ asset('storage/' . $request->document->file_path) }}" class="btn btn-success" target="_blank">
-                            <i class="fas fa-file-download me-2"></i>Télécharger le document
-                        </a>
-                    @else
-                        <div>
-                            <h5 class="text-muted">Aucun document associé</h5>
-                            <p class="text-muted mb-0">Aucun document n'est associé à cette demande</p>
-                        </div>
-                    @endif
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6><i class="fas fa-info-circle me-1"></i> Informations importantes :</h6>
+                    <ul class="mb-0 small">
+                        <li>Ce document est authentique et peut être vérifié avec la référence : <strong>{{ $request->reference_number ?? 'REF-' . $request->id }}</strong></li>
+                        <li>Le document est valable pendant 3 mois à compter de sa date de génération</li>
+                        <li>En cas de problème de téléchargement, contactez nos services</li>
+                    </ul>
                 </div>
             </div>
         </div>

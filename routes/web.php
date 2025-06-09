@@ -6,6 +6,7 @@ use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\DocumentController;
 use App\Http\Controllers\Front\RequestController;
 use App\Http\Controllers\Front\ProfileController;
+use App\Http\Controllers\DocumentDownloadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,16 @@ Route::get('/test-payment-failure/{payment}', function(\App\Models\Payment $paym
         'request' => $payment->citizenRequest,
     ]);
 })->name('test.payment.failure');
+
+// Route de test pour le téléchargement de documents
+Route::get('/test-document-download', function() {
+    $approvedRequests = \App\Models\CitizenRequest::where('status', 'approved')
+        ->with(['user', 'document'])
+        ->orderBy('updated_at', 'desc')
+        ->get();
+    
+    return view('test-document-download', compact('approvedRequests'));
+})->name('test.document.download');
 
 // Route de test pour le succès de paiement
 Route::get('/test-payment-success/{payment}', function(\App\Models\Payment $payment) {
@@ -123,6 +134,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
     Route::post('/requests/{request}/confirm', [RequestController::class, 'confirm'])->name('requests.confirm');
     Route::delete('/requests/{request}', [RequestController::class, 'destroy'])->name('requests.destroy');
+    
+    // Téléchargement de documents approuvés
+    Route::get('/documents/{request}/download', [\App\Http\Controllers\DocumentDownloadController::class, 'downloadApprovedDocument'])->name('documents.download');
+    Route::get('/documents/{request}/preview', [\App\Http\Controllers\DocumentDownloadController::class, 'previewDocument'])->name('documents.preview');
     
     // Gestion des paiements
     Route::get('/payments/{citizenRequest}', [\App\Http\Controllers\Front\PaymentController::class, 'show'])->name('payments.show');

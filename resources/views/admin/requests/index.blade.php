@@ -50,12 +50,11 @@
                                         </div>
                                     </td>
                                     <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ ucfirst($request->type) ?? 'Type non spécifié' }}</p>
                                         @if($request->document)
-                                            <p class="text-xs font-weight-bold mb-0">{{ $request->document->title }}</p>
-                                            <p class="text-xs text-secondary mb-0">{{ $request->document->category }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ $request->document->title }}</p>
                                         @else
-                                            <p class="text-xs font-weight-bold mb-0 text-muted">Document non spécifié</p>
-                                            <p class="text-xs text-secondary mb-0">-</p>
+                                            <p class="text-xs text-secondary mb-0">Document non spécifié</p>
                                         @endif
                                     </td>
                                     <td>

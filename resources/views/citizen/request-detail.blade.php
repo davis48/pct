@@ -69,10 +69,9 @@
         <!-- Header de la demande -->
         <div class="bg-white shadow rounded-lg mb-6">
             <div class="px-4 py-5 sm:px-6">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-center justify-between">                    <div>
                         <h1 class="text-2xl font-bold text-gray-900">
-                            {{ $request->document->title ?? 'Document non spécifié' }}
+                            {{ $request->type_label }}
                         </h1>
                         <p class="mt-1 text-sm text-gray-500">
                             Demande #{{ $request->id }} • Soumise le {{ $request->created_at->format('d/m/Y à H:i') }}
@@ -261,12 +260,18 @@
                     <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900">Informations</h3>
                     </div>
-                    <div class="px-4 py-5 sm:px-6">
-                        <dl class="space-y-4">
+                    <div class="px-4 py-5 sm:px-6">                        <dl class="space-y-4">
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Type de document</dt>
+                                <dt class="text-sm font-medium text-gray-500">Type de demande</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ $request->type_label }}</dd>
+                            </div>
+                            
+                            @if($request->document)
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Document associé</dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ $request->document->title ?? 'Non spécifié' }}</dd>
                             </div>
+                            @endif
                             
                             @if($request->document && $request->document->description)
                             <div>

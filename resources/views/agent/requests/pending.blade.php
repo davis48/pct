@@ -119,7 +119,11 @@
                             
                             <div class="space-y-2 mb-4">
                                 <div>
-                                    <span class="text-xs font-medium text-gray-500">Document:</span>
+                                    <span class="text-xs font-medium text-gray-500">Type de demande:</span>
+                                    <p class="text-sm text-gray-900">{{ ucfirst($request->type) ?? 'Type non spécifié' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-medium text-gray-500">Document associé:</span>
                                     @if($request->document)
                                         <p class="text-sm text-gray-900">{{ $request->document->title }}</p>
                                         <p class="text-xs text-gray-500">{{ $request->document->category }}</p>

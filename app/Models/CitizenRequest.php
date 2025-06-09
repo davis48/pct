@@ -284,4 +284,33 @@ class CitizenRequest extends Model
             default => 'Inconnu'
         };
     }
+
+    /**
+     * Get formatted title for the request based on type
+     */
+    public function getTitleAttribute()
+    {
+        return ucfirst($this->type) ?? 'Type non spécifié';
+    }
+
+    /**
+     * Get formatted type label
+     */
+    public function getTypeLabelAttribute()
+    {
+        return match(strtolower($this->type)) {
+            'certificate' => 'Certificat',
+            'authorization' => 'Autorisation',
+            'complaint' => 'Plainte',
+            'license' => 'Licence',
+            'permit' => 'Permis',
+            'birth_certificate' => 'Acte de naissance',
+            'death_certificate' => 'Acte de décès',
+            'marriage_certificate' => 'Acte de mariage',
+            'residence_certificate' => 'Certificat de résidence',
+            'identity_card' => 'Carte d\'identité',
+            'passport' => 'Passeport',
+            default => ucfirst($this->type) ?? 'Type non spécifié'
+        };
+    }
 }

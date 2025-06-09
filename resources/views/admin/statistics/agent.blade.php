@@ -304,7 +304,8 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ $request->document ? $request->document->title : 'N/A' }}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ ucfirst($request->type) ?? 'Type N/A' }}</p>
+                                        <p class="text-xs text-secondary mb-0">{{ $request->document ? $request->document->title : 'Document N/A' }}</p>
                                     </td>
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0">{{ $request->user ? $request->user->nom . ' ' . $request->user->prenoms : 'N/A' }}</p>

@@ -312,16 +312,15 @@
                                     </thead>
                                     <tbody>
                                         @foreach($requests as $request)
-                                        <tr class="request-item" data-id="{{ $request->id }}">
-                                            <td>
+                                        <tr class="request-item" data-id="{{ $request->id }}">                                            <td>
                                                 <div class="d-flex align-items-center">
                                                     <i class="fas fa-file-alt text-primary me-2"></i>
                                                     <div>
-                                                        <strong>{{ $request->document->title ?? 'Document non spécifié' }}</strong>
+                                                        <strong>{{ $request->type_label }}</strong>
                                                         <br><small class="text-muted">ID: #{{ $request->id }}</small>
                                                     </div>
                                                 </div>
-                                            </td>                                            <td>
+                                            </td><td>
                                                 <span class="request-status status-{{ $request->payment_status === 'unpaid' ? 'unpaid' : $request->status }}">
                                                     @if($request->payment_status === 'unpaid' && $request->requiresPayment())
                                                         <i class="fas fa-credit-card me-1"></i>À Payer

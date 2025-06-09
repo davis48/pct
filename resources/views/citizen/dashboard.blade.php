@@ -441,9 +441,8 @@
                                                         <i class="fas fa-question me-1"></i> {{ ucfirst($request->status) }}
                                                     </span>
                                             @endswitch
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">{{ $request->document->title ?? 'Document non spécifié' }}</h6>
+                                        </div>                                        <div>
+                                            <h6 class="mb-1">{{ ucfirst($request->type) ?? 'Type non spécifié' }}</h6>
                                             <p class="text-muted small mb-0">
                                                 Référence: #{{ $request->reference_number ?? $request->id }}
                                             </p>

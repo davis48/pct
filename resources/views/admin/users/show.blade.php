@@ -128,7 +128,7 @@
                                                                 <i class="fas fa-file-alt text-primary opacity-10 fa-lg me-3"></i>
                                                             </div>
                                                             <div class="d-flex flex-column justify-content-center">
-                                                                <h6 class="mb-0 text-sm">{{ $request->document->title }}</h6>
+                                                                <h6 class="mb-0 text-sm">{{ ucfirst($request->type) ?? 'Type non spécifié' }}</h6>
                                                                 <p class="text-xs text-secondary mb-0">Ref: #{{ $request->reference_number }}</p>
                                                             </div>
                                                         </div>

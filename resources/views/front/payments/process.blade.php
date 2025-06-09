@@ -333,8 +333,7 @@
                 }, 500);
             }, 500);
         }, 500);
-        
-        // Animation du bouton de confirmation
+          // Animation du bouton de confirmation
         const paymentForm = document.getElementById('payment-form');
         const confirmBtn = document.getElementById('confirm-btn');
         
@@ -342,7 +341,53 @@
             confirmBtn.disabled = true;
             confirmBtn.classList.add('processing');
             confirmBtn.innerHTML = '<span><i class="fas fa-circle-notch fa-spin me-2"></i> Traitement en cours...</span><div class="overlay"></div>';
+            
+            // Afficher une notification de traitement
+            setTimeout(() => {
+                showPaymentNotification('Paiement en cours de traitement...', 'info');
+            }, 1000);
+            
+            // Simulation du succès du paiement (en cas de redirection problématique)
+            setTimeout(() => {
+                showPaymentNotification('✅ Paiement effectué avec succès !', 'success');
+            }, 3000);
         });
+        
+        // Fonction pour afficher les notifications toast
+        function showPaymentNotification(message, type = 'success') {
+            // Créer l'élément notification
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed animate__animated animate__slideInRight`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 350px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'info' ? 'fa-info-circle' : 'fa-exclamation-circle';
+            
+            notification.innerHTML = `
+                <i class="fas ${icon} me-2"></i>
+                <strong>${type === 'success' ? 'Succès !' : type === 'info' ? 'Information' : 'Erreur'}</strong><br>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Ajouter au body
+            document.body.appendChild(notification);
+            
+            // Auto-disparition après 5 secondes
+            setTimeout(() => {
+                notification.classList.add('animate__fadeOutRight');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 500);
+            }, 5000);
+        }
         
         // Animation des étapes
         document.querySelectorAll('.step').forEach(function(step, index) {

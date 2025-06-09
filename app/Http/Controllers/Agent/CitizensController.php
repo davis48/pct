@@ -40,11 +40,11 @@ class CitizensController extends Controller
         if ($request->filled('status')) {
             if ($request->status === 'active') {
                 $query->whereHas('requests', function($q) {
-                    $q->whereIn('status', ['pending', 'processing']);
+                    $q->whereIn('status', ['en_attente', 'processing']);
                 });
             } elseif ($request->status === 'inactive') {
                 $query->whereDoesntHave('requests', function($q) {
-                    $q->whereIn('status', ['pending', 'processing']);
+                    $q->whereIn('status', ['en_attente', 'processing']);
                 });
             }
         }
@@ -54,7 +54,7 @@ class CitizensController extends Controller
             'total' => User::where('role', 'citizen')->count(),
             'active' => User::where('role', 'citizen')
                 ->whereHas('requests', function($q) {
-                    $q->whereIn('status', ['pending', 'in_progress']);
+                    $q->whereIn('status', ['en_attente', 'in_progress']);
                 })->count(),
             'requests' => CitizenRequest::count(),
             'newToday' => User::where('role', 'citizen')
@@ -71,7 +71,7 @@ class CitizensController extends Controller
             'users' => User::where('role', 'citizen')->count(),
             'documents' => \App\Models\Document::count(),
             'requests' => CitizenRequest::count(),
-            'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+            'pendingRequests' => CitizenRequest::where('status', 'en_attente')->count(),
             'myAssignedRequests' => CitizenRequest::where('assigned_to', auth()->id())->count(),
             'myCompletedRequests' => CitizenRequest::where('processed_by', auth()->id())
                 ->whereIn('status', ['approved', 'complete', 'rejetee'])
@@ -79,7 +79,7 @@ class CitizensController extends Controller
             'total' => User::where('role', 'citizen')->count(),
             'active' => User::where('role', 'citizen')
                 ->whereHas('requests', function($q) {
-                    $q->whereIn('status', ['pending', 'processing']);
+                    $q->whereIn('status', ['en_attente', 'processing']);
                 })->count(),
             'new_this_month' => User::where('role', 'citizen')
                 ->whereMonth('created_at', now()->month)
@@ -109,7 +109,7 @@ class CitizensController extends Controller
         // Statistiques du citoyen
         $stats = [
             'total_requests' => $citizen->requests->count(),
-            'pending_requests' => $citizen->requests->where('status', 'pending')->count(),
+            'pending_requests' => $citizen->requests->where('status', 'en_attente')->count(),
             'processing_requests' => $citizen->requests->where('status', 'processing')->count(),
             'completed_requests' => $citizen->requests->where('status', 'completed')->count(),
             'rejected_requests' => $citizen->requests->where('status', 'rejected')->count(),
@@ -138,7 +138,7 @@ class CitizensController extends Controller
             'citizen' => $citizen,
             'stats' => [
                 'total_requests' => $citizen->requests->count(),
-                'pending_requests' => $citizen->requests->where('status', 'pending')->count(),
+                'pending_requests' => $citizen->requests->where('status', 'en_attente')->count(),
                 'processing_requests' => $citizen->requests->where('status', 'processing')->count(),
                 'completed_requests' => $citizen->requests->where('status', 'completed')->count(),
             ]
@@ -198,7 +198,7 @@ class CitizensController extends Controller
                     $citizen->telephone,
                     $citizen->created_at->format('d/m/Y'),
                     $citizen->requests->count(),
-                    $citizen->requests->where('status', 'pending')->count(),
+                    $citizen->requests->where('status', 'en_attente')->count(),
                     $citizen->requests->where('status', 'completed')->count(),
                 ]);
             }

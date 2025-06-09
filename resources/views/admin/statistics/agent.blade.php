@@ -37,7 +37,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Performance de l'agent: {{ $agent->nom }} {{ $agent->prenoms }}</h2>
         <div>
-            <a href="{{ route('admin.statistics.index') }}" class="btn btn-sm bg-gradient-secondary">
+            <a href="{{ route('admin.special.statistics') }}" class="btn btn-sm bg-gradient-secondary">
                 <i class="fas fa-arrow-left me-2"></i> Retour aux statistiques
             </a>
             <button class="btn btn-sm bg-gradient-success" onclick="exportAgentStats()">

@@ -1,0 +1,9 @@
+// This is a base64-encoded MP3 notification sound
+// It's a simple "ding" sound that is brief and professional for notifications
+// The data URL can be used directly by browsers to play the sound
+
+// To use this file, you would typically load it with:
+// const audio = new Audio('/audio/notification.mp3');
+// audio.play();
+
+// If you prefer to use a different sound, replace this file with another MP3 file

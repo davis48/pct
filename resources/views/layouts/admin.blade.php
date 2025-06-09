@@ -49,7 +49,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.statistics.index') }}" class="nav-link {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.special.statistics') }}" class="nav-link {{ request()->routeIs('admin.special.statistics') ? 'active' : '' }}">
                             Statistiques & Performance
                         </a>
                     </li>

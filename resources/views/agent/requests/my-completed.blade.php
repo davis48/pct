@@ -77,7 +77,7 @@
                                                 @endif
                                             </div>
                                             <p class="ml-4 text-sm font-medium text-indigo-600 truncate">
-                                                {{ $request->reference }} - {{ $request->document->name ?? 'Document non spécifié' }}
+                                                {{ $request->reference }} - {{ $request->document->title ?? 'Document non spécifié' }}
                                             </p>
                                         </div>
                                         <div class="ml-2 flex-shrink-0 flex">

@@ -35,4 +35,31 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Twilio SMS Service
+    |--------------------------------------------------------------------------
+    |
+    | These credentials are used for sending SMS notifications via Twilio.
+    |
+    */
+    'twilio' => [
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_TOKEN'),
+        'from' => env('TWILIO_FROM'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notification Settings
+    |--------------------------------------------------------------------------
+    |
+    | Global settings for the notification system
+    |
+    */
+    'notifications' => [
+        'default_channels' => ['database', 'mail', 'sms'],
+        'auto_read_after_days' => 30,
+    ],
+
 ];

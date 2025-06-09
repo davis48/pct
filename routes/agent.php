@@ -77,10 +77,15 @@ Route::prefix('documents')->group(function () {
     Route::get('/export/{format?}', [DocumentsController::class, 'export'])->name('documents.export');
     Route::get('/metrics/realtime', [DocumentsController::class, 'metrics'])->name('documents.metrics');
 });
+// Statistics routes for agents
 use App\Http\Controllers\Agent\StatisticsController;
 
-Route::prefix('statistics')->group(function () {
-    Route::get('/', [StatisticsController::class, 'index'])->name('statistics');
-    Route::get('/chart-data', [StatisticsController::class, 'getChartData'])->name('statistics.chart-data');
-    Route::post('/reports/generate', [StatisticsController::class, 'generateReport'])->name('statistics.generate-report');
+Route::prefix('statistics')->name('statistics.')->group(function () {
+    Route::get('/', [StatisticsController::class, 'index'])->name('index');
+    Route::get('/chart-data', [StatisticsController::class, 'getChartData'])->name('chart-data');
+    Route::get('/real-time', [StatisticsController::class, 'getRealTimeStats'])->name('real-time');
+    Route::post('/generate-report', [StatisticsController::class, 'generateReport'])->name('generate-report');
 });
+
+// Add a simple route alias for backward compatibility with `agent.statistics`
+Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');

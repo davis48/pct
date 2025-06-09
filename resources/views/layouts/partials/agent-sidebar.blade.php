@@ -1,3 +1,20 @@
+@php
+use App\Models\CitizenRequest;
+
+// Statistiques pour les badges - calcul direct pour éviter les dépendances
+$pendingCount = CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count();
+$inProgressCount = CitizenRequest::where('status', CitizenRequest::STATUS_IN_PROGRESS)->count();
+$myAssignedCount = CitizenRequest::where('assigned_to', auth()->id())
+                                ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
+                                ->count();
+$myCompletedCount = CitizenRequest::where('processed_by', auth()->id())
+                                 ->whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
+                                 ->count();
+$remindersCount = CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)
+                               ->where('created_at', '<=', now()->subDays(3))
+                               ->count();
+@endphp
+
 <div class="sidebar-gradient flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4">
     <!-- Logo -->
     <div class="flex h-16 shrink-0 items-center">
@@ -41,9 +58,9 @@
                            class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white {{ request()->routeIs('agent.requests.pending') ? 'active' : '' }}">
                             <i class="fas fa-hourglass-half h-6 w-6 shrink-0"></i>
                             Demandes en attente
-                            @if(isset($stats) && isset($stats['pendingRequests']) && $stats['pendingRequests'] > 0)
-                                <span data-stat="pendingRequests" class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
-                                    {{ $stats['pendingRequests'] > 9 ? '9+' : $stats['pendingRequests'] }}
+                            @if($pendingCount > 0)
+                                <span id="badge-pending" class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
+                                    {{ $pendingCount > 9 ? '9+' : $pendingCount }}
                                 </span>
                             @endif
                         </a>
@@ -55,9 +72,9 @@
                            class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white {{ request()->routeIs('agent.requests.in-progress') ? 'active' : '' }}">
                             <i class="fas fa-spinner h-6 w-6 shrink-0"></i>
                             Demandes en cours
-                            @if(isset($stats) && isset($stats['inProgressRequests']) && $stats['inProgressRequests'] > 0)
-                                <span data-stat="inProgressRequests" class="ml-auto bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
-                                    {{ $stats['inProgressRequests'] > 9 ? '9+' : $stats['inProgressRequests'] }}
+                            @if($inProgressCount > 0)
+                                <span id="badge-in-progress" class="ml-auto bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
+                                    {{ $inProgressCount > 9 ? '9+' : $inProgressCount }}
                                 </span>
                             @endif
                         </a>
@@ -69,15 +86,9 @@
                            class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white {{ request()->routeIs('agent.requests.reminders') ? 'active' : '' }}">
                             <i class="fas fa-bell h-6 w-6 shrink-0"></i>
                             Rappels
-                            @php
-                                $reminderCount = 0;
-                                if(isset($stats) && isset($remindersNeeded)) {
-                                    $reminderCount = count($remindersNeeded);
-                                }
-                            @endphp
-                            @if($reminderCount > 0)
-                                <span class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
-                                    {{ $reminderCount > 9 ? '9+' : $reminderCount }}
+                            @if($remindersCount > 0)
+                                <span id="badge-reminders" class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge">
+                                    {{ $remindersCount > 9 ? '9+' : $remindersCount }}
                                 </span>
                             @endif
                         </a>
@@ -121,9 +132,9 @@
                            class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white">
                             <i class="fas fa-tasks h-6 w-6 shrink-0"></i>
                             Mes assignations
-                            @if(isset($stats) && isset($stats['myAssignedRequests']) && $stats['myAssignedRequests'] > 0)
-                                <span data-stat="myAssignedRequests" class="ml-auto bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {{ $stats['myAssignedRequests'] }}
+                            @if($myAssignedCount > 0)
+                                <span id="badge-my-assignments" class="ml-auto bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ $myAssignedCount }}
                                 </span>
                             @endif
                         </a>
@@ -133,9 +144,9 @@
                            class="nav-item group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-white">
                             <i class="fas fa-check-circle h-6 w-6 shrink-0"></i>
                             Mes traitements
-                            @if(isset($stats) && isset($stats['myCompletedRequests']) && $stats['myCompletedRequests'] > 0)
-                                <span data-stat="myCompletedRequests" class="ml-auto bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                    {{ $stats['myCompletedRequests'] }}
+                            @if($myCompletedCount > 0)
+                                <span id="badge-my-completed" class="ml-auto bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ $myCompletedCount }}
                                 </span>
                             @endif
                         </a>
@@ -181,4 +192,84 @@ function assignNextRequest() {
     document.body.appendChild(form);
     form.submit();
 }
+
+// Fonction pour mettre à jour les badges de la sidebar
+function updateSidebarBadges() {
+    fetch('/agent/dashboard/stats')
+        .then(response => response.json())
+        .then(data => {
+            // Badge demandes en attente
+            const pendingBadge = document.getElementById('badge-pending');
+            if (pendingBadge) {
+                if (data.pendingRequests > 0) {
+                    pendingBadge.textContent = data.pendingRequests > 9 ? '9+' : data.pendingRequests;
+                    pendingBadge.style.display = 'flex';
+                } else {
+                    pendingBadge.style.display = 'none';
+                }
+            }
+            
+            // Badge demandes en cours
+            const inProgressBadge = document.getElementById('badge-in-progress');
+            if (inProgressBadge) {
+                if (data.inProgressRequests > 0) {
+                    inProgressBadge.textContent = data.inProgressRequests > 9 ? '9+' : data.inProgressRequests;
+                    inProgressBadge.style.display = 'flex';
+                } else {
+                    inProgressBadge.style.display = 'none';
+                }
+            }
+            
+            // Badge rappels
+            const remindersBadge = document.getElementById('badge-reminders');
+            if (remindersBadge) {
+                if (data.remindersCount > 0) {
+                    remindersBadge.textContent = data.remindersCount > 9 ? '9+' : data.remindersCount;
+                    remindersBadge.style.display = 'flex';
+                } else {
+                    remindersBadge.style.display = 'none';
+                }
+            }
+            
+            // Badge mes assignations
+            const myAssignmentsBadge = document.getElementById('badge-my-assignments');
+            if (myAssignmentsBadge) {
+                if (data.myAssignedRequests > 0) {
+                    myAssignmentsBadge.textContent = data.myAssignedRequests;
+                    myAssignmentsBadge.style.display = 'flex';
+                } else {
+                    myAssignmentsBadge.style.display = 'none';
+                }
+            }
+            
+            // Badge mes traitements
+            const myCompletedBadge = document.getElementById('badge-my-completed');
+            if (myCompletedBadge) {
+                if (data.myCompletedRequests > 0) {
+                    myCompletedBadge.textContent = data.myCompletedRequests;
+                    myCompletedBadge.style.display = 'flex';
+                } else {
+                    myCompletedBadge.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => {
+            console.log('Erreur lors de la mise à jour des badges:', error);
+        });
+}
+
+// Mettre à jour les badges au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    updateSidebarBadges();
+    
+    // Mettre à jour les badges toutes les 30 secondes
+    setInterval(updateSidebarBadges, 30000);
+});
+
+// Mettre à jour les badges lorsque la page devient visible (changement d'onglet)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        updateSidebarBadges();
+    }
+});
 </script>

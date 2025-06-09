@@ -41,7 +41,7 @@ class AdminSpecialController extends Controller
         // Statistiques avancées
         $advancedStats = [
             'total_users' => User::count(),
-            'active_users' => User::where('is_active', true)->count(),
+            'active_users' => User::count(), // All users are considered active as is_active column doesn't exist
             'total_agents' => User::where('role', 'agent')->count(),
             'total_requests' => CitizenRequest::count(),
             'avg_processing_time' => $this->getAverageProcessingTime(),
@@ -694,7 +694,7 @@ class AdminSpecialController extends Controller
      */
     private function getActiveAgents()
     {
-        return User::where('role', 'agent')->where('is_active', 1)->count();
+        return User::where('role', 'agent')->count();
     }
 
     /**
@@ -1284,7 +1284,7 @@ class AdminSpecialController extends Controller
                         'declaration-naissance' => 1000,
                         'certificat' => 7500,
                         'information' => 0,
-                        default => 2000
+                        default => 500
                     }
                 ];
             }

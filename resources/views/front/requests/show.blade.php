@@ -106,96 +106,176 @@
         </div>
         @endif
         
-        <!-- Section de paiement -->
-        @if($request->requiresPayment() && ($request->payment_status === 'unpaid' || $request->payment_status === 'cancelled'))
-        <div class="card shadow mt-4">
-            <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">Paiement requis</h3>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> Votre demande nécessite un paiement pour être traitée.
-                </div>
-                
-                <div class="row align-items-center">
-                    <div class="col-md-7">
-                        <h5>Frais de traitement</h5>
-                        <p>Pour finaliser votre demande de document, veuillez procéder au paiement des frais de traitement. Une fois le paiement effectué, votre demande sera transmise à nos services pour traitement.</p>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
-                            <a href="{{ route('payments.show', $request) }}" class="btn btn-primary">
-                                <i class="fas fa-credit-card me-2"></i> Procéder au paiement
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="bg-light p-4 rounded">
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>Frais de traitement</span>
-                                <span>{{ number_format(\App\Services\PaymentService::getPriceForDocumentType($request->type), 0, ',', ' ') }} FCFA</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>Frais de service</span>
-                                <span>0 FCFA</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between fw-bold">
-                                <span>Total à payer</span>
-                                <span class="text-primary">{{ number_format(\App\Services\PaymentService::getPriceForDocumentType($request->type), 0, ',', ' ') }} FCFA</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @elseif($request->payment_status === 'pending')
+        <!-- Section spécifique pour les demandes en brouillon -->
+        @if($request->status == 'draft')
         <div class="card shadow mt-4">
             <div class="card-header bg-warning text-dark">
-                <h3 class="mb-0">Paiement en cours</h3>
+                <h3 class="mb-0">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Demande en brouillon
+                </h3>
             </div>
             <div class="card-body">
                 <div class="alert alert-warning">
-                    <i class="fas fa-clock me-2"></i> Votre paiement est en cours de traitement.
+                    <i class="fas fa-info-circle me-2"></i> 
+                    Cette demande est en mode brouillon. Vous pouvez la soumettre ou la supprimer.
                 </div>
                 
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5>Statut du paiement</h5>
-                        <p>Votre paiement est en cours de traitement. Veuillez patienter ou vérifier son statut.</p>
+                        <h5>Statut : Brouillon</h5>
+                        <p class="mb-0">Vous pouvez confirmer cette demande pour qu'elle soit traitée par nos agents, ou la supprimer si vous ne souhaitez pas la soumettre.</p>
                     </div>
                     
-                    @if($request->latestPayment)
-                        <a href="{{ route('payments.status', $request->latestPayment) }}" class="btn btn-warning">
-                            <i class="fas fa-sync-alt me-2"></i> Vérifier le statut
-                        </a>
-                    @endif
-                </div>
-            </div>
-        </div>
-        @elseif($request->payment_status === 'paid')
-        <div class="card shadow mt-4">
-            <div class="card-header bg-success text-white">
-                <h3 class="mb-0">Paiement effectué</h3>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle me-2"></i> Le paiement pour cette demande a été effectué avec succès.
+                    <div>
+                        <span class="badge bg-warning fs-6 p-3">
+                            <i class="fas fa-pencil-alt me-1"></i>
+                            Brouillon
+                        </span>
+                    </div>
                 </div>
                 
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5>Votre demande est en cours de traitement</h5>
-                        <p>Nous avons bien reçu votre paiement et votre demande est maintenant en cours de traitement par nos services.</p>
-                    </div>
+                <div class="mt-4 d-flex justify-content-between">
+                    <form action="{{ route('requests.destroy', $request->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Supprimer
+                        </button>
+                    </form>
                     
-                    @if($request->latestPayment)
-                        <a href="{{ route('payments.status', $request->latestPayment) }}" class="btn btn-outline-success">
-                            <i class="fas fa-receipt me-2"></i> Voir le reçu
-                        </a>
-                    @endif
+                    <form action="{{ route('requests.confirm', $request->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Confirmer et soumettre
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
+        @endif
+        
+        <!-- Section de statut avec gestion des paiements -->
+        @if($request->status != 'draft')
+            @if($request->status == 'approved' && $request->requiresPayment() && !$request->hasSuccessfulPayment())
+                <!-- Demande approuvée - Paiement requis -->
+                <div class="card shadow mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Paiement requis
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> 
+                            Félicitations ! Votre demande a été approuvée. Veuillez procéder au paiement pour finaliser le traitement.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>Statut : Approuvée - Paiement en attente</h5>
+                                <p class="mb-0">
+                                    <strong>Montant à payer :</strong> 25 000 FCFA<br>
+                                    <small class="text-muted">Cliquez sur "Procéder au paiement" pour effectuer votre paiement en ligne.</small>
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <span class="badge bg-warning fs-6 p-3">
+                                    <i class="fas fa-credit-card me-1"></i>
+                                    Paiement requis
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="{{ route('payments.show', $request->id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Procéder au paiement
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @elseif($request->hasSuccessfulPayment())
+                <!-- Demande payée - En traitement -->
+                <div class="card shadow mt-4">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Paiement effectué - En traitement
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i> 
+                            Votre paiement a été effectué avec succès ! Votre demande est maintenant en cours de traitement par nos services.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>Statut : {{ ucfirst($request->status) }} - Payée</h5>
+                                <p class="mb-0">Nos agents traitent actuellement votre demande. Vous recevrez une notification dès qu'elle sera prête.</p>
+                            </div>
+                            
+                            <div>
+                                <span class="badge bg-success fs-6 p-3">
+                                    <i class="fas fa-cogs me-1"></i>
+                                    En traitement
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <!-- Autres statuts -->
+                <div class="card shadow mt-4">
+                    <div class="card-header {{ $request->status == 'approved' ? 'bg-success' : ($request->status == 'rejected' ? 'bg-danger' : 'bg-warning') }} text-white">
+                        <h3 class="mb-0">
+                            <i class="fas fa-{{ $request->status == 'approved' ? 'check-circle' : ($request->status == 'rejected' ? 'times-circle' : 'clock') }} me-2"></i>
+                            Statut de la demande
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-{{ $request->status == 'approved' ? 'success' : ($request->status == 'rejected' ? 'danger' : 'warning') }}">
+                            <i class="fas fa-info-circle me-2"></i> 
+                            @if($request->status == 'pending')
+                                Votre demande a été soumise avec succès et est en attente d'examen par nos agents.
+                            @elseif($request->status == 'approved')
+                                Votre demande a été approuvée avec succès !
+                            @elseif($request->status == 'rejected')
+                                Malheureusement, votre demande a été rejetée.
+                            @else
+                                Votre demande est en cours de traitement.
+                            @endif
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>Statut : {{ ucfirst($request->status) }}</h5>
+                                <p class="mb-0">
+                                    @if($request->status == 'pending')
+                                        Nos agents examinent actuellement votre demande.
+                                    @elseif($request->status == 'approved')
+                                        Votre demande a été approuvée !
+                                    @elseif($request->status == 'rejected')
+                                        @if($request->admin_comments)
+                                            Raison: {{ $request->admin_comments }}
+                                        @endif
+                                    @endif
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <span class="badge bg-{{ $request->status == 'approved' ? 'success' : ($request->status == 'rejected' ? 'danger' : 'warning') }} fs-6 p-3">
+                                    <i class="fas fa-{{ $request->status == 'approved' ? 'check' : ($request->status == 'rejected' ? 'times' : 'clock') }} me-1"></i>
+                                    {{ ucfirst($request->status) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 </section>

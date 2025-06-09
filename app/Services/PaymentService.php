@@ -12,32 +12,32 @@ class PaymentService
     /**
      * Initialise un nouveau paiement pour une demande
      *
-     * @param CitizenRequest $request
+     * @param CitizenRequest $citizenRequest
      * @param string $paymentMethod
      * @param array $options
      * @return Payment
      */
-    public function initializePayment(CitizenRequest $request, string $paymentMethod, array $options = [])
+    public function initializePayment(CitizenRequest $citizenRequest, string $paymentMethod, array $options = [])
     {
         // Déterminer le montant à facturer selon le type de document
-        $amount = $this->calculateAmount($request);
+        $amount = $this->calculateAmount($citizenRequest);
 
         // Créer un nouveau paiement
         $payment = new Payment([
-            'citizen_request_id' => $request->id,
+            'citizen_request_id' => $citizenRequest->id,
             'amount' => $amount,
             'reference' => Payment::generateReference(),
             'status' => Payment::STATUS_PENDING,
             'payment_method' => $paymentMethod,
             'phone_number' => $options['phone_number'] ?? null,
             'provider' => $options['provider'] ?? null,
-            'notes' => $options['notes'] ?? 'Paiement pour ' . $request->type,
+            'notes' => $options['notes'] ?? 'Paiement pour ' . $citizenRequest->type,
         ]);
 
         $payment->save();
-        
+
         // Mettre à jour le statut de la demande
-        $request->update(['payment_status' => 'pending']);
+        $citizenRequest->update(['payment_status' => 'pending']);
 
         return $payment;
     }
@@ -51,7 +51,6 @@ class PaymentService
      */
     public function simulateMobileMoneyPayment(Payment $payment, array $data)
     {
-        // Loguer les informations de simulation
         Log::info('Simulation de paiement mobile money', [
             'payment_id' => $payment->id,
             'reference' => $payment->reference,
@@ -60,30 +59,30 @@ class PaymentService
             'provider' => $data['provider']
         ]);
 
-        // Simulation de l'API de paiement
         $response = [
             'success' => true,
             'transaction_id' => 'SIM-' . strtoupper(uniqid()),
             'message' => 'Paiement simulé avec succès',
             'provider_reference' => $data['provider'] . '-' . rand(100000, 999999),
             'timestamp' => now()->toIso8601String(),
-        ];        // En mode simulation, on considère que 99% des paiements réussissent
-        $isSuccessful = rand(1, 100) <= 99;
+        ];
+
+        // En mode DEMO, tous les paiements réussissent
+        $isSuccessful = true;
 
         if (!$isSuccessful) {
             $response['success'] = false;
             $response['message'] = 'Échec de la simulation de paiement';
             $response['error_code'] = 'PAYMENT_FAILED';
-            
-            // Mettre à jour le paiement
+
             $payment->update([
                 'status' => Payment::STATUS_FAILED,
                 'transaction_id' => $response['transaction_id'],
                 'callback_data' => $response,
             ]);
-              return $response;
+            return $response;
         }
-        
+
         // Mettre à jour le paiement
         $payment->update([
             'status' => Payment::STATUS_COMPLETED,
@@ -94,12 +93,20 @@ class PaymentService
 
         // Mettre à jour la demande
         $payment->citizenRequest->update([
-            'payment_status' => 'paid',
-            'status' => 'pending', // La demande passe en attente de traitement
+            'payment_status' => \App\Models\CitizenRequest::PAYMENT_STATUS_PAID,
+            'status' => \App\Models\CitizenRequest::STATUS_PENDING // Maintenant STATUS_PENDING = 'en_attente'
+        ]);
+
+        Log::info('✅ Statuts mis à jour dans le service de paiement', [
+            'request_id' => $payment->citizenRequest->id,
+            'payment_status' => \App\Models\CitizenRequest::PAYMENT_STATUS_PAID,
+            'request_status' => \App\Models\CitizenRequest::STATUS_PENDING
         ]);
 
         // Créer une notification de paiement effectué
-        $this->createPaymentSuccessNotification($payment->citizenRequest);        return $response;
+        $this->createPaymentSuccessNotification($payment->citizenRequest);
+
+        return $response;
     }
 
     /**
@@ -108,9 +115,14 @@ class PaymentService
      * @param CitizenRequest $request
      * @return float
      */
-    public function calculateAmount(CitizenRequest $request)
+    public function calculateAmount(CitizenRequest $citizenRequest)
     {
-        return $this->getPriceForDocumentType($request->type);
+        // Sécurité: gérer les types null ou vides
+        $documentType = $citizenRequest->type ?? 'legalisation';
+        if (empty($documentType)) {
+            $documentType = 'legalisation';
+        }
+        return $this->getPriceForDocumentType($documentType);
     }
 
     /**
@@ -123,6 +135,7 @@ class PaymentService
     {
         // Tarifs selon le type de document (à personnaliser)
         $prices = [
+            'timbre' => 500, // Prix fixe pour les timbres
             'acte_de_naissance' => 2500,
             'certificat_de_nationalite' => 5000,
             'carte_nationale_identite' => 5000,
@@ -130,9 +143,9 @@ class PaymentService
             'passeport' => 40000,
             'certificat_de_residence' => 1500,
             'acte_de_mariage' => 3500,
-            'acte_de_deces' => 2000,
+            'acte_de_deces' => 500,
             // Tarif par défaut
-            'default' => 2000,
+            'default' => 500,
         ];
 
         return $prices[$documentType] ?? $prices['default'];
@@ -148,7 +161,7 @@ class PaymentService
     {
         // Dans un environnement réel, nous ferions un appel API au fournisseur de paiement
         // Pour la simulation, nous retournons simplement le statut actuel
-        
+
         return [
             'success' => true,
             'payment_id' => $payment->id,
@@ -184,25 +197,33 @@ class PaymentService
     /**
      * Créer une notification de paiement effectué
      *
-     * @param CitizenRequest $request
+     * @param CitizenRequest $citizenRequest
      * @return void
-     */    private function createPaymentSuccessNotification(CitizenRequest $request)
+     */    private function createPaymentSuccessNotification(CitizenRequest $citizenRequest)
     {
+        // Récupérer le paiement pour avoir le montant
+        $payment = $citizenRequest->payments()->where('status', Payment::STATUS_COMPLETED)->latest()->first();
+        $amount = $payment ? $payment->amount : $this->getPriceForDocumentType($citizenRequest->type);
+
         Notification::create([
-            'user_id' => $request->user_id,
-            'title' => 'Paiement effectué avec succès',
-            'message' => "Votre paiement pour la demande de {$request->type} (Référence: {$request->reference_number}) a été effectué avec succès. Votre demande est maintenant soumise et en cours de traitement.",
+            'user_id' => $citizenRequest->user_id,
+            'title' => '✅ Paiement effectué avec succès',
+            'message' => "Félicitations ! Votre paiement de " . number_format($amount, 0, ',', ' ') . " FCFA pour la demande de {$citizenRequest->type} (Référence: {$citizenRequest->reference_number}) a été effectué avec succès. Votre demande est maintenant soumise et en cours de traitement par nos services.",
             'type' => 'success',
             'data' => [
-                'request_id' => $request->id,
-                'reference_number' => $request->reference_number,
+                'request_id' => $citizenRequest->id,
+                'reference_number' => $citizenRequest->reference_number,
                 'payment_status' => 'paid',
                 'request_status' => 'pending',
-                'payment_notification' => true
+                'payment_notification' => true,
+                'amount' => $amount,
+                'document_type' => $citizenRequest->type,
+                'action_url' => route('requests.show', $citizenRequest->id),
+                'action_text' => 'Voir ma demande'
             ],
             'is_read' => false,
         ]);
 
-        Log::info("Notification de paiement créée pour l'utilisateur {$request->user_id}, demande {$request->id}");
+        Log::info("Notification de paiement créée pour l'utilisateur {$citizenRequest->user_id}, demande {$citizenRequest->id}, montant: {$amount} FCFA");
     }
 }

@@ -15,10 +15,10 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = CitizenRequest::with(['user', 'document'])
-            ->where('status', 'pending')
+            ->where('status', CitizenRequest::STATUS_PENDING)
             ->orWhere(function($query) {
                 $query->where('assigned_to', Auth::id())
-                      ->whereIn('status', ['pending', 'in_progress']);
+                      ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS]);
             })
             ->latest()
             ->paginate(10);
@@ -43,10 +43,10 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        CitizenRequest::where('status', 'pending')
+        CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)
             ->orWhere(function($query) {
                 $query->where('assigned_to', Auth::id())
-                      ->whereIn('status', ['pending', 'in_progress']);
+                      ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS]);
             })
             ->update(['is_read' => true]);
 
@@ -59,12 +59,12 @@ class NotificationController extends Controller
     public function getUnreadCount()
     {
         $count = CitizenRequest::where(function($query) {
-                $query->where('status', 'pending')
+                $query->where('status', CitizenRequest::STATUS_PENDING)
                       ->where('is_read', false);
             })
             ->orWhere(function($query) {
                 $query->where('assigned_to', Auth::id())
-                      ->whereIn('status', ['pending', 'in_progress'])
+                      ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
                       ->where('is_read', false);
             })
             ->count();

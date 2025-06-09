@@ -25,6 +25,12 @@
                     Demandes
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.special.statistics') ? 'active' : '' }}" href="{{ route('admin.special.statistics') }}">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Statistiques
+                </a>
+            </li>
         </ul>
 
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">

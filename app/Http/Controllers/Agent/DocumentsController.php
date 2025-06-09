@@ -65,10 +65,10 @@ class DocumentsController extends Controller
             'users' => User::where('role', 'citizen')->count(),
             'documents' => Document::count(),
             'requests' => CitizenRequest::count(),
-            'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+            'pendingRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'myAssignedRequests' => CitizenRequest::where('assigned_to', Auth::id())->count(),
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
-                ->whereIn('status', ['approved', 'complete', 'rejetee'])
+                ->whereIn('status', [CitizenRequest::STATUS_APPROVED, 'complete', 'rejetee'])
                 ->count(),
         ];
 
@@ -90,10 +90,10 @@ class DocumentsController extends Controller
             'users' => User::where('role', 'citizen')->count(),
             'documents' => Document::count(),
             'requests' => CitizenRequest::count(),
-            'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+            'pendingRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'myAssignedRequests' => CitizenRequest::where('assigned_to', Auth::id())->count(),
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
-                ->whereIn('status', ['approved', 'complete', 'rejetee'])
+                ->whereIn('status', [CitizenRequest::STATUS_APPROVED, 'complete', 'rejetee'])
                 ->count(),
         ];
 
@@ -109,10 +109,10 @@ class DocumentsController extends Controller
             'users' => User::where('role', 'citizen')->count(),
             'documents' => Document::count(),
             'requests' => CitizenRequest::count(),
-            'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+            'pendingRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'myAssignedRequests' => CitizenRequest::where('assigned_to', Auth::id())->count(),
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
-                ->whereIn('status', ['approved', 'complete', 'rejetee'])
+                ->whereIn('status', [CitizenRequest::STATUS_APPROVED, 'complete', 'rejetee'])
                 ->count(),
         ];
 
@@ -149,10 +149,10 @@ class DocumentsController extends Controller
             'today' => [
                 'new_requests' => CitizenRequest::whereDate('created_at', $today)->count(),
                 'processed_requests' => CitizenRequest::whereDate('updated_at', $today)
-                    ->where('status', 'approved')->count(),
+                    ->where('status', CitizenRequest::STATUS_APPROVED)->count(),
             ],
             'queue' => [
-                'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+                'pendingRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
                 'myAssignedRequests' => CitizenRequest::where('assigned_to', Auth::id())->count(),
             ],
             'attachments' => [

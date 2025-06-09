@@ -36,7 +36,7 @@
                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             onchange="this.form.submit()">
                         <option value="">Tous les statuts</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>En attente</option>
+                        <option value="en_attente" {{ request('status') == 'en_attente' ? 'selected' : '' }}>En attente</option>
                         <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>En cours</option>
                     </select>
                 </div>
@@ -66,7 +66,7 @@
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
-                                                @if($request->status == 'pending')
+                                                @if($request->status == 'en_attente')
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                         En attente
                                                     </span>
@@ -77,7 +77,7 @@
                                                 @endif
                                             </div>
                                             <p class="ml-4 text-sm font-medium text-indigo-600 truncate">
-                                                {{ $request->reference }} - {{ $request->document->name ?? 'Document non spécifié' }}
+                                                {{ $request->reference }} - {{ $request->document->title ?? 'Document non spécifié' }}
                                             </p>
                                         </div>
                                         <div class="ml-2 flex-shrink-0 flex">

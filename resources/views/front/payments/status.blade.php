@@ -163,8 +163,7 @@
         border-top: 1px dashed #dee2e6;
         padding-top: 15px;
     }
-    
-    .qr-code {
+      .qr-code {
         width: 100px;
         height: 100px;
         margin: 0 auto;
@@ -173,6 +172,27 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    
+    /* Animation pour le message de succès */
+    .success-alert {
+        animation: successPulse 2s ease-in-out;
+        box-shadow: 0 4px 20px rgba(25, 135, 84, 0.3);
+    }
+    
+    @keyframes successPulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+        }
     }
 </style>
 @endpush
@@ -222,9 +242,22 @@
                         @else
                             Paiement échoué
                         @endif
-                    </h4>
-                </div>
-                <div class="card-body p-4">
+                    </h4>                </div>
+                <div class="card-body p-4">                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show mb-4 success-alert" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>🎉 Félicitations !</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Erreur :</strong> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-6 mb-4 mb-md-0">
                             <div class="payment-status">
@@ -338,9 +371,11 @@
                                         <small class="text-muted">Merci de votre paiement</small>
                                     </div>
                                 </div>
-                                
-                                <div class="d-grid gap-2 mt-4">
-                                    <a href="{{ route('requests.show', $payment->citizenRequest->id) }}" class="btn btn-primary">
+                                  <div class="d-grid gap-2 mt-4">
+                                    <a href="{{ route('citizen.dashboard') }}" class="btn btn-primary">
+                                        <i class="fas fa-tachometer-alt me-2"></i> Mes Demandes
+                                    </a>
+                                    <a href="{{ route('requests.show', $payment->citizenRequest->id) }}" class="btn btn-outline-primary">
                                         <i class="fas fa-file-alt me-2"></i> Voir ma demande
                                     </a>
                                     <a href="#" class="btn btn-outline-secondary" onclick="window.print()">

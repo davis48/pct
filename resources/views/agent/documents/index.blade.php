@@ -137,7 +137,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
                 <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">Tous</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>En attente</option>
+                    <option value="en_attente" {{ request('status') === 'en_attente' ? 'selected' : '' }}>En attente</option>
                     <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>En cours</option>
                     <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Terminé</option>
                     <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejeté</option>
@@ -221,18 +221,18 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    @if($request->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @if($request->status === 'en_attente') bg-yellow-100 text-yellow-800
                                     @elseif($request->status === 'processing') bg-blue-100 text-blue-800
                                     @elseif($request->status === 'completed') bg-green-100 text-green-800
                                     @elseif($request->status === 'rejected') bg-red-100 text-red-800
                                     @else bg-gray-100 text-gray-800 @endif">
                                     <span class="w-2 h-2 rounded-full mr-1
-                                        @if($request->status === 'pending') bg-yellow-400
+                                        @if($request->status === 'en_attente') bg-yellow-400
                                         @elseif($request->status === 'processing') bg-blue-400
                                         @elseif($request->status === 'completed') bg-green-400
                                         @elseif($request->status === 'rejected') bg-red-400
                                         @else bg-gray-400 @endif"></span>
-                                    @if($request->status === 'pending') En attente
+                                    @if($request->status === 'en_attente') En attente
                                     @elseif($request->status === 'processing') En cours
                                     @elseif($request->status === 'completed') Terminé
                                     @elseif($request->status === 'rejected') Rejeté
@@ -269,7 +269,7 @@
                                        class="text-blue-600 hover:text-blue-900 transition-colors duration-200">
                                         <i class="fas fa-eye mr-1"></i>Voir
                                     </a>
-                                    @if(in_array($request->status, ['pending', 'processing']))
+                                    @if(in_array($request->status, ['en_attente', 'processing']))
                                         <a href="{{ route('agent.requests.process', $request) }}"
                                            class="text-green-600 hover:text-green-900 transition-colors duration-200">
                                             <i class="fas fa-edit mr-1"></i>Traiter
@@ -308,12 +308,12 @@
                                 </div>
                             </div>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                @if($request->status === 'pending') bg-yellow-100 text-yellow-800
+                                @if($request->status === 'en_attente') bg-yellow-100 text-yellow-800
                                 @elseif($request->status === 'processing') bg-blue-100 text-blue-800
                                 @elseif($request->status === 'completed') bg-green-100 text-green-800
                                 @elseif($request->status === 'rejected') bg-red-100 text-red-800
                                 @else bg-gray-100 text-gray-800 @endif">
-                                @if($request->status === 'pending') En attente
+                                @if($request->status === 'en_attente') En attente
                                 @elseif($request->status === 'processing') En cours
                                 @elseif($request->status === 'completed') Terminé
                                 @elseif($request->status === 'rejected') Rejeté
@@ -340,7 +340,7 @@
                                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors duration-200">
                                     Voir
                                 </a>
-                                @if(in_array($request->status, ['pending', 'processing']))
+                                @if(in_array($request->status, ['en_attente', 'processing']))
                                     <a href="{{ route('agent.requests.process', $request) }}"
                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs transition-colors duration-200">
                                         Traiter

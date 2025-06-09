@@ -21,7 +21,25 @@
 @endsection
 
 @section('content')
-<div class="space-y-8">
+<div class="space-y-8" x-data="{
+    statusFilter: '',
+    viewMode: 'table',
+    notifications: [],
+    filterRequests() {
+        // Filtrer les demandes selon le statut
+        const rows = document.querySelectorAll('#requests-table-body tr');
+        rows.forEach(row => {
+            if (this.statusFilter === '' || row.dataset.status === this.statusFilter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    },
+    toggleView() {
+        this.viewMode = this.viewMode === 'table' ? 'cards' : 'table';
+    }
+}">
     <!-- Statistiques principales -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <!-- Demandes en attente -->
@@ -100,7 +118,7 @@
                     <p class="text-3xl font-bold">{{ $stats['monthly_total'] ?? 0 }}</p>
                     <p class="text-purple-100 text-xs mt-1">
                         <i class="fas fa-chart-line mr-1"></i>
-                        Performance mensuelle
+                        Ma performance mensuelle
                     </p>
                 </div>
                 <div class="bg-white/20 rounded-full p-3">
@@ -108,27 +126,6 @@
                 </div>
             </div>
         </a>
-    </div>
-
-    <!-- Graphiques et métriques -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Graphique des performances -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-semibold text-gray-800">Performance des 7 derniers jours</h3>
-                <select x-model="chartPeriod" @change="updateChart()" class="text-sm border rounded-lg px-3 py-1">
-                    <option value="7">7 jours</option>
-                    <option value="30">30 jours</option>
-                </select>
-            </div>
-            <canvas id="performanceChart" width="400" height="200"></canvas>
-        </div>
-
-        <!-- Répartition par type de document -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-6">Répartition par type de document</h3>
-            <canvas id="documentChart" width="400" height="200"></canvas>
-        </div>
     </div>
 
     <!-- Actions rapides -->
@@ -161,7 +158,7 @@
                 <div class="flex items-center space-x-4">
                     <select x-model="statusFilter" @change="filterRequests()" class="text-sm border rounded-lg px-3 py-1">
                         <option value="">Tous les statuts</option>
-                        <option value="pending">En attente</option>
+                        <option value="en_attente">En attente</option>
                         <option value="processing">En cours</option>
                         <option value="completed">Terminé</option>
                     </select>
@@ -187,7 +184,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="requests-table-body">
                     @forelse($pendingRequests as $request)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <tr class="hover:bg-gray-50 transition-colors duration-200" data-status="{{ $request->status }}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $request->reference_number }}</div>
                             </td>
@@ -209,11 +206,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    @if($request->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @if($request->status === 'en_attente') bg-yellow-100 text-yellow-800
                                     @elseif($request->status === 'processing' || $request->status === 'in_progress') bg-blue-100 text-blue-800
                                     @elseif($request->status === 'completed') bg-green-100 text-green-800
                                     @else bg-gray-100 text-gray-800 @endif">
-                                    @if($request->status === 'pending') En attente
+                                    @if($request->status === 'en_attente') En attente
                                     @elseif($request->status === 'processing' || $request->status === 'in_progress') En cours
                                     @elseif($request->status === 'completed') Terminé
                                     @else {{ $request->status }} @endif
@@ -332,8 +329,6 @@
     setInterval(updateTime, 1000);
     
     // Actualisation automatique des statistiques toutes les 30 secondes
-    let performanceChart = null;
-    let documentChart = null;
     
     function updateDashboardStats() {
         fetch('/agent/dashboard/stats')
@@ -357,104 +352,15 @@
             })
             .catch(error => console.error('Erreur lors de la mise à jour des statistiques:', error));
     }
-    
-    function updateCharts() {
-        fetch('/agent/dashboard/chart-data')
-            .then(response => response.json())
-            .then(data => {
-                // Mettre à jour le graphique de performance
-                if (performanceChart) {
-                    performanceChart.data.labels = data.performance.labels;
-                    performanceChart.data.datasets[0].data = data.performance.data;
-                    performanceChart.update();
-                }
-                
-                // Mettre à jour le graphique des types de documents
-                if (documentChart) {
-                    const labels = data.documentTypes.map(item => item.label);
-                    const counts = data.documentTypes.map(item => item.count);
-                    
-                    documentChart.data.labels = labels;
-                    documentChart.data.datasets[0].data = counts;
-                    documentChart.update();
-                }
-            })
-            .catch(error => console.error('Erreur lors de la mise à jour des graphiques:', error));
-    }
-    
-    // Initialiser les graphiques
+    // Démarrer l'actualisation automatique
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialiser le graphique de performance
-        const performanceCtx = document.getElementById('performanceChart')?.getContext('2d');
-        if (performanceCtx) {
-            const performanceData = @json($chartData['performance'] ?? ['labels' => [], 'data' => []]);
-            
-            performanceChart = new Chart(performanceCtx, {
-                type: 'line',
-                data: {
-                    labels: performanceData.labels,
-                    datasets: [{
-                        label: 'Demandes traitées',
-                        data: performanceData.data,
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-        }
+        console.log('Initialisation des graphiques...');
+        console.log('Initialisation du tableau de bord...');
         
-        // Initialiser le graphique des types de documents
-        const documentCtx = document.getElementById('documentChart')?.getContext('2d');
-        if (documentCtx) {
-            const documentData = @json($chartData['documentTypes'] ?? []);
-            
-            documentChart = new Chart(documentCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: documentData.map(item => item.label),
-                    datasets: [{
-                        data: documentData.map(item => item.count),
-                        backgroundColor: [
-                            'rgb(34, 197, 94)',
-                            'rgb(59, 130, 246)',
-                            'rgb(168, 85, 247)',
-                            'rgb(249, 115, 22)',
-                            'rgb(236, 72, 153)',
-                            'rgb(239, 68, 68)'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Mettre à jour les statistiques et graphiques toutes les 30 secondes
+        // Mettre à jour les statistiques toutes les 30 secondes
         setInterval(updateDashboardStats, 30000);
-        setInterval(updateCharts, 30000);
+        
+        console.log('Initialisation terminée');
     });
     
     // Fonction pour prendre la prochaine demande

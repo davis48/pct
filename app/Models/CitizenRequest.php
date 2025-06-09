@@ -10,6 +10,22 @@ class CitizenRequest extends Model
     use HasFactory;
 
     /**
+     * Constants pour les statuts
+     */
+    const STATUS_DRAFT = 'draft';
+    const STATUS_PENDING = 'en_attente'; // Changé de 'pending' à 'en_attente' pour correspondre à l'interface
+    const STATUS_IN_PROGRESS = 'in_progress';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+
+    /**
+     * Constants pour les statuts de paiement
+     */
+    const PAYMENT_STATUS_UNPAID = 'unpaid';
+    const PAYMENT_STATUS_PAID = 'paid';
+    const PAYMENT_STATUS_CANCELLED = 'cancelled';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -53,6 +69,45 @@ class CitizenRequest extends Model
             if (empty($request->reference_number)) {
                 $request->reference_number = static::generateReferenceNumber();
             }
+        });
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        // Écouter les changements de statut pour envoyer des notifications
+        static::updating(function ($request) {
+            if ($request->isDirty('status')) {
+                $oldStatus = $request->getOriginal('status');
+                $newStatus = $request->status;
+                
+                // Envoyer la notification de changement de statut
+                $notificationService = app(\App\Services\NotificationService::class);
+                $notificationService->sendStatusChangeNotification($request, $oldStatus, $newStatus);
+            }
+            
+            // Notification lors de l'assignation d'un agent
+            if ($request->isDirty('assigned_to') && $request->assigned_to) {
+                $agent = User::find($request->assigned_to);
+                if ($agent) {
+                    $notificationService = app(\App\Services\NotificationService::class);
+                    $notificationService->sendProcessingStartedNotification($request, $agent);
+                }
+            }
+            
+            // Notification lors de la finalisation du paiement
+            if ($request->isDirty('payment_status') && $request->payment_status === 'paid') {
+                $notificationService = app(\App\Services\NotificationService::class);
+                $notificationService->sendPaymentCompletedNotification($request);
+            }
+        });
+        
+        // Notification lors de la création d'une nouvelle demande
+        static::created(function ($request) {
+            $notificationService = app(\App\Services\NotificationService::class);
+            $notificationService->sendRequestSubmittedNotification($request);
         });
     }
 
@@ -169,7 +224,7 @@ class CitizenRequest extends Model
      */
     public function isDraft()
     {
-        return $this->status === 'draft';
+        return $this->status === self::STATUS_DRAFT;
     }
 
     /**
@@ -177,15 +232,28 @@ class CitizenRequest extends Model
      */
     public function isSubmitted()
     {
-        return !$this->isDraft() && $this->payment_status === 'paid';
+        return !$this->isDraft() && ($this->payment_status === self::PAYMENT_STATUS_PAID || !$this->requiresPayment());
     }
 
     /**
-     * Check if the request can be processed (payment is complete)
+     * Check if the request can be processed (payment is complete or not required)
      */
     public function canBeProcessed()
     {
-        return $this->payment_status === 'paid' && in_array($this->status, ['pending', 'in_progress']);
+        // Une demande peut être traitée si :
+        // 1. Le paiement est marqué comme payé, OU
+        // 2. Le paiement n'est pas requis pour cette demande
+        // ET le statut permet le traitement
+        $paymentOk = ($this->payment_status === self::PAYMENT_STATUS_PAID || !$this->requiresPayment());
+        
+        // Gérer les statuts en BD qui peuvent être 'pending' ou 'en_attente'
+        $statusOk = in_array($this->status, [
+            self::STATUS_PENDING,    // 'en_attente'
+            'pending',               // Statut legacy en BD
+            self::STATUS_IN_PROGRESS // 'in_progress'
+        ]);
+        
+        return $paymentOk && $statusOk;
     }
 
     /**
@@ -208,10 +276,11 @@ class CitizenRequest extends Model
     public function getStatusLabelAttribute()
     {
         return match($this->status) {
-            'pending' => 'En attente',
-            'in_progress' => 'En cours',
-            'approved' => 'Approuvée',
-            'rejected' => 'Rejetée',
+            self::STATUS_DRAFT => 'Brouillon',
+            self::STATUS_PENDING => 'En attente',
+            self::STATUS_IN_PROGRESS => 'En cours',
+            self::STATUS_APPROVED => 'Approuvée',
+            self::STATUS_REJECTED => 'Rejetée',
             default => 'Inconnu'
         };
     }

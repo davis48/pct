@@ -56,7 +56,7 @@ class StatisticsController extends Controller
         
         // Vérifier que c'est bien un agent
         if ($agent->role !== 'agent') {
-            return redirect()->route('admin.statistics.index')->with('error', 'Cet utilisateur n\'est pas un agent.');
+            return redirect()->route('admin.special.statistics')->with('error', 'Cet utilisateur n\'est pas un agent.');
         }
         
         // Statistiques de l'agent

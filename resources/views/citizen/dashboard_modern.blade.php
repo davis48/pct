@@ -30,11 +30,28 @@
         border-radius: 20px;
         font-weight: 600;
         text-transform: uppercase;
+    }    .status-draft { background-color: #ffeaa7; color: #d68910; }
+    .status-pending { 
+        background: linear-gradient(135deg, #28a745, #20c997); 
+        color: #ffffff; 
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        animation: gentle-pulse 3s infinite;
     }
-    .status-pending { background-color: #fff3cd; color: #856404; }
     .status-in_progress { background-color: #cce7ff; color: #0066cc; }
     .status-approved { background-color: #d1e7dd; color: #0a3622; }
     .status-rejected { background-color: #f8d7da; color: #721c24; }
+    .status-unpaid { background-color: #ff6b6b; color: #ffffff; animation: pulse-payment 2s infinite; }
+    
+    @keyframes gentle-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @keyframes pulse-payment {
+        0%, 100% { background-color: #ff6b6b; }
+        50% { background-color: #ff8e8e; }
+    }
     .action-btn {
         border-radius: 10px;
         padding: 0.75rem 1.5rem;
@@ -47,11 +64,16 @@
     }
     .pulse-animation {
         animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
+    }    @keyframes pulse {
         0% { opacity: 1; }
         50% { opacity: 0.5; }
         100% { opacity: 1; }
+    }
+    
+    @keyframes successPulse {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.02); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
     }
 </style>
 @endpush
@@ -83,22 +105,92 @@
                         </div>
                     </div>
                 </div>
+            </div>        </div>        <!-- Messages de succès ULTRA VISIBLES pour les paiements -->
+        @if(session('payment_success') || session('success'))
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-dismissible fade show shadow-lg" role="alert" style="
+                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                    border: 3px solid #ffffff;
+                    border-radius: 20px;
+                    color: white;
+                    font-size: 1.2rem;
+                    padding: 2rem;
+                    animation: successPulse 4s ease-in-out;
+                    box-shadow: 0 15px 35px rgba(40, 167, 69, 0.4), 0 5px 15px rgba(40, 167, 69, 0.2);
+                    position: relative;
+                    overflow: hidden;
+                ">
+                    <!-- Effet de brillance animé -->
+                    <div style="
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 200%;
+                        height: 200%;
+                        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+                        animation: shine 3s infinite;
+                        pointer-events: none;
+                    "></div>
+                    
+                    <div class="d-flex align-items-center">
+                        <div class="me-4" style="font-size: 4rem; animation: bounce 2s infinite;">
+                            🎉
+                        </div>
+                        <div class="flex-grow-1">
+                            <h3 class="alert-heading mb-3" style="font-size: 1.8rem; font-weight: bold;">
+                                <i class="fas fa-check-circle me-3" style="font-size: 1.5rem;"></i>
+                                FÉLICITATIONS ! Paiement Réussi avec Succès !
+                            </h3>
+                            <p class="mb-2" style="font-size: 1.1rem; font-weight: 500;">
+                                {{ session('payment_success') ?? session('success') }}
+                            </p>
+                            <hr style="border-color: rgba(255,255,255,0.4); margin: 1.5rem 0;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-hourglass-half me-2" style="font-size: 1.2rem;"></i>
+                                <p class="mb-0" style="font-size: 1rem; font-weight: 500;">
+                                    Votre demande est maintenant <strong>EN ATTENTE DE TRAITEMENT</strong>. 
+                                    Vous recevrez une notification dès qu'elle sera traitée par nos services.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close" style="font-size: 1.2rem;"></button>
+                </div>
             </div>
         </div>
+        
+        <style>
+            @keyframes shine {
+                0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+                100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            }
+            
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-10px); }
+                60% { transform: translateY(-5px); }
+            }
+        </style>
+        @endif
 
         <!-- Notifications Section -->
         @if($notifications->count() > 0)
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div class="card shadow-sm">                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             <i class="fas fa-bell me-2"></i>
                             Notifications récentes ({{ $notifications->count() }})
                         </h5>
-                        <button onclick="markAllAsRead()" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-check-double me-1"></i>Tout marquer comme lu
-                        </button>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('citizen.notification-preferences') }}" class="btn btn-outline-light btn-sm" title="Préférences de notifications">
+                                <i class="fas fa-cog me-1"></i>Préférences
+                            </a>
+                            <button onclick="markAllAsRead()" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-check-double me-1"></i>Tout marquer comme lu
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div id="notifications-container">
@@ -225,30 +317,43 @@
                                                 <div class="d-flex align-items-center">
                                                     <i class="fas fa-file-alt text-primary me-2"></i>
                                                     <div>
-                                                        <strong>{{ $request->document->name ?? 'Document non spécifié' }}</strong>
+                                                        <strong>{{ $request->document->title ?? 'Document non spécifié' }}</strong>
                                                         <br><small class="text-muted">ID: #{{ $request->id }}</small>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <span class="request-status status-{{ $request->status }}">
-                                                    @switch($request->status)
-                                                        @case('pending')
-                                                            <i class="fas fa-clock me-1"></i>En attente
-                                                            @break
-                                                        @case('in_progress')
-                                                            <i class="fas fa-cog me-1"></i>En cours
-                                                            @break
-                                                        @case('approved')
-                                                            <i class="fas fa-check me-1"></i>Approuvée
-                                                            @break
-                                                        @case('rejected')
-                                                            <i class="fas fa-times me-1"></i>Rejetée
-                                                            @break
-                                                        @default
-                                                            {{ ucfirst($request->status) }}
-                                                    @endswitch
+                                            </td>                                            <td>
+                                                <span class="request-status status-{{ $request->payment_status === 'unpaid' ? 'unpaid' : $request->status }}">
+                                                    @if($request->payment_status === 'unpaid' && $request->requiresPayment())
+                                                        <i class="fas fa-credit-card me-1"></i>À Payer
+                                                    @else
+                                                        @switch($request->status)
+                                                            @case('draft')
+                                                                <i class="fas fa-edit me-1"></i>Brouillon
+                                                                @break
+                                                            @case('pending')
+                                                                <i class="fas fa-hourglass-half me-1"></i>En Attente
+                                                                @break
+                                                            @case('in_progress')
+                                                                <i class="fas fa-cog fa-spin me-1"></i>En Cours
+                                                                @break
+                                                            @case('approved')
+                                                                <i class="fas fa-check-circle me-1"></i>Approuvée
+                                                                @break
+                                                            @case('rejected')
+                                                                <i class="fas fa-times-circle me-1"></i>Rejetée
+                                                                @break
+                                                            @default
+                                                                <i class="fas fa-question-circle me-1"></i>{{ ucfirst($request->status) }}
+                                                        @endswitch
+                                                    @endif
                                                 </span>
+                                                @if($request->status === 'pending')
+                                                    <div class="mt-1">
+                                                        <small class="text-success fw-bold">
+                                                            <i class="fas fa-clock me-1"></i>Soumise et en cours de traitement
+                                                        </small>
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td>
                                                 <i class="fas fa-calendar me-1 text-muted"></i>
@@ -309,6 +414,8 @@
 @endsection
 
 @push('scripts')
+<!-- Inclusion du système de notification amélioré -->
+<script src="{{ asset('js/citizen-notifications.js') }}"></script>
 <script>
 // Configuration AJAX pour CSRF
 $.ajaxSetup({
@@ -346,17 +453,22 @@ function updateRequestsDisplay(requests) {
             let statusText = '';
             switch(request.status) {
                 case 'pending':
-                    statusText = '<i class="fas fa-clock me-1"></i>En attente';
+                    statusText = '<i class="fas fa-hourglass-half me-1"></i>En Attente';
                     break;
                 case 'in_progress':
-                    statusText = '<i class="fas fa-cog me-1"></i>En cours';
+                    statusText = '<i class="fas fa-cog fa-spin me-1"></i>En Cours';
                     break;
                 case 'approved':
-                    statusText = '<i class="fas fa-check me-1"></i>Approuvée';
+                    statusText = '<i class="fas fa-check-circle me-1"></i>Approuvée';
                     break;
                 case 'rejected':
-                    statusText = '<i class="fas fa-times me-1"></i>Rejetée';
+                    statusText = '<i class="fas fa-times-circle me-1"></i>Rejetée';
                     break;
+                case 'draft':
+                    statusText = '<i class="fas fa-edit me-1"></i>Brouillon';
+                    break;
+                default:
+                    statusText = `<i class="fas fa-question-circle me-1"></i>${request.status}`;
             }
             statusCell.html(statusText);
             
@@ -364,9 +476,14 @@ function updateRequestsDisplay(requests) {
             let updateCell = requestRow.find('td:nth-child(4)');
             updateCell.html(`<i class="fas fa-sync me-1 text-muted"></i>${request.updated_at}`);
             
-            // Animation pour indiquer la mise à jour
-            requestRow.addClass('table-warning');
-            setTimeout(() => requestRow.removeClass('table-warning'), 2000);
+            // Animation pour indiquer la mise à jour - utiliser une couleur verte pour les demandes en attente
+            if (request.status === 'pending') {
+                requestRow.addClass('table-success');
+                setTimeout(() => requestRow.removeClass('table-success'), 3000);
+            } else {
+                requestRow.addClass('table-warning');
+                setTimeout(() => requestRow.removeClass('table-warning'), 2000);
+            }
         }
     });
 }
@@ -379,32 +496,7 @@ function updateAutoRefreshIndicator() {
     }, 1000);
 }
 
-// Fonction pour marquer une notification comme lue
-function markAsRead(notificationId) {
-    $.post(`{{ url('/citizen/notifications') }}/${notificationId}/read`, function() {
-        $(`.notification-item[data-id="${notificationId}"]`).fadeOut(300, function() {
-            $(this).remove();
-            updateNotificationCount();
-        });
-    });
-}
-
-// Fonction pour marquer toutes les notifications comme lues
-function markAllAsRead() {
-    $.post('{{ route("citizen.notifications.read-all") }}', function() {
-        $('#notifications-container').parent().parent().fadeOut(300);
-    });
-}
-
-// Fonction pour mettre à jour le compteur de notifications
-function updateNotificationCount() {
-    let remainingNotifications = $('.notification-item').length;
-    if (remainingNotifications === 0) {
-        $('.card').has('#notifications-container').fadeOut(300);
-    } else {
-        $('.card-header h5').html(`<i class="fas fa-bell me-2"></i>Notifications récentes (${remainingNotifications})`);
-    }
-}
+// Les fonctions de notification sont maintenant dans citizen-notifications.js
 
 // Rafraîchir les notifications toutes les 60 secondes
 setInterval(function() {

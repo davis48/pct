@@ -19,43 +19,49 @@ class DashboardController extends Controller
         // Statistiques pour l'agent avec toutes les clés attendues par la vue
         $stats = [
             // Clés pour le menu de navigation
-            'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+            'pendingRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'myAssignedRequests' => CitizenRequest::where('assigned_to', Auth::id())
-                                                 ->whereIn('status', ['pending', 'in_progress'])
+                                                 ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
                                                  ->count(),
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
-                                                  ->whereIn('status', ['approved', 'rejected'])
+                                                  ->whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                                   ->count(),
-            'inProgressRequests' => CitizenRequest::where('status', 'in_progress')->count(),
+            'inProgressRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_IN_PROGRESS)->count(),
             
             // Clés pour les statistiques du tableau de bord
-            'pending' => CitizenRequest::where('status', 'pending')->count(),
-            'assigned' => CitizenRequest::where('assigned_to', Auth::id())->count(),
-            'completed_today' => CitizenRequest::whereIn('status', ['approved', 'rejected'])
+            'pending' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
+            'in_progress' => CitizenRequest::where('status', CitizenRequest::STATUS_IN_PROGRESS)->count(),
+            'assigned' => CitizenRequest::where('assigned_to', Auth::id())
+                                       ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
+                                       ->count(),
+            'completed_today' => CitizenRequest::where('processed_by', Auth::id())
+                                              ->whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                               ->whereDate('updated_at', today())
                                               ->count(),
-            'monthly_total' => CitizenRequest::whereIn('status', ['approved', 'rejected'])
+            'monthly_total' => CitizenRequest::where('processed_by', Auth::id())
+                                           ->whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                            ->whereYear('updated_at', now()->year)
                                            ->whereMonth('updated_at', now()->month)
                                            ->count(),
-            'in_progress' => CitizenRequest::where('status', 'in_progress')->count(),
-            'reminders_needed' => CitizenRequest::where('status', 'pending')
+            'reminders_needed' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)
                                              ->where('created_at', '<=', now()->subDays(3))
                                              ->count(),
             
             // Statistiques supplémentaires
             'totalRequests' => CitizenRequest::count(),
-            'pendingAssigned' => CitizenRequest::where('status', 'pending')
+            'pendingAssigned' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)
                                               ->whereNotNull('assigned_to')
                                               ->count(),
-            'allInProgress' => CitizenRequest::where('status', 'in_progress')->count(),
-            'allApproved' => CitizenRequest::where('status', 'approved')->count(),
-            'allRejected' => CitizenRequest::where('status', 'rejected')->count(),
+            'allInProgress' => CitizenRequest::where('status', CitizenRequest::STATUS_IN_PROGRESS)->count(),
+            'allApproved' => CitizenRequest::where('status', CitizenRequest::STATUS_APPROVED)->count(),
+            'allRejected' => CitizenRequest::where('status', CitizenRequest::STATUS_REJECTED)->count(),
         ];
 
         // Demandes récentes à traiter
         $pendingRequests = CitizenRequest::with(['user', 'document'])
-                         ->where('status', 'pending')
+                         ->where('status', CitizenRequest::STATUS_PENDING)
+                         ->where('payment_status', CitizenRequest::PAYMENT_STATUS_PAID)
+                         ->whereNull('assigned_to')
                          ->latest()
                          ->take(10)
                          ->get();
@@ -63,21 +69,21 @@ class DashboardController extends Controller
         // Mes assignations
         $myAssignments = CitizenRequest::with(['user', 'document'])
                        ->where('assigned_to', Auth::id())
-                       ->whereIn('status', ['pending', 'in_progress'])
+                       ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
                        ->latest()
                        ->take(5)
                        ->get();
                        
         // Demandes en cours
         $inProgressRequests = CitizenRequest::with(['user', 'document', 'assignedAgent'])
-                            ->where('status', 'in_progress')
+                            ->where('status', CitizenRequest::STATUS_IN_PROGRESS)
                             ->latest()
                             ->take(5)
                             ->get();
         
         // Demandes nécessitant un rappel (plus de 3 jours sans traitement)
         $remindersNeeded = CitizenRequest::with(['user', 'document'])
-                         ->where('status', 'pending')
+                         ->where('status', CitizenRequest::STATUS_PENDING)
                          ->where('created_at', '<=', now()->subDays(3))
                          ->latest()
                          ->take(5)
@@ -106,32 +112,49 @@ class DashboardController extends Controller
         }
         
         // Requête pour les demandes traitées dans les 7 derniers jours
-        $processedRequests = CitizenRequest::whereIn('status', ['approved', 'rejected'])
+        // Utiliser toutes les demandes traitées, pas seulement par l'agent connecté au début
+        $processedRequests = CitizenRequest::whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                          ->where('updated_at', '>=', now()->subDays(7))
                                          ->selectRaw('DATE(updated_at) as date, COUNT(*) as count')
                                          ->groupBy('date')
                                          ->get();
                                          
-        // Remplir les données
+        // Remplir les données réelles
         foreach ($processedRequests as $request) {
             $date = \Carbon\Carbon::parse($request->date);
             $daysAgo = now()->diffInDays($date);
             if ($daysAgo <= 6) {
                 $index = 6 - $daysAgo;
-                $performanceData[$index] = $request->count;
+                if (isset($performanceData[$index])) {
+                    $performanceData[$index] = (int)$request->count;
+                }
             }
         }
         
         // Données pour le graphique des types de documents
-        $documentTypes = CitizenRequest::selectRaw('type, COUNT(*) as count')
-                                     ->groupBy('type')
+        $documentTypes = CitizenRequest::with('document')
+                                     ->whereHas('document')
                                      ->get()
-                                     ->map(function ($item) {
+                                     ->groupBy(function($request) {
+                                         return $request->document ? $request->document->category : 'Non spécifié';
+                                     })
+                                     ->map(function ($requests, $category) {
                                          return [
-                                             'label' => ucfirst($item->type),
-                                             'count' => $item->count
+                                             'label' => $category ?: 'Non spécifié',
+                                             'count' => $requests->count()
                                          ];
-                                     });
+                                     })
+                                     ->values();
+                                     
+        // Si aucune donnée, ajouter des données de démo
+        if ($documentTypes->isEmpty()) {
+            $documentTypes = collect([
+                ['label' => 'Passeport', 'count' => 0],
+                ['label' => 'Carte d\'identité', 'count' => 0],
+                ['label' => 'Certificat de naissance', 'count' => 0],
+                ['label' => 'Autres', 'count' => 0]
+            ]);
+        }
         
         return [
             'performance' => [
@@ -146,16 +169,16 @@ class DashboardController extends Controller
      * Assigner la prochaine demande à l'agent connecté
      */
     public function assignNext(Request $request)
-    {
-        $nextRequest = CitizenRequest::where('status', 'pending')
-                     ->whereNull('assigned_to')
-                     ->oldest()
-                     ->first();
+    {        $nextRequest = CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)
+                                     ->where('payment_status', CitizenRequest::PAYMENT_STATUS_PAID)
+                                     ->whereNull('assigned_to')
+                                     ->oldest()
+                                     ->first();
 
         if ($nextRequest) {
             $nextRequest->update([
                 'assigned_to' => Auth::id(),
-                'status' => 'in_progress'
+                'status' => CitizenRequest::STATUS_IN_PROGRESS
             ]);
 
             // Redirection vers la page de traitement de la demande
@@ -173,12 +196,12 @@ class DashboardController extends Controller
     public function getNotifications(Request $request)
     {
         $notifications = [
-            'pending_count' => CitizenRequest::where('status', 'pending')->count(),
+            'pending_count' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'my_assignments_count' => CitizenRequest::where('assigned_to', Auth::id())
-                                                   ->whereIn('status', ['pending', 'in_progress'])
+                                                   ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
                                                    ->count(),
             'urgent_requests' => CitizenRequest::where('created_at', '<=', now()->subDays(3))
-                                              ->where('status', 'pending')
+                                              ->where('status', CitizenRequest::STATUS_PENDING)
                                               ->count()
         ];
 
@@ -199,23 +222,26 @@ class DashboardController extends Controller
     public function getDashboardStats()
     {
         $stats = [
-            'pending' => CitizenRequest::where('status', 'pending')->count(),
+            'pending' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'assigned' => CitizenRequest::where('assigned_to', Auth::id())->count(),
-            'completed_today' => CitizenRequest::whereIn('status', ['approved', 'rejected'])
+            'completed_today' => CitizenRequest::whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                               ->whereDate('updated_at', today())
                                               ->count(),
-            'monthly_total' => CitizenRequest::whereIn('status', ['approved', 'rejected'])
+            'monthly_total' => CitizenRequest::whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                            ->whereYear('updated_at', now()->year)
                                            ->whereMonth('updated_at', now()->month)
                                            ->count(),
-            'pendingRequests' => CitizenRequest::where('status', 'pending')->count(),
+            'pendingRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)->count(),
             'myAssignedRequests' => CitizenRequest::where('assigned_to', Auth::id())
-                                                 ->whereIn('status', ['pending', 'in_progress'])
+                                                 ->whereIn('status', [CitizenRequest::STATUS_PENDING, CitizenRequest::STATUS_IN_PROGRESS])
                                                  ->count(),
             'myCompletedRequests' => CitizenRequest::where('processed_by', Auth::id())
-                                                  ->whereIn('status', ['approved', 'rejected'])
+                                                  ->whereIn('status', [CitizenRequest::STATUS_APPROVED, CitizenRequest::STATUS_REJECTED])
                                                   ->count(),
-            'inProgressRequests' => CitizenRequest::where('status', 'in_progress')->count(),
+            'inProgressRequests' => CitizenRequest::where('status', CitizenRequest::STATUS_IN_PROGRESS)->count(),
+            'remindersCount' => CitizenRequest::where('status', CitizenRequest::STATUS_PENDING)
+                                             ->where('created_at', '<=', now()->subDays(3))
+                                             ->count(),
         ];
         
         return response()->json($stats);

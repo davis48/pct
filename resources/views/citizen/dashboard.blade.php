@@ -66,6 +66,112 @@
             margin-bottom: 1rem;
         }
     }
+
+    /* Styles pour le système de notification compact */
+    .notification-bell {
+        animation: bell-shake 2s ease-in-out infinite;
+    }
+    
+    @keyframes bell-shake {
+        0%, 50%, 100% { transform: rotate(0deg); }
+        5%, 15%, 25%, 35%, 45% { transform: rotate(10deg); }
+        10%, 20%, 30%, 40% { transform: rotate(-10deg); }
+    }
+    
+    .notification-compact {
+        border-left: 4px solid #0d6efd;
+        background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        transition: all 0.3s ease;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .notification-compact:hover {
+        transform: translateX(2px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+    
+    .notification-content h6 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1d2b36;
+        margin-bottom: 2px;
+    }
+    
+    .notification-content .text-muted {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    
+    .notification-actions .btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+    }
+    
+    .notification-badge-pulse {
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .notification-center-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .notification-center-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .notification-item {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .notification-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, #0d6efd, #0a58ca);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .notification-item:hover::before {
+        opacity: 1;
+    }
 </style>
 @endpush
 
@@ -182,16 +288,32 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg col-md-4 col-sm-6 mb-3">
+          <div class="col-lg col-md-4 col-sm-6 mb-3">
             <div class="card stat-card bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                        </div>                        <div class="flex-grow-1 ms-3">
+                        </div>
+                        <div class="flex-grow-1 ms-3">
                             <div class="h3 mb-0" id="approvedRequests">{{ $stats['approved_requests'] }}</div>
                             <div class="small">Approuvées</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card bg-dark text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-flag-checkered fa-2x opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="h3 mb-0" id="completedRequests">{{ $stats['completed_requests'] ?? 0 }}</div>
+                            <div class="small">Complétées</div>
                         </div>
                     </div>
                 </div>
@@ -215,47 +337,52 @@
         </div>
     </div>
 
-    <!-- Notifications Section -->
-    @if($notifications->count() > 0)
+    @if(isset($additionalData['payment_summary']) && $additionalData['payment_summary']['total_paid'] > 0)
+    <!-- Payment Summary Section -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 pb-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-bell text-primary me-2"></i>                            Notifications récentes ({{ $notifications->count() }})
-                        </h5>
-                        <button class="btn btn-sm btn-outline-primary" onclick="markAllAsRead()">
-                            <i class="fas fa-check-double me-1"></i>
-                            Tout marquer comme lu
-                        </button>
-                    </div>
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line text-success me-2"></i>
+                        Résumé des Paiements
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div id="notifications-container">
-                        @foreach($notifications as $notification)
-                        <div class="notification-item border rounded-3 p-3 mb-3" data-id="{{ $notification->id }}">
-                            <div class="d-flex align-items-start justify-content-between">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="{{ $notification->icon ?? 'fas fa-info-circle' }} text-primary me-2"></i>
-                                        <h6 class="mb-0">{{ $notification->title ?? 'Notification' }}</h6>
-                                    </div>
-                                    <p class="text-muted mb-1 small">{{ $notification->message ?? $notification->data['message'] ?? 'Nouvelle notification' }}</p>
-                                    <span class="badge bg-light text-dark">{{ $notification->created_at->format('d/m/Y à H:i') }}</span>
-                                </div>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="markAsRead({{ $notification->id }})">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h4 class="text-success mb-1">{{ number_format($additionalData['payment_summary']['total_paid'], 0, ',', ' ') }}</h4>
+                                <small class="text-muted">FCFA Payés</small>
                             </div>
                         </div>
-                        @endforeach
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h4 class="text-primary mb-1">{{ $additionalData['payment_summary']['payment_count'] }}</h4>
+                                <small class="text-muted">Paiements</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h4 class="text-info mb-1">{{ number_format($additionalData['payment_summary']['average_amount'], 0, ',', ' ') }}</h4>
+                                <small class="text-muted">Moyenne</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning mb-1">{{ number_format($additionalData['payment_summary']['total_pending'], 0, ',', ' ') }}</h4>
+                            <small class="text-muted">En Attente</small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @endif
+    @endif    <!-- Widget de Notifications Compact -->
+    <div class="row mb-4">
+        <div class="col-12">
+            @include('citizen.partials.notifications-widget')
+        </div>
+    </div>
 
     <!-- Main Content Area -->
     <div class="row">
@@ -316,7 +443,7 @@
                                             @endswitch
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">{{ $request->document->name ?? 'Document non spécifié' }}</h6>
+                                            <h6 class="mb-1">{{ $request->document->title ?? 'Document non spécifié' }}</h6>
                                             <p class="text-muted small mb-0">
                                                 Référence: #{{ $request->reference_number ?? $request->id }}
                                             </p>
@@ -347,6 +474,16 @@
                                                target="_blank">
                                                 <i class="fas fa-download"></i>
                                             </a>
+                                        @endif
+                                        @if($request->status === 'draft')
+                                            <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline" 
+                                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger action-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         @endif
                                     </div>
                                 </div>
@@ -469,13 +606,50 @@
 <script>
 let refreshInterval;
 
+// Variables pour le système de rafraîchissement intelligent
+let refreshIntervalTime = 30000; // 30 secondes par défaut
+let isPageVisible = true;
+let consecutiveErrors = 0;
+let maxRetries = 3;
+
 // Fonctions de gestion du rafraîchissement automatique
 function startAutoRefresh() {
-    refreshInterval = setInterval(() => {
-        refreshData();
-    }, 30000); // Rafraîchir toutes les 30 secondes
+    stopAutoRefresh(); // S'assurer qu'il n'y a pas de double interval
+    
+    refreshInterval = setInterval(async () => {
+        if (isPageVisible && consecutiveErrors < maxRetries) {
+            try {
+                await refreshData();
+                consecutiveErrors = 0; // Reset sur succès
+                
+                // Adapter l'intervalle selon l'activité
+                adaptRefreshInterval();
+            } catch (error) {
+                consecutiveErrors++;
+                console.error('Erreur de rafraîchissement automatique:', error);
+                
+                // Augmenter l'intervalle en cas d'erreurs répétées
+                if (consecutiveErrors >= maxRetries) {
+                    refreshIntervalTime = Math.min(refreshIntervalTime * 2, 300000); // Max 5 minutes
+                    showToast('Problème de connexion détecté. Ralentissement des mises à jour.', 'warning');
+                }
+            }
+        }
+    }, refreshIntervalTime);
     
     updateRefreshStatus(true);
+}
+
+// Adapter l'intervalle de rafraîchissement selon l'activité
+function adaptRefreshInterval() {
+    const hour = new Date().getHours();
+    
+    // Heures de bureau (8h-18h) : plus fréquent
+    if (hour >= 8 && hour <= 18) {
+        refreshIntervalTime = 30000; // 30 secondes
+    } else {
+        refreshIntervalTime = 60000; // 1 minute hors heures de bureau
+    }
 }
 
 function stopAutoRefresh() {
@@ -560,19 +734,147 @@ async function refreshNotifications() {
 
 // Rafraîchir les statistiques
 async function refreshStats() {
-    try {        // Mettre à jour les compteurs visuellement
-        const elements = ['totalRequests', 'draftRequests', 'pendingRequests', 'inProgressRequests', 'approvedRequests', 'rejectedRequests'];
-        elements.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.classList.add('animate__animated', 'animate__pulse');
-                setTimeout(() => {
-                    element.classList.remove('animate__animated', 'animate__pulse');
-                }, 1000);
+    try {
+        const response = await fetch('{{ route("citizen.stats") }}');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.stats) {
+                updateStatsDisplay(data.stats);
+                
+                // Mettre à jour les informations supplémentaires si disponibles
+                if (data.data) {
+                    updateAdditionalData(data.data);
+                }
             }
-        });
+        }
     } catch (error) {
         console.error('Erreur lors de la mise à jour des statistiques:', error);
+    }
+}
+
+// Mettre à jour l'affichage des statistiques avec animation
+function updateStatsDisplay(stats) {    const statsMapping = {
+        'totalRequests': stats.total_requests,
+        'draftRequests': stats.draft_requests,
+        'pendingRequests': stats.pending_requests,
+        'inProgressRequests': stats.in_progress_requests,
+        'approvedRequests': stats.approved_requests,
+        'completedRequests': stats.completed_requests || 0,
+        'rejectedRequests': stats.rejected_requests
+    };
+    
+    Object.entries(statsMapping).forEach(([elementId, newValue]) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            const currentValue = parseInt(element.textContent) || 0;
+            
+            // Animation si la valeur a changé
+            if (currentValue !== newValue) {
+                animateCounterUpdate(element, currentValue, newValue);
+                
+                // Ajouter une classe pour highlighter le changement
+                const card = element.closest('.stat-card');
+                if (card) {
+                    card.classList.add('border-primary', 'border-2');
+                    setTimeout(() => {
+                        card.classList.remove('border-primary', 'border-2');
+                    }, 2000);
+                }
+            }
+        }
+    });
+}
+
+// Animation de compteur pour les changements de valeur
+function animateCounterUpdate(element, startValue, endValue) {
+    const duration = 1000; // 1 seconde
+    const startTime = performance.now();
+    
+    function updateValue(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Utiliser une fonction d'easing pour une animation plus fluide
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.round(startValue + (endValue - startValue) * easeOut);
+        
+        element.textContent = currentValue;
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateValue);
+        } else {
+            element.textContent = endValue; // S'assurer que la valeur finale est exacte
+        }
+    }
+    
+    requestAnimationFrame(updateValue);
+}
+
+// Mettre à jour les données supplémentaires
+function updateAdditionalData(data) {
+    // Afficher un résumé des paiements si disponible
+    if (data.payment_summary) {
+        const summary = data.payment_summary;
+        const totalPaid = summary.total_paid || 0;
+        
+        // Créer ou mettre à jour un indicateur de paiement
+        updatePaymentIndicator(totalPaid, summary.payment_count || 0);
+    }
+    
+    // Mettre à jour l'activité récente
+    if (data.recent_activity && data.recent_activity.length > 0) {
+        updateRecentActivityIndicator(data.recent_activity);
+    }
+}
+
+// Mettre à jour l'indicateur de paiement
+function updatePaymentIndicator(totalPaid, paymentCount) {
+    let indicator = document.getElementById('payment-indicator');
+    if (!indicator) {
+        // Créer l'indicateur s'il n'existe pas
+        const header = document.querySelector('.gradient-bg .row .col-md-8');
+        if (header) {
+            indicator = document.createElement('div');
+            indicator.id = 'payment-indicator';
+            indicator.className = 'mt-2';
+            header.appendChild(indicator);
+        }
+    }
+    
+    if (indicator && totalPaid > 0) {
+        indicator.innerHTML = `
+            <small class="opacity-75">
+                <i class="fas fa-credit-card me-1"></i>
+                Total payé: ${new Intl.NumberFormat('fr-FR').format(totalPaid)} FCFA 
+                (${paymentCount} paiement${paymentCount > 1 ? 's' : ''})
+            </small>
+        `;
+    }
+}
+
+// Mettre à jour l'indicateur d'activité récente
+function updateRecentActivityIndicator(recentActivity) {
+    const lastActivity = recentActivity[0];
+    if (lastActivity) {
+        let activityIndicator = document.getElementById('activity-indicator');
+        if (!activityIndicator) {
+            const header = document.querySelector('.gradient-bg .row .col-md-4');
+            if (header) {
+                activityIndicator = document.createElement('div');
+                activityIndicator.id = 'activity-indicator';
+                activityIndicator.className = 'mb-2';
+                header.insertBefore(activityIndicator, header.firstChild);
+            }
+        }
+        
+        if (activityIndicator) {
+            activityIndicator.innerHTML = `
+                <small class="opacity-75">
+                    <i class="fas fa-clock me-1"></i>
+                    Dernière activité: ${lastActivity.updated_ago}
+                </small>
+            `;
+        }
     }
 }
 
@@ -612,14 +914,33 @@ async function markAsRead(notificationId) {
         });
         
         if (response.ok) {
+            // Supprimer la notification de l'interface
             const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
             if (notificationElement) {
-                notificationElement.style.transition = 'opacity 0.3s ease';
-                notificationElement.style.opacity = '0.5';
+                notificationElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                notificationElement.style.opacity = '0';
+                notificationElement.style.transform = 'translateX(20px)';
                 setTimeout(() => {
                     notificationElement.remove();
+                    
+                    // Vérifier s'il reste des notifications
+                    const remainingNotifications = document.querySelectorAll('.notification-item').length;
+                    if (remainingNotifications === 0) {
+                        // Masquer tout le widget de notifications
+                        const notificationWidget = document.querySelector('.notification-compact');
+                        if (notificationWidget) {
+                            notificationWidget.style.transition = 'opacity 0.5s ease';
+                            notificationWidget.style.opacity = '0';
+                            setTimeout(() => {
+                                notificationWidget.style.display = 'none';
+                            }, 500);
+                        }
+                    }
                 }, 300);
             }
+            
+            // Mettre à jour le compteur dans l'en-tête
+            updateNotificationBadge();
         }
     } catch (error) {
         console.error('Erreur lors du marquage de la notification:', error);
@@ -638,15 +959,36 @@ async function markAllAsRead() {
         });
         
         if (response.ok) {
-            const notificationsContainer = document.getElementById('notifications-container');
-            if (notificationsContainer) {
-                notificationsContainer.style.transition = 'opacity 0.3s ease';
-                notificationsContainer.style.opacity = '0.5';
+            // Masquer toutes les notifications avec animation
+            const notificationWidget = document.querySelector('.notification-compact');
+            if (notificationWidget) {
+                notificationWidget.style.transition = 'all 0.5s ease';
+                notificationWidget.style.opacity = '0';
+                notificationWidget.style.transform = 'translateY(-20px)';
                 setTimeout(() => {
-                    notificationsContainer.innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-check-circle me-2"></i>Toutes les notifications ont été marquées comme lues</div>';
-                    notificationsContainer.style.opacity = '1';
-                }, 300);
+                    notificationWidget.style.display = 'none';
+                    
+                    // Afficher un message de confirmation temporaire
+                    const confirmationMessage = document.createElement('div');
+                    confirmationMessage.className = 'alert alert-success alert-dismissible fade show';
+                    confirmationMessage.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        Toutes les notifications ont été marquées comme lues.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    notificationWidget.parentNode.insertBefore(confirmationMessage, notificationWidget);
+                    
+                    // Masquer le message après 5 secondes
+                    setTimeout(() => {
+                        if (confirmationMessage.parentNode) {
+                            confirmationMessage.remove();
+                        }
+                    }, 5000);
+                }, 500);
             }
+            
+            // Mettre à jour le compteur dans l'en-tête
+            updateNotificationBadge();
         }
     } catch (error) {
         console.error('Erreur lors du marquage des notifications:', error);
@@ -657,14 +999,39 @@ async function markAllAsRead() {
 document.addEventListener('DOMContentLoaded', function() {
     startAutoRefresh();
     
-    // Gestion de la visibilité de l'onglet
+    // Gestion de la visibilité de l'onglet pour optimiser les performances
     document.addEventListener('visibilitychange', function() {
+        isPageVisible = !document.hidden;
+        
         if (document.hidden) {
-            stopAutoRefresh();
+            // Page cachée - ralentir les mises à jour
+            refreshIntervalTime = 120000; // 2 minutes
         } else {
-            startAutoRefresh();
+            // Page visible - reprendre le rythme normal
+            refreshIntervalTime = 30000; // 30 secondes
+            // Faire une mise à jour immédiate quand l'utilisateur revient
+            refreshData();
         }
     });
+    
+    // Détecter l'inactivité de l'utilisateur
+    let inactivityTimer;
+    const inactivityDelay = 300000; // 5 minutes
+    
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            // Utilisateur inactif - réduire la fréquence
+            refreshIntervalTime = 120000; // 2 minutes
+        }, inactivityDelay);
+    }
+    
+    // Événements d'activité utilisateur
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, resetInactivityTimer, true);
+    });
+    
+    resetInactivityTimer();
 });
 
 // Arrêter le rafraîchissement avant de quitter la page

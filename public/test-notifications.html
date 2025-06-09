@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Centre de Notifications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .notification-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .notification-success { border-left-color: #28a745; }
+        .notification-info { border-left-color: #17a2b8; }
+        .notification-warning { border-left-color: #ffc107; }
+        .notification-error { border-left-color: #dc3545; }
+        .notification-read { opacity: 0.7; }
+        .stats-card {
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <h1 class="mb-4"><i class="fas fa-bell me-2"></i>Test du Centre de Notifications</h1>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bell fa-2x mb-2"></i>
+                        <h3 id="total-count">-</h3>
+                        <p class="mb-0">Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <i class="fas fa-envelope fa-2x mb-2"></i>
+                        <h3 id="unread-count">-</h3>
+                        <p class="mb-0">Non lues</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                        <h3 id="today-count">-</h3>
+                        <p class="mb-0">Aujourd'hui</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-week fa-2x mb-2"></i>
+                        <h3 id="week-count">-</h3>
+                        <p class="mb-0">Cette semaine</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Buttons -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Tests Fonctionnels</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary me-2" onclick="loadNotifications()">
+                            <i class="fas fa-refresh me-1"></i>Charger les notifications
+                        </button>
+                        <button class="btn btn-info me-2" onclick="testSearch()">
+                            <i class="fas fa-search me-1"></i>Test recherche
+                        </button>
+                        <button class="btn btn-warning me-2" onclick="testFilter()">
+                            <i class="fas fa-filter me-1"></i>Test filtres
+                        </button>
+                        <button class="btn btn-success me-2" onclick="createTestData()">
+                            <i class="fas fa-plus me-1"></i>Créer données test
+                        </button>
+                        <button class="btn btn-danger" onclick="clearTestData()">
+                            <i class="fas fa-trash me-1"></i>Vider notifications
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Area -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Résultats des Tests</h5>
+                        <span class="badge bg-secondary" id="results-count">0 notifications</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="test-results">
+                            <p class="text-muted text-center">Cliquez sur un bouton de test pour voir les résultats</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Test functions
+        async function loadNotifications() {
+            showLoading();
+            try {
+                const response = await fetch('/api/test/notifications');
+                const data = await response.json();
+                displayNotifications(data.notifications);
+                updateStats(data.stats);
+                showSuccess('Notifications chargées avec succès');
+            } catch (error) {
+                showError('Erreur lors du chargement: ' + error.message);
+            }
+        }
+
+        async function testSearch() {
+            showLoading();
+            try {
+                const response = await fetch('/api/test/notifications?search=demande');
+                const data = await response.json();
+                displayNotifications(data.notifications);
+                showSuccess('Recherche "demande" effectuée');
+            } catch (error) {
+                showError('Erreur lors de la recherche: ' + error.message);
+            }
+        }
+
+        async function testFilter() {
+            showLoading();
+            try {
+                const response = await fetch('/api/test/notifications?type=success&status=unread');
+                const data = await response.json();
+                displayNotifications(data.notifications);
+                showSuccess('Filtre appliqué (success + unread)');
+            } catch (error) {
+                showError('Erreur lors du filtrage: ' + error.message);
+            }
+        }
+
+        async function createTestData() {
+            showLoading();
+            try {
+                const response = await fetch('/api/test/create-notifications', { method: 'POST' });
+                const data = await response.json();
+                showSuccess('Données de test créées: ' + data.count + ' notifications');
+                loadNotifications();
+            } catch (error) {
+                showError('Erreur lors de la création: ' + error.message);
+            }
+        }
+
+        async function clearTestData() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer toutes les notifications?')) {
+                showLoading();
+                try {
+                    const response = await fetch('/api/test/clear-notifications', { method: 'DELETE' });
+                    const data = await response.json();
+                    showSuccess('Notifications supprimées');
+                    document.getElementById('test-results').innerHTML = '<p class="text-muted text-center">Notifications supprimées</p>';
+                    updateStats({ total: 0, unread: 0, today: 0, week: 0 });
+                } catch (error) {
+                    showError('Erreur lors de la suppression: ' + error.message);
+                }
+            }
+        }
+
+        function displayNotifications(notifications) {
+            const container = document.getElementById('test-results');
+            
+            if (!notifications || notifications.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">Aucune notification trouvée</p>';
+                document.getElementById('results-count').textContent = '0 notifications';
+                return;
+            }
+
+            let html = '';
+            notifications.forEach(notification => {
+                const typeIcon = getTypeIcon(notification.type);
+                const typeColor = getTypeColor(notification.type);
+                const readClass = notification.is_read ? 'notification-read' : '';
+                const badge = notification.is_read ? 
+                    '<span class="badge bg-secondary">Lue</span>' : 
+                    '<span class="badge bg-primary">Non lue</span>';
+
+                html += `
+                    <div class="notification-card card mb-3 notification-${notification.type} ${readClass}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title d-flex align-items-center">
+                                        <i class="fas ${typeIcon} ${typeColor} me-2"></i>
+                                        ${notification.title}
+                                        ${badge}
+                                    </h6>
+                                    <p class="card-text">${notification.message}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        ${formatDate(notification.created_at)}
+                                    </small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="markAsRead(${notification.id})">
+                                            <i class="fas fa-check me-2"></i>Marquer comme lue
+                                        </a></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteNotification(${notification.id})">
+                                            <i class="fas fa-trash me-2"></i>Supprimer
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('results-count').textContent = notifications.length + ' notifications';
+        }
+
+        function updateStats(stats) {
+            document.getElementById('total-count').textContent = stats.total || 0;
+            document.getElementById('unread-count').textContent = stats.unread || 0;
+            document.getElementById('today-count').textContent = stats.today || 0;
+            document.getElementById('week-count').textContent = stats.week || 0;
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                'success': 'fa-check-circle',
+                'info': 'fa-info-circle',
+                'warning': 'fa-exclamation-triangle',
+                'error': 'fa-times-circle'
+            };
+            return icons[type] || 'fa-bell';
+        }
+
+        function getTypeColor(type) {
+            const colors = {
+                'success': 'text-success',
+                'info': 'text-info',
+                'warning': 'text-warning',
+                'error': 'text-danger'
+            };
+            return colors[type] || 'text-primary';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('fr-FR');
+        }
+
+        function showLoading() {
+            document.getElementById('test-results').innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Chargement...</p></div>';
+        }
+
+        function showSuccess(message) {
+            console.log('SUCCESS:', message);
+        }
+
+        function showError(message) {
+            console.error('ERROR:', message);
+            document.getElementById('test-results').innerHTML = `<div class="alert alert-danger">${message}</div>`;
+        }
+
+        // Load initial data
+        // loadNotifications();
+    </script>
+</body>
+</html>

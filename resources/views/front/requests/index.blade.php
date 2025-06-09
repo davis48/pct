@@ -45,12 +45,24 @@
                                     <span class="badge bg-success">Approuvée</span>
                                     @elseif($request->status == 'rejected')
                                     <span class="badge bg-danger">Rejetée</span>
+                                    @elseif($request->status == 'draft')
+                                    <span class="badge bg-secondary">Brouillon</span>
                                     @endif
                                 </td>
                                 <td>
                                     <a href="{{ route('requests.show', $request->id) }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @if($request->status == 'draft')
+                                    <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline" 
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

@@ -11,7 +11,7 @@
                             <p class="text-sm mb-0">Vue d'ensemble du système</p>
                         </div>
                         <div class="col-lg-6 text-end d-flex flex-column justify-content-center">
-                            <a href="{{ route('admin.statistics.index') }}" class="btn bg-gradient-primary btn-sm mb-0">
+                            <a href="{{ route('admin.special.statistics') }}" class="btn bg-gradient-primary btn-sm mb-0">
                                 <i class="fas fa-chart-bar me-2"></i>Statistiques détaillées
                             </a>
                         </div>

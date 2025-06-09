@@ -17,42 +17,51 @@ class DashboardController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-    }
-
-    /**
+    }    /**
      * Show the citizen dashboard.
      */
     public function index()
     {
         $user = Auth::user();
-          // Récupérer les demandes du citoyen avec relations
+        
+        // Récupérer les demandes du citoyen avec relations
         $requests = CitizenRequest::where('user_id', $user->id)
             ->with(['document', 'assignedAgent', 'processedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Séparer les demandes en brouillon (non payées) et soumises (payées)
+        // Séparer les demandes selon leur statut de paiement et leur état
         $submittedRequests = $requests->where('payment_status', 'paid');
         $draftRequests = $requests->where('status', 'draft');
-
-        // Statistiques du citoyen (seulement les demandes soumises après paiement)
+          // Calculer les statistiques exactes basées sur la réalité de la base de données (status français)
         $stats = [
             'total_requests' => $submittedRequests->count(),
-            'pending_requests' => $submittedRequests->where('status', 'pending')->count(),
-            'in_progress_requests' => $submittedRequests->where('status', 'in_progress')->count(),
+            'pending_requests' => $submittedRequests->where('status', 'en_attente')->count(),
+            'in_progress_requests' => $submittedRequests->where('status', 'en_cours')->count(),
             'approved_requests' => $submittedRequests->where('status', 'approved')->count(),
             'rejected_requests' => $submittedRequests->where('status', 'rejected')->count(),
+            'completed_requests' => $submittedRequests->where('status', 'completed')->count(),
             'draft_requests' => $draftRequests->count(), // Demandes en attente de paiement
-        ];
-
-        // Notifications non lues
+        ];        // Notifications non lues avec comptage exact - limite à 3 pour le dashboard
         $notifications = Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->orderBy('created_at', 'desc')
-            ->take(10)
+            ->take(3)
             ->get();
+            
+        // Compter toutes les notifications non lues pour l'indicateur
+        $unreadNotificationsCount = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
 
-        return view('citizen.dashboard', compact('requests', 'stats', 'notifications'));
+        // Ajouter des données supplémentaires pour le dashboard
+        $additionalData = [
+            'recent_activity' => $this->getRecentActivity($user->id),
+            'payment_summary' => $this->getPaymentSummary($user->id),
+            'last_login' => $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : null,
+        ];
+
+        return view('citizen.dashboard', compact('requests', 'stats', 'notifications', 'unreadNotificationsCount', 'additionalData'));
     }
 
     /**
@@ -65,13 +74,11 @@ class DashboardController extends Controller
         $requests = CitizenRequest::where('user_id', $user->id)
             ->with(['document', 'assignedAgent', 'processedBy'])
             ->orderBy('updated_at', 'desc')
-            ->get();
-
-        return response()->json([
+            ->get();        return response()->json([
             'requests' => $requests->map(function ($request) {
                 return [
                     'id' => $request->id,
-                    'document_name' => $request->document->name ?? 'Document non spécifié',
+                    'document_name' => $request->document->title ?? 'Document non spécifié',
                     'status' => $request->status,
                     'status_label' => $this->getStatusLabel($request->status),
                     'created_at' => $request->created_at->format('d/m/Y H:i'),
@@ -145,6 +152,129 @@ class DashboardController extends Controller
     }
 
     /**
+     * Save notification preferences for the citizen.
+     */
+    public function saveNotificationPreferences(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Validate the request
+        $validated = $request->validate([
+            'sound_enabled' => 'boolean',
+            'desktop_enabled' => 'boolean',
+            'sms_enabled' => 'boolean',
+            'email_enabled' => 'boolean',
+        ]);
+        
+        // Save to user preferences
+        $preferences = $user->notification_preferences ?? [];
+        $preferences = array_merge($preferences, [
+            'sound_enabled' => $validated['sound_enabled'] ?? true,
+            'desktop_enabled' => $validated['desktop_enabled'] ?? true,
+            'sms_enabled' => $validated['sms_enabled'] ?? true,
+            'email_enabled' => $validated['email_enabled'] ?? true,
+        ]);
+        
+        $user->notification_preferences = $preferences;
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Préférences de notification enregistrées'
+        ]);
+    }
+
+    /**
+     * Show notification preferences page.
+     */
+    public function notificationPreferences()
+    {
+        return view('citizen.notification-preferences');
+    }
+    
+    /**
+     * Get current notification preferences.
+     */
+    public function getNotificationPreferences()
+    {
+        $user = Auth::user();
+        $preferences = $user->notification_preferences ?? [];
+        
+        // Set default values if not set
+        $defaults = [
+            'status_notifications' => true,
+            'assignment_notifications' => true,
+            'submission_confirmations' => true,
+            'processing_notifications' => false,
+            'intermediate_notifications' => false,
+            'reminder_notifications' => false,
+            'payment_notifications' => true,
+            'welcome_notifications' => true,
+            'sms_enabled' => true,
+            'email_enabled' => true,
+        ];
+        
+        return response()->json(array_merge($defaults, $preferences));
+    }
+    
+    /**
+     * Update notification preferences.
+     */
+    public function updateNotificationPreferences(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validated = $request->validate([
+            'status_notifications' => 'boolean',
+            'assignment_notifications' => 'boolean',
+            'submission_confirmations' => 'boolean',
+            'processing_notifications' => 'boolean',
+            'intermediate_notifications' => 'boolean',
+            'reminder_notifications' => 'boolean',
+            'payment_notifications' => 'boolean',
+            'welcome_notifications' => 'boolean',
+            'sms_enabled' => 'boolean',
+            'email_enabled' => 'boolean',
+        ]);
+        
+        // Force critical notifications to always be enabled
+        $validated['payment_notifications'] = true; // Always enable payment notifications
+        
+        $user->notification_preferences = $validated;
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Préférences de notification mises à jour avec succès'
+        ]);
+    }
+    
+    /**
+     * Send a test notification.
+     */
+    public function sendTestNotification()
+    {
+        $user = Auth::user();
+        
+        // Use the smart notification system
+        $notificationService = app(\App\Services\NotificationService::class);
+        
+        $title = 'Notification de test';
+        $message = "Ceci est une notification de test pour vérifier vos préférences. Envoyée le " . now()->format('d/m/Y à H:i');
+        
+        $notificationService->sendSmartNotification($user, $title, $message, 'info', [
+            'type' => 'test',
+            'sent_at' => now()->toISOString(),
+            'priority' => \App\Services\NotificationService::PRIORITY_LOW,
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification de test envoyée'
+        ]);
+    }
+
+    /**
      * Get status label in French.
      */
     private function getStatusLabel($status)
@@ -177,5 +307,222 @@ class DashboardController extends Controller
             ->update(['is_read' => true]);
 
         return view('citizen.request-detail', compact('request'));
+    }
+
+    /**
+     * Get real-time statistics for the citizen dashboard.
+     */
+    public function getStats()
+    {
+        $user = Auth::user();
+        
+        // Récupérer toutes les demandes du citoyen
+        $allRequests = CitizenRequest::where('user_id', $user->id)->get();
+        
+        // Séparer les demandes en brouillon (non payées) et soumises (payées)
+        $submittedRequests = $allRequests->where('payment_status', 'paid');
+        $draftRequests = $allRequests->where('status', 'draft');
+          // Calculer les statistiques en temps réel (avec les status français utilisés en DB)
+        $stats = [
+            'total_requests' => $submittedRequests->count(),
+            'pending_requests' => $submittedRequests->where('status', 'en_attente')->count(),
+            'in_progress_requests' => $submittedRequests->where('status', 'en_cours')->count(),
+            'approved_requests' => $submittedRequests->where('status', 'approved')->count(),
+            'rejected_requests' => $submittedRequests->where('status', 'rejected')->count(),
+            'completed_requests' => $submittedRequests->where('status', 'completed')->count(),
+            'draft_requests' => $draftRequests->count(),
+        ];
+        
+        // Ajouter des détails supplémentaires
+        $additionalData = [
+            'last_updated' => now()->format('Y-m-d H:i:s'),
+            'recent_activity' => $this->getRecentActivity($user->id),
+            'payment_summary' => $this->getPaymentSummary($user->id),
+        ];
+        
+        return response()->json([
+            'stats' => $stats,
+            'data' => $additionalData,
+            'success' => true
+        ]);
+    }
+
+    /**
+     * Get recent activity for the citizen.
+     */
+    private function getRecentActivity($userId)
+    {
+        $recentRequests = CitizenRequest::where('user_id', $userId)
+            ->where('updated_at', '>=', now()->subDays(7))
+            ->with(['document'])
+            ->orderBy('updated_at', 'desc')
+            ->take(5)
+            ->get();
+            
+        return $recentRequests->map(function ($request) {
+            return [
+                'id' => $request->id,
+                'document_name' => $request->document->title ?? 'Document',
+                'status' => $request->status,
+                'status_label' => $this->getStatusLabel($request->status),
+                'updated_at' => $request->updated_at->format('d/m/Y H:i'),
+                'updated_ago' => $request->updated_at->diffForHumans(),
+            ];
+        });
+    }
+
+    /**
+     * Get payment summary for the citizen.
+     */
+    private function getPaymentSummary($userId)
+    {
+        $payments = \App\Models\Payment::whereHas('citizenRequest', function($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->get();
+        
+        return [
+            'total_paid' => $payments->where('status', 'completed')->sum('amount'),
+            'total_pending' => $payments->where('status', 'pending')->sum('amount'),
+            'payment_count' => $payments->where('status', 'completed')->count(),
+            'average_amount' => $payments->where('status', 'completed')->avg('amount') ?? 0,
+        ];
+    }
+
+    /**
+     * Centre de notifications - Afficher toutes les notifications du citoyen
+     */
+    public function notificationCenter()
+    {
+        $user = Auth::user();
+        
+        // Récupérer toutes les notifications avec pagination
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+        
+        // Statistiques des notifications
+        $notificationStats = [
+            'total' => Notification::where('user_id', $user->id)->count(),
+            'unread' => Notification::where('user_id', $user->id)->where('is_read', false)->count(),
+            'read' => Notification::where('user_id', $user->id)->where('is_read', true)->count(),
+            'today' => Notification::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count(),
+            'this_week' => Notification::where('user_id', $user->id)
+                ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+                ->count(),
+        ];
+        
+        return view('citizen.notifications.center', compact('notifications'), ['stats' => $notificationStats]);
+    }
+
+    /**
+     * Supprimer une notification
+     */
+    public function deleteNotification($id)
+    {
+        $user = Auth::user();
+        
+        $notification = Notification::where('user_id', $user->id)
+            ->where('id', $id)
+            ->first();
+        
+        if (!$notification) {
+            return response()->json(['success' => false, 'message' => 'Notification non trouvée'], 404);
+        }
+        
+        $notification->delete();
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Notification supprimée avec succès'
+        ]);
+    }
+
+    /**
+     * Supprimer toutes les notifications lues
+     */
+    public function deleteReadNotifications()
+    {
+        $user = Auth::user();
+        
+        $deletedCount = Notification::where('user_id', $user->id)
+            ->where('is_read', true)
+            ->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => "$deletedCount notifications supprimées",
+            'count' => $deletedCount
+        ]);
+    }
+
+    /**
+     * Supprimer toutes les notifications
+     */
+    public function deleteAllNotifications()
+    {
+        $user = Auth::user();
+        
+        $deletedCount = Notification::where('user_id', $user->id)->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Toutes les notifications ont été supprimées ($deletedCount)",
+            'count' => $deletedCount
+        ]);
+    }
+
+    /**
+     * Filtrer les notifications
+     */
+    public function filterNotifications(Request $request)
+    {
+        $user = Auth::user();
+        $filter = $request->get('filter', 'all');
+        $search = $request->get('search', '');
+        
+        $query = Notification::where('user_id', $user->id);
+        
+        // Appliquer les filtres
+        switch ($filter) {
+            case 'unread':
+                $query->where('is_read', false);
+                break;
+            case 'read':
+                $query->where('is_read', true);
+                break;
+            case 'today':
+                $query->whereDate('created_at', today());
+                break;
+            case 'week':
+                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                break;
+            case 'month':
+                $query->whereMonth('created_at', now()->month)
+                      ->whereYear('created_at', now()->year);
+                break;
+        }
+        
+        // Recherche textuelle
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhere('message', 'like', "%$search%")
+                  ->orWhereJsonContains('data->message', $search);
+            });
+        }
+        
+        $notifications = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('citizen.notifications.partials.list', compact('notifications'))->render(),
+                'pagination' => $notifications->links()->render()
+            ]);
+        }
+        
+        return view('citizen.notifications.center', compact('notifications'));
     }
 }

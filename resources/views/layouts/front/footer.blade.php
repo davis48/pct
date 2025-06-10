@@ -1,105 +1,89 @@
-  <footer class="bg-dark text-white py-5 mt-5">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-lg-5 col-md-6">
-                <div class="d-flex align-items-center mb-3">
-                    <i class="fas fa-landmark fa-2x me-2"></i>
-                    <h5 class="mb-0 fw-bold">Plateforme d'Actes Civils</h5>
+<footer class="bg-gray-900 text-white py-12 mt-auto">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Logo et description -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fas fa-landmark text-3xl text-primary-400"></i>
+                    <h5 class="text-xl font-bold">Plateforme d'Actes Civils</h5>
                 </div>
-                <p class="mb-3 text-light">Simplifiez vos démarches administratives en ligne. Notre plateforme vous permet de demander, suivre et recevoir vos documents officiels en toute sécurité.</p>
-                <div class="d-flex gap-3">
-                    <a href="#" class="text-white" title="Facebook" data-bs-toggle="tooltip">
-                        <i class="fab fa-facebook-f fa-lg"></i>
+                <p class="text-gray-300 mb-6 leading-relaxed">Simplifiez vos démarches administratives en ligne. Notre plateforme vous permet de demander, suivre et recevoir vos documents officiels en toute sécurité.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-white hover:text-primary-400 transition-colors duration-300" title="Facebook">
+                        <i class="fab fa-facebook-f text-xl"></i>
                     </a>
-                    <a href="#" class="text-white" title="Twitter" data-bs-toggle="tooltip">
-                        <i class="fab fa-twitter fa-lg"></i>
+                    <a href="#" class="text-white hover:text-primary-400 transition-colors duration-300" title="Twitter">
+                        <i class="fab fa-twitter text-xl"></i>
                     </a>
-                    <a href="#" class="text-white" title="Instagram" data-bs-toggle="tooltip">
-                        <i class="fab fa-instagram fa-lg"></i>
+                    <a href="#" class="text-white hover:text-primary-400 transition-colors duration-300" title="Instagram">
+                        <i class="fab fa-instagram text-xl"></i>
                     </a>
-                    <a href="#" class="text-white" title="LinkedIn" data-bs-toggle="tooltip">
-                        <i class="fab fa-linkedin-in fa-lg"></i>
+                    <a href="#" class="text-white hover:text-primary-400 transition-colors duration-300" title="LinkedIn">
+                        <i class="fab fa-linkedin-in text-xl"></i>
                     </a>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <h6 class="fw-bold mb-4">Liens rapides</h6>
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-2">
-                        <a href="{{ url('/') }}" class="text-light text-decoration-none">
-                            <i class="fas fa-chevron-right me-2 small"></i>Accueil
+            
+            <!-- Liens rapides -->
+            <div>
+                <h6 class="text-lg font-semibold mb-4 text-primary-400">Liens rapides</h6>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="{{ url('/') }}" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
+                            <i class="fas fa-chevron-right mr-2 text-xs text-primary-400"></i>Accueil
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
-                            <i class="fas fa-chevron-right me-2 small"></i>À propos
+                    <li>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
+                            <i class="fas fa-chevron-right mr-2 text-xs text-primary-400"></i>À propos
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
-                            <i class="fas fa-chevron-right me-2 small"></i>FAQ
+                    <li>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
+                            <i class="fas fa-chevron-right mr-2 text-xs text-primary-400"></i>FAQ
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
-                            <i class="fas fa-chevron-right me-2 small"></i>Nous contacter
+                    <li>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
+                            <i class="fas fa-chevron-right mr-2 text-xs text-primary-400"></i>Nous contacter
                         </a>
                     </li>
                 </ul>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <h6 class="fw-bold mb-4">Contact et assistance</h6>
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-3">
-                        <div class="d-flex">
-                            <i class="fas fa-map-marker-alt me-3 text-primary"></i>
-                            <span>Avenue Chardy, Cocody<br>Abidjan, Côte d'Ivoire</span>
-                        </div>
+            
+            <!-- Contact et assistance -->
+            <div>
+                <h6 class="text-lg font-semibold mb-4 text-primary-400">Contact et assistance</h6>
+                <ul class="space-y-4">
+                    <li class="flex items-start space-x-3">
+                        <i class="fas fa-map-marker-alt text-primary-400 mt-1"></i>
+                        <span class="text-gray-300">Avenue Chardy, Cocody<br>Abidjan, Côte d'Ivoire</span>
                     </li>
-                    <li class="mb-3">
-                        <div class="d-flex">
-                            <i class="fas fa-envelope me-3 text-primary"></i>
-                            <span>contact@actes-civils.ci</span>
-                        </div>
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-envelope text-primary-400"></i>
+                        <span class="text-gray-300">contact@actes-civils.ci</span>
                     </li>
-                    <li class="mb-3">
-                        <div class="d-flex">
-                            <i class="fas fa-phone-alt me-3 text-primary"></i>
-                            <span>+225 01 02 03 04 05</span>
-                        </div>
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-phone-alt text-primary-400"></i>
+                        <span class="text-gray-300">+225 01 02 03 04 05</span>
                     </li>
-                    <li>
-                        <div class="d-flex">
-                            <i class="fas fa-clock me-3 text-primary"></i>
-                            <span>Lun-Ven: 8h-16h</span>
-                        </div>
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-clock text-primary-400"></i>
+                        <span class="text-gray-300">Lun-Ven: 8h-16h</span>
                     </li>
                 </ul>
             </div>
         </div>
-        <hr class="my-4 bg-light">
-        <div class="row align-items-center">
-            <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0">&copy; {{ date('Y') }} Plateforme d'Actes Civils. Tous droits réservés.</p>
-            </div>
-            <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                <ul class="list-inline mb-0">
-                    <li class="list-inline-item">
-                        <a href="#" class="text-light text-decoration-none small">Politique de confidentialité</a>
-                    </li>
-                    <li class="list-inline-item">
-                        <span class="text-muted mx-2">|</span>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="#" class="text-light text-decoration-none small">Conditions d'utilisation</a>
-                    </li>
-                    <li class="list-inline-item">
-                        <span class="text-muted mx-2">|</span>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="{{ route('admin.login') }}" class="text-light text-decoration-none small opacity-50">Administration</a>
-                    </li>
-                </ul>
+        
+        <!-- Séparateur et copyright -->
+        <div class="border-t border-gray-700 mt-8 pt-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <p class="text-gray-300 text-center md:text-left">&copy; {{ date('Y') }} Plateforme d'Actes Civils. Tous droits réservés.</p>
+                <div class="flex flex-wrap justify-center md:justify-end space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300 text-sm">Politique de confidentialité</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300 text-sm">Conditions d'utilisation</a>
+                    <a href="{{ route('admin.login') }}" class="text-gray-500 hover:text-gray-300 transition-colors duration-300 text-sm opacity-75">Administration</a>
+                </div>
             </div>
         </div>
     </div>

@@ -24,7 +24,6 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'nic' => 'CIT' . fake()->unique()->numerify('###'),
             'nom' => fake()->lastName(),
             'prenoms' => fake()->firstName(),
             'date_naissance' => fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d'),

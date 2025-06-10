@@ -1,0 +1,344 @@
+<?php
+
+namespace App\Http\Controllers\Front;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\CitizenRequest;
+use App\Models\User;
+use App\Services\DocumentGeneratorService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+
+class InteractiveFormController extends Controller
+{
+    protected $documentGenerator;
+
+    public function __construct(DocumentGeneratorService $documentGenerator)
+    {
+        $this->documentGenerator = $documentGenerator;
+    }
+
+    /**
+     * Affiche la liste des formulaires interactifs disponibles
+     */
+    public function index()
+    {
+        $availableForms = [
+            'certificat-mariage' => [
+                'title' => 'Certificat de Mariage',
+                'description' => 'Formulaire pour demander un certificat de mariage',
+                'icon' => 'fas fa-heart',
+                'estimated_time' => '5-10 minutes'
+            ],
+            'certificat-celibat' => [
+                'title' => 'Certificat de Célibat',
+                'description' => 'Formulaire pour demander un certificat de célibat',
+                'icon' => 'fas fa-user',
+                'estimated_time' => '3-5 minutes'
+            ],
+            'extrait-naissance' => [
+                'title' => 'Extrait de Naissance',
+                'description' => 'Formulaire pour demander un extrait de naissance',
+                'icon' => 'fas fa-baby',
+                'estimated_time' => '3-5 minutes'
+            ],
+            'certificat-deces' => [
+                'title' => 'Certificat de Décès',
+                'description' => 'Formulaire pour demander un certificat de décès',
+                'icon' => 'fas fa-cross',
+                'estimated_time' => '5-8 minutes'
+            ],
+            'attestation-domicile' => [
+                'title' => 'Attestation de Domicile',
+                'description' => 'Formulaire pour demander une attestation de domicile',
+                'icon' => 'fas fa-home',
+                'estimated_time' => '3-5 minutes'
+            ],
+            'legalisation' => [                'title' => 'Légalisation de Document',
+                'description' => 'Formulaire pour demander la légalisation d\'un document',
+                'icon' => 'fas fa-stamp',
+                'estimated_time' => '5-8 minutes'
+            ]
+        ];
+
+        return view('front.interactive-forms.index_standalone', compact('availableForms'));
+    }
+
+    /**
+     * Affiche un formulaire interactif spécifique
+     */
+    public function show($formType)
+    {
+        $validForms = [
+            'certificat-mariage', 'certificat-celibat', 'extrait-naissance', 
+            'certificat-deces', 'attestation-domicile', 'legalisation'
+        ];
+
+        if (!in_array($formType, $validForms)) {
+            abort(404, 'Formulaire non trouvé');
+        }
+
+        // Pré-remplir avec les données utilisateur si connecté
+        $userData = [];
+        if (Auth::check()) {
+            $user = Auth::user();
+            $userData = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'address' => $user->address,
+                'date_of_birth' => $user->date_of_birth,
+                'place_of_birth' => $user->place_of_birth,
+                'nationality' => $user->nationality,
+                'profession' => $user->profession,
+                'father_name' => $user->father_name,
+                'mother_name' => $user->mother_name
+            ];
+        }
+
+        // Essayer d'abord la version standalone, sinon utiliser la version normale
+        $standaloneView = "front.interactive-forms.{$formType}_standalone";
+        $normalView = "front.interactive-forms.{$formType}";
+        
+        if (view()->exists($standaloneView)) {
+            return view($standaloneView, compact('userData'));
+        } else {
+            return view($normalView, compact('userData'));
+        }
+    }    /**
+     * Traite et génère le document depuis le formulaire interactif
+     */
+    public function generate(Request $request, $formType)
+    {
+        $validForms = [
+            'certificat-mariage', 'certificat-celibat', 'extrait-naissance', 
+            'certificat-deces', 'attestation-domicile', 'legalisation'
+        ];
+
+        if (!in_array($formType, $validForms)) {
+            abort(404, 'Formulaire non trouvé');
+        }
+
+        // Validation des données selon le type de formulaire
+        $validatedData = $this->validateFormData($request, $formType);
+
+        // L'utilisateur doit être connecté pour créer une demande
+        if (!Auth::check()) {
+            return redirect()->route('login')
+                ->with('info', 'Veuillez vous connecter pour soumettre votre demande.');
+        }
+
+        try {
+            // Mettre à jour les informations personnelles de l'utilisateur si disponibles
+            $user = Auth::user();
+            $updateData = [];
+            
+            if (isset($validatedData['name']) && $validatedData['name'] !== $user->name) {
+                $updateData['name'] = $validatedData['name'];
+            }
+            if (isset($validatedData['nationality'])) {
+                $updateData['nationality'] = $validatedData['nationality'];
+            }
+            if (isset($validatedData['profession'])) {
+                $updateData['profession'] = $validatedData['profession'];
+            }
+            if (isset($validatedData['address'])) {
+                $updateData['address'] = $validatedData['address'];
+            }
+            if (isset($validatedData['place_of_birth'])) {
+                $updateData['place_of_birth'] = $validatedData['place_of_birth'];
+            }
+            
+            if (!empty($updateData)) {
+                $user->update($updateData);
+            }
+
+            // Créer la demande avec statut "draft" pour passer par le processus de paiement
+            $citizenRequest = CitizenRequest::create([
+                'user_id' => Auth::id(),
+                'type' => $this->mapFormTypeToRequestType($formType),
+                'description' => "Demande de {$this->getFormTitle($formType)} via formulaire interactif",
+                'status' => 'draft', // Statut draft pour passer par le paiement
+                'payment_status' => 'unpaid',
+                'payment_required' => true,
+                'priority' => 'normal',
+                'contact_preference' => 'email',
+                'additional_data' => json_encode([
+                    'form_type' => $formType,
+                    'form_data' => $validatedData,
+                    'generated_via' => 'interactive_form',
+                    'form_version' => '1.0',
+                    'submitted_at' => now()->toISOString()
+                ])
+            ]);
+
+            // Rediriger vers la page de paiement comme pour les demandes normales
+            return redirect()->route('payments.show', $citizenRequest)
+                ->with('success', '🎉 Votre formulaire a été traité avec succès ! Référence: ' . $citizenRequest->reference_number . '. Veuillez procéder au paiement pour finaliser votre demande.');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la génération du formulaire interactif', [
+                'user_id' => Auth::id(),
+                'form_type' => $formType,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Une erreur est survenue lors du traitement de votre formulaire. Veuillez réessayer.');
+        }
+    }/**
+     * Télécharge le document généré
+     */
+    public function download($formType, $requestId)
+    {
+        // Créer un PDF à la volée avec les données stockées
+        if (Auth::check() && is_numeric($requestId)) {
+            $citizenRequest = CitizenRequest::findOrFail($requestId);
+            $data = json_decode($citizenRequest->data, true);
+        } else {
+            // Pour les téléchargements temporaires, on ne peut pas récupérer les données
+            // Il faudrait implémenter un système de cache ou de stockage temporaire
+            return abort(404, 'Document non trouvé ou expiré');
+        }
+
+        if (!$data) {
+            return abort(404, 'Données du document non trouvées');
+        }
+
+        // Générer le PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+            "front.interactive-forms.previews.{$formType}",
+            ['data' => $data]
+        );
+        
+        $fileName = "{$formType}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
+        
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Mapper les types de formulaires aux types de demandes dans la base
+     */
+    private function mapFormTypeToRequestType($formType)
+    {
+        $mapping = [
+            'certificat-mariage' => 'mariage',
+            'certificat-celibat' => 'certificat',
+            'extrait-naissance' => 'extrait-acte',
+            'certificat-deces' => 'certificat',
+            'attestation-domicile' => 'attestation',
+            'legalisation' => 'legalisation'
+        ];
+
+        return $mapping[$formType] ?? 'autre';
+    }
+
+    /**
+     * Obtenir le titre du formulaire selon le type
+     */
+    private function getFormTitle($formType)
+    {
+        $titles = [
+            'certificat-mariage' => 'Certificat de Mariage',
+            'certificat-celibat' => 'Certificat de Célibat',
+            'extrait-naissance' => 'Extrait de Naissance',
+            'certificat-deces' => 'Certificat de Décès',
+            'attestation-domicile' => 'Attestation de Domicile',
+            'legalisation' => 'Légalisation de Document'
+        ];
+
+        return $titles[$formType] ?? ucfirst(str_replace('-', ' ', $formType));
+    }
+
+    /**
+     * Valide les données du formulaire selon le type
+     */
+    private function validateFormData(Request $request, $formType)
+    {
+        $commonRules = [
+            'name' => 'required|string|max:255',
+            'date_of_birth' => 'required|date',
+            'place_of_birth' => 'required|string|max:255',
+            'nationality' => 'required|string|max:100',
+        ];
+
+        $specificRules = [];
+
+        switch ($formType) {
+            case 'certificat-mariage':
+                $specificRules = [
+                    'spouse_name' => 'required|string|max:255',
+                    'spouse_birth_date' => 'required|date',
+                    'spouse_birth_place' => 'required|string|max:255',
+                    'marriage_date' => 'required|date',
+                    'marriage_time' => 'required|string',
+                    'witness1_name' => 'required|string|max:255',
+                    'witness2_name' => 'required|string|max:255',
+                ];
+                break;
+
+            case 'certificat-celibat':
+                $specificRules = [
+                    'profession' => 'required|string|max:255',
+                    'address' => 'required|string|max:500',
+                ];
+                break;            case 'extrait-naissance':
+                $specificRules = [
+                    'father_name' => 'required|string|max:255',
+                    'mother_name' => 'required|string|max:255',
+                    'birth_time' => 'nullable|string',
+                    'gender' => 'required|string|in:Masculin,Féminin',
+                    'registry_number' => 'required|string|max:100',
+                    'registration_date' => 'required|date',
+                    'father_profession' => 'nullable|string|max:255',
+                    'mother_profession' => 'nullable|string|max:255',
+                    'declarant_name' => 'nullable|string|max:255',
+                    'registration_number' => 'nullable|string|max:100',
+                ];
+                break;            case 'certificat-deces':
+                $specificRules = [
+                    'deceased_last_name' => 'required|string|max:255',
+                    'deceased_first_name' => 'required|string|max:255',
+                    'deceased_birth_date' => 'required|date',
+                    'deceased_birth_place' => 'required|string|max:255',
+                    'death_date' => 'required|date',
+                    'death_place' => 'required|string|max:255',
+                    'declarant_name' => 'required|string|max:255',
+                    'declarant_birth_date' => 'required|date',
+                    'declarant_profession' => 'nullable|string|max:255',
+                    'declarant_address' => 'required|string|max:500',
+                    'relationship_to_deceased' => 'required|string|max:255',
+                    'purpose' => 'required|string|max:255',
+                    'notes' => 'nullable|string|max:1000',
+                    'declaration' => 'required|accepted',
+                ];
+                // Remove common rules for death certificate as it has different structure
+                $commonRules = [];
+                break;
+
+            case 'attestation-domicile':
+                $specificRules = [
+                    'address' => 'required|string|max:500',
+                    'district' => 'required|string|max:255',
+                    'residence_duration' => 'required|string|max:100',
+                ];
+                break;            case 'legalisation':
+                $specificRules = [
+                    'document_type' => 'required|string|max:255',
+                    'document_date' => 'required|date',
+                    'issuing_authority' => 'required|string|max:255',
+                    'document_number' => 'nullable|string|max:255',
+                    'motif_demande' => 'required|string|max:255',
+                    'destination' => 'nullable|string|max:255',
+                    'accept_terms' => 'required|boolean',
+                ];
+                break;
+        }
+
+        return $request->validate(array_merge($commonRules, $specificRules));
+    }
+}

@@ -45,21 +45,37 @@
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a href="{{ route('citizen.dashboard') }}" class="nav-link {{ request()->routeIs('citizen.dashboard') ? 'active' : '' }}">
+                            <i class="fas fa-tachometer-alt me-2"></i>
                             Tableau de bord
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('citizen.requests.index') }}" class="nav-link {{ request()->routeIs('citizen.requests.*') ? 'active' : '' }}">
+                        <a href="{{ route('requests.create') }}" class="nav-link {{ request()->routeIs('requests.create') ? 'active' : '' }}">
+                            <i class="fas fa-plus me-2"></i>
+                            Nouvelle demande
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('interactive-forms.index') }}" class="nav-link {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
+                            <i class="fas fa-edit me-2"></i>
+                            Formulaires Interactifs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('requests.index') }}" class="nav-link {{ request()->routeIs('requests.*') ? 'active' : '' }}">
+                            <i class="fas fa-list me-2"></i>
                             Mes demandes
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('citizen.documents.index') }}" class="nav-link {{ request()->routeIs('citizen.documents.*') ? 'active' : '' }}">
+                        <a href="{{ route('documents.index') }}" class="nav-link {{ request()->routeIs('documents.*') ? 'active' : '' }}">
+                            <i class="fas fa-file-alt me-2"></i>
                             Documents disponibles
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('citizen.profile.edit') }}" class="nav-link {{ request()->routeIs('citizen.profile.*') ? 'active' : '' }}">
+                        <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                            <i class="fas fa-user me-2"></i>
                             Mon profil
                         </a>
                     </li>

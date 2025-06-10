@@ -6,7 +6,7 @@ use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\DocumentController;
 use App\Http\Controllers\Front\RequestController;
 use App\Http\Controllers\Front\ProfileController;
-use App\Http\Controllers\DocumentDownloadController;
+use App\Http\Controllers\Front\InteractiveFormController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +24,79 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/choose-role', [HomeController::class, 'chooseRole'])->name('choose.role');
 Route::get('/connexion', [HomeController::class, 'login'])->name('login');
 Route::get('/inscription', [HomeController::class, 'register'])->name('register');
+
+// Routes des formulaires interactifs (publiques)
+Route::prefix('formulaires-interactifs')->name('interactive-forms.')->group(function () {
+    Route::get('/', [InteractiveFormController::class, 'index'])->name('index');
+    Route::get('/{formType}', [InteractiveFormController::class, 'show'])->name('show');
+    Route::post('/{formType}/generate', [InteractiveFormController::class, 'generate'])->name('generate');
+    Route::get('/{formType}/{requestId}/download', [InteractiveFormController::class, 'download'])->name('download');
+});
+
+// Route de test pour accéder directement au formulaire d'extrait de naissance
+Route::get('/test-extrait-naissance', function() {
+    return view('front.interactive-forms.extrait-naissance', ['userData' => []]);
+})->name('test.extrait.naissance');
+
+// Route pour télécharger les templates vides (pour les formulaires traditionnels)
+Route::get('/documents/{type}/template', function($type) {
+    // Ici vous pouvez gérer le téléchargement des templates PDF vides
+    return response()->download(public_path("templates/{$type}.pdf"));
+})->name('documents.download-template');
+
+// Route de test pour les formulaires interactifs
+Route::get('/test-formulaires', function() {
+    return view('front.interactive-forms.index', [
+        'availableForms' => [
+            'certificat-mariage' => [
+                'title' => 'Certificat de Mariage',
+                'description' => 'Formulaire pour demander un certificat de mariage',
+                'icon' => 'fas fa-heart',
+                'estimated_time' => '5-10 minutes'
+            ],
+            'certificat-celibat' => [
+                'title' => 'Certificat de Célibat',
+                'description' => 'Formulaire pour demander un certificat de célibat',
+                'icon' => 'fas fa-user',
+                'estimated_time' => '3-5 minutes'
+            ],
+            'extrait-naissance' => [
+                'title' => 'Extrait de Naissance',
+                'description' => 'Formulaire pour demander un extrait de naissance',
+                'icon' => 'fas fa-baby',
+                'estimated_time' => '3-5 minutes'
+            ],
+            'attestation-domicile' => [
+                'title' => 'Attestation de Domicile',
+                'description' => 'Formulaire pour demander une attestation de domicile',
+                'icon' => 'fas fa-home',
+                'estimated_time' => '3-5 minutes'
+            ]
+        ]
+    ]);
+})->name('test.forms');
+
+// Route de test directe pour l'extrait de naissance
+Route::get('/test-extrait-naissance', function() {
+    return view('front.interactive-forms.extrait-naissance', [
+        'userData' => []
+    ]);
+})->name('test.birth.certificate');
+
+// Route de démonstration pour le formulaire amélioré
+Route::get('/demo-formulaire', function() {
+    return view('front.requests.demo');
+})->name('demo.form');
+
+// Route pour voir l'ancien formulaire (comparaison)
+Route::get('/ancien-formulaire', function() {
+    return view('front.requests.old-version');
+})->name('old.form');
+
+// Route de comparaison ancien vs nouveau formulaire
+Route::get('/comparaison-formulaires', function() {
+    return view('front.requests.comparison');
+})->name('forms.comparison');
 
 // Route de test pour les messages de paiement
 Route::get('/test-payment-message', function() {
@@ -61,6 +134,10 @@ Route::get('/test-payment-success/{payment}', function(\App\Models\Payment $paym
         'request' => $payment->citizenRequest,
     ]);
 })->name('test.payment.success');
+
+// Routes de test pour la génération PDF
+Route::get('/test-pdf/{type}', [\App\Http\Controllers\TestPdfController::class, 'generateTest'])
+     ->name('test.pdf.generate');
 
 // Routes d'authentification personnalisées
 Route::post('/connexion', [HomeController::class, 'authenticate'])->name('login.post');
@@ -126,6 +203,11 @@ Route::middleware(['auth'])->group(function () {
     // Gestion des documents
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
+    
+    // Gestion des formulaires téléchargeables
+    Route::get('/formulaires', [\App\Http\Controllers\Front\FormulaireController::class, 'index'])->name('formulaires.index');
+    Route::get('/formulaires/{type}', [\App\Http\Controllers\Front\FormulaireController::class, 'show'])->name('formulaires.show');
+    Route::get('/formulaires/{type}/download', [\App\Http\Controllers\Front\FormulaireController::class, 'download'])->name('formulaires.download');
 
     // Gestion des demandes
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
@@ -154,6 +236,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Citizen\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/requests/updates', [\App\Http\Controllers\Citizen\DashboardController::class, 'getRequestUpdates'])->name('requests.updates');
         Route::get('/notifications', [\App\Http\Controllers\Citizen\DashboardController::class, 'getNotifications'])->name('notifications');
+        Route::get('/notifications/ajax', [\App\Http\Controllers\Citizen\DashboardController::class, 'getNotificationsAjax'])->name('notifications.ajax');
         Route::get('/stats', [\App\Http\Controllers\Citizen\DashboardController::class, 'getStats'])->name('stats');
         Route::post('/notifications/{id}/read', [\App\Http\Controllers\Citizen\DashboardController::class, 'markNotificationAsRead'])->name('notifications.read');
         Route::post('/notifications/read-all', [\App\Http\Controllers\Citizen\DashboardController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
@@ -183,3 +266,92 @@ Route::middleware(['auth'])->group(function () {
 
 // Routes d'authentification Laravel personnalisées
 // Auth::routes(); // Désactivées car nous utilisons nos propres routes
+
+// Routes pour télécharger les documents PDF
+Route::middleware(['auth'])->group(function () {
+    Route::get('/documents/{request}/download', [\App\Http\Controllers\Front\DocumentDownloadController::class, 'downloadApprovedDocument'])
+         ->name('documents.download');
+    Route::get('/documents/{request}/preview', [\App\Http\Controllers\Front\DocumentDownloadController::class, 'previewDocument'])
+         ->name('documents.preview');
+});
+
+// Route de test pour créer des notifications (à supprimer en production)
+Route::get('/test-create-notifications', function() {
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('info', 'Veuillez vous connecter pour tester les notifications.');
+    }
+    
+    $user = Auth::user();
+    
+    // Créer quelques notifications de test
+    $notifications = [
+        [
+            'title' => 'Demande approuvée',
+            'message' => 'Votre demande d\'extrait de naissance a été approuvée et est prête au téléchargement.',
+            'type' => 'success'
+        ],
+        [
+            'title' => 'Paiement reçu',
+            'message' => 'Votre paiement de 5000 FCFA a été confirmé pour la demande #REF-2024-001.',
+            'type' => 'payment'
+        ],
+        [
+            'title' => 'Document en cours de traitement',
+            'message' => 'Votre demande de certificat de mariage est en cours de traitement par nos services.',
+            'type' => 'info'
+        ],
+        [
+            'title' => 'Information importante',
+            'message' => 'Pensez à vérifier vos documents avant de les soumettre pour éviter les retards.',
+            'type' => 'warning'
+        ]
+    ];
+    
+    foreach ($notifications as $notif) {
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => $notif['title'],
+            'message' => $notif['message'],
+            'type' => $notif['type'],
+            'is_read' => false,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    }
+    
+    return redirect()->route('citizen.dashboard')->with('success', 'Notifications de test créées avec succès !');
+})->name('test.notifications');
+
+// Route de test pour l'API notifications
+Route::get('/test-notifications-api', function() {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Non authentifié'], 401);
+    }
+    
+    $user = Auth::user();
+    
+    $notifications = \App\Models\Notification::where('user_id', $user->id)
+        ->where('is_read', false)
+        ->orderBy('created_at', 'desc')
+        ->limit(10)
+        ->get();
+
+    return response()->json([
+        'notifications' => $notifications->map(function ($notification) {
+            return [
+                'id' => $notification->id,
+                'title' => $notification->title,
+                'message' => \Illuminate\Support\Str::limit($notification->message, 80),
+                'type' => $notification->type,
+                'time_ago' => $notification->created_at->diffForHumans(),
+                'icon' => 'fas fa-bell text-gray-500',
+            ];
+        }),
+        'count' => $notifications->count(),
+        'debug_info' => [
+            'user_id' => $user->id,
+            'total_notifications' => \App\Models\Notification::where('user_id', $user->id)->count(),
+            'unread_notifications' => \App\Models\Notification::where('user_id', $user->id)->where('is_read', false)->count()
+        ]
+    ]);
+})->name('test.notifications.api');

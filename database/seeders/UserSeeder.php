@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
     {
         // Création d'un administrateur
         User::create([
-            'nic' => 'ADMIN001',
             'nom' => 'Admin',
             'prenoms' => 'System',
             'date_naissance' => '1980-01-01',
@@ -30,7 +29,6 @@ class UserSeeder extends Seeder
 
         // Création de quelques utilisateurs standard
         User::create([
-            'nic' => 'CIT001',
             'nom' => 'Citoyen',
             'prenoms' => 'Test',
             'date_naissance' => '1990-05-15',

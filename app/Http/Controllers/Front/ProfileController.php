@@ -33,6 +33,7 @@ class ProfileController extends Controller
             'nom' => ['required', 'string', 'max:100'],
             'prenoms' => ['required', 'string', 'max:155'],
             'date_naissance' => ['required', 'date', 'before:today'],
+            'place_of_birth' => ['required', 'string', 'max:255'],
             'genre' => ['required', 'string', 'in:M,F,Autre'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:20'],
@@ -61,8 +62,9 @@ class ProfileController extends Controller
         $user->phone = $validated['phone'] ?? null;
         $user->address = $validated['address'] ?? null;
         
-        // Correction pour date_naissance et genre
+        // Correction pour date_naissance, lieu de naissance et genre
         $user->date_naissance = $validated['date_naissance'];
+        $user->place_of_birth = $validated['place_of_birth'];
         $user->genre = $validated['genre'];
         
         // Log les données avant enregistrement

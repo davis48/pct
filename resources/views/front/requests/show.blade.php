@@ -1,308 +1,326 @@
 @extends('layouts.front.app')
+@section('title', 'Détails de la demande #' . $request->id . ' - PCT UVCI')
 @section('content')
-<section class="py-5">
-    <div class="container">
-        <div class="mb-4">
-            <a href="{{ route('requests.index') }}" class="text-decoration-none">
-                <i class="fas fa-arrow-left me-2"></i>Retour aux demandes
-            </a>
-        </div>
-
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white">
-                <h2 class="mb-0">Demande #{{ $request->id }}</h2>
+<!-- MODERNE TAILWINDCSS VIEW - v2.0 -->
+<section class="py-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Navigation de retour -->
+            <div class="mb-6">
+                <a href="{{ route('requests.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour aux demandes
+                </a>
             </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <p><strong>Type de demande:</strong> {{ ucfirst($request->type) }}</p>
-                        <p><strong>Date de soumission:</strong> {{ $request->created_at->format('d/m/Y à H:i') }}</p>
-                        <p><strong>Dernière mise à jour:</strong> {{ $request->updated_at->format('d/m/Y à H:i') }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p>
-                            <strong>Statut:</strong>
-                            @if($request->status == 'pending')
-                            <span class="badge bg-warning text-dark">En attente</span>
+
+            <!-- En-tête de la demande -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 mb-6 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h1 class="text-2xl font-bold text-white">Demande #{{ $request->id }}</h1>
+                        <div class="flex items-center">
+                            @if($request->status == 'pending' || $request->status == 'en_attente')
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></span>
+                                En attente
+                            </span>
+                            @elseif($request->status == 'in_progress')
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <span class="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></span>
+                                En cours de traitement
+                            </span>
                             @elseif($request->status == 'approved')
-                            <span class="badge bg-success">Approuvée</span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                Approuvée
+                            </span>
+                            @elseif($request->status == 'processed' || $request->status == 'ready')
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                Document prêt
+                            </span>
+                            @elseif($request->status == 'completed')
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                Terminée
+                            </span>
                             @elseif($request->status == 'rejected')
-                            <span class="badge bg-danger">Rejetée</span>
-                            @endif
-                        </p>
-                        <p><strong>Document associé:</strong> {{ $request->document ? $request->document->title : 'Aucun' }}</p>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h5>Description de la demande</h5>
-                    <div class="p-3 bg-light rounded">
-                        {{ $request->description }}
-                    </div>
-                </div>
-
-                @if($request->admin_comments)
-                <div class="mb-4">
-                    <h5>Commentaires de l'administration</h5>
-                    <div class="p-3 bg-light rounded">
-                        {{ $request->admin_comments }}
-                    </div>
-                </div>
-                @endif
-
-                @if($request->attachments && count($request->attachments) > 0)
-                <div class="mb-4">
-                    <h5>Pièces jointes</h5>
-                    <ul class="list-group">
-                        @foreach($request->attachments as $attachment)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @if(is_string($attachment))
-                                <span>{{ basename($attachment) }}</span>
-                                <a href="{{ asset('storage/' . $attachment) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="fas fa-download me-1"></i>Télécharger
-                                </a>
-                            @elseif(is_array($attachment) && isset($attachment['name']))
-                                <span>{{ $attachment['name'] }}</span>
-                                <a href="{{ asset('storage/' . ($attachment['path'] ?? '')) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="fas fa-download me-1"></i>Télécharger
-                                </a>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                <span class="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                                Rejetée
+                            </span>
                             @else
-                                <span>Pièce jointe</span>
-                                <a href="#" class="btn btn-sm btn-outline-secondary disabled">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Format non supporté
-                                </a>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                <span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                {{ ucfirst($request->status) }}
+                            </span>
                             @endif
-                        </li>
-                        @endforeach
-                    </ul>
+                        </div>
+                    </div>
                 </div>
-                @endif
-            </div>
-        </div>
 
-        @if($request->status == 'approved')
-        <div class="card shadow">
-            <div class="card-header bg-success text-white">
-                <h3 class="mb-0">
-                    <i class="fas fa-check-circle me-2"></i>
-                    Document approuvé - Téléchargement disponible
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-success">
-                    <i class="fas fa-info-circle me-2"></i> 
-                    Votre demande a été approuvée ! Vous pouvez maintenant télécharger votre document officiel.
+                <div class="p-6">
+                    <!-- Informations principales -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-alt text-blue-500 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Type de demande</p>
+                                    <p class="font-semibold text-gray-900">{{ ucfirst($request->type) }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar text-green-500 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Date de soumission</p>
+                                    <p class="font-semibold text-gray-900">{{ $request->created_at->format('d/m/Y à H:i') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-purple-500 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Dernière mise à jour</p>
+                                    <p class="font-semibold text-gray-900">{{ $request->updated_at->format('d/m/Y à H:i') }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-folder text-orange-500 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Document associé</p>
+                                    <p class="font-semibold text-gray-900">{{ $request->document ? $request->document->title : 'Aucun' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                            <i class="fas fa-edit mr-2 text-blue-500"></i>Description de la demande
+                        </h3>
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <p class="text-gray-700 leading-relaxed">{{ $request->description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Commentaires de l'administration -->
+                    @if($request->admin_comments)
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                            <i class="fas fa-comments mr-2 text-green-500"></i>Commentaires de l'administration
+                        </h3>
+                        <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+                            <p class="text-green-800 leading-relaxed">{{ $request->admin_comments }}</p>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Pièces jointes -->
+                    @if($request->attachments && count($request->attachments) > 0)
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                            <i class="fas fa-paperclip mr-2 text-purple-500"></i>Pièces jointes
+                        </h3>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            @foreach($request->attachments as $index => $attachment)
+                            <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 hover:bg-gray-100 transition-colors duration-200">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                    <div class="flex-1 min-w-0">
+                                        @if(is_string($attachment))
+                                        <p class="text-sm font-medium text-gray-900 truncate">Fichier {{ $index + 1 }}</p>
+                                        <a href="{{ asset('storage/' . $attachment) }}" 
+                                           target="_blank"
+                                           class="text-xs text-blue-600 hover:text-blue-800">
+                                            Télécharger
+                                        </a>
+                                        @elseif(is_array($attachment) && isset($attachment['path']))
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ $attachment['name'] ?? 'Fichier ' . ($index + 1) }}</p>
+                                        <a href="{{ asset('storage/' . $attachment['path']) }}" 
+                                           target="_blank"
+                                           class="text-xs text-blue-600 hover:text-blue-800">
+                                            Télécharger
+                                        </a>
+                                        @else
+                                        <p class="text-sm text-gray-500">Fichier non disponible</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Notification de statut -->
+                    @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle text-green-400 mt-0.5"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">
+                                    🎉 Votre document est prêt !
+                                </h3>
+                                <div class="mt-2 text-sm text-green-700">
+                                    <p>Votre demande a été traitée avec succès. Vous pouvez maintenant télécharger votre document en cliquant sur le bouton ci-dessous.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($request->status == 'in_progress')
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-blue-400 mt-0.5"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-800">
+                                    Traitement en cours
+                                </h3>
+                                <div class="mt-2 text-sm text-blue-700">
+                                    <p>Votre demande est actuellement en cours de traitement par nos équipes. Nous vous tiendrons informé de l'avancement.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($request->status == 'pending' || $request->status == 'en_attente')
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-hourglass-half text-yellow-400 mt-0.5"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">
+                                    En attente de traitement
+                                </h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p>Votre demande a été reçue et est en attente de traitement. Nous nous en occuperons dans les plus brefs délais.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Actions disponibles -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
+                            <a href="{{ route('documents.download', $request->id) }}" 
+                               class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                <i class="fas fa-download mr-2"></i>Télécharger le document
+                            </a>
+                            @endif
+                            
+                            @if($request->status == 'approved' && $request->document)
+                            <a href="{{ route('documents.show', $request->document->id) }}" 
+                               class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                <i class="fas fa-file-alt mr-2"></i>Voir les détails
+                            </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-8">
-                        <h5>{{ $request->document ? $request->document->title : 'Document administratif' }}</h5>
-                        <p class="text-muted">Document officiel généré automatiquement</p>
-                        <p><strong>Date d'approbation :</strong> {{ $request->updated_at->format('d/m/Y à H:i') }}</p>
-                        @if($request->processed_by)
-                        <p><strong>Traité par :</strong> {{ $request->processed_by }}</p>
+            </div>
+
+            <!-- Section de suivi chronologique -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 mb-6 overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-history mr-2 text-blue-500"></i>Suivi de la demande
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Étape soumission -->
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="font-medium text-gray-900">Demande soumise</p>
+                                <p class="text-sm text-gray-500">{{ $request->created_at->format('d/m/Y à H:i') }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Étape traitement -->
+                        @if($request->status != 'pending')
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 {{ $request->status == 'approved' ? 'bg-green-100' : 'bg-red-100' }} rounded-full flex items-center justify-center">
+                                <i class="fas {{ $request->status == 'approved' ? 'fa-check text-green-600' : 'fa-times text-red-600' }}"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="font-medium text-gray-900">
+                                    Demande {{ $request->status == 'approved' ? 'approuvée' : 'rejetée' }}
+                                </p>
+                                <p class="text-sm text-gray-500">{{ $request->updated_at->format('d/m/Y à H:i') }}</p>
+                            </div>
+                        </div>
+                        @else
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600 animate-pulse"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="font-medium text-gray-900">En cours de traitement</p>
+                                <p class="text-sm text-gray-500">Votre demande est en cours d'examen</p>
+                            </div>
+                        </div>
                         @endif
                     </div>
-                    
-                    <div class="col-md-4 text-end">
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('documents.preview', $request) }}" 
-                               class="btn btn-outline-primary" 
-                               target="_blank">
-                                <i class="fas fa-eye me-2"></i>Prévisualiser
-                            </a>
-                            
-                            <a href="{{ route('documents.download', $request) }}" 
-                               class="btn btn-success">
-                                <i class="fas fa-file-download me-2"></i>Télécharger le document
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-3 p-3 bg-light rounded">
-                    <h6><i class="fas fa-info-circle me-1"></i> Informations importantes :</h6>
-                    <ul class="mb-0 small">
-                        <li>Ce document est authentique et peut être vérifié avec la référence : <strong>{{ $request->reference_number ?? 'REF-' . $request->id }}</strong></li>
-                        <li>Le document est valable pendant 3 mois à compter de sa date de génération</li>
-                        <li>En cas de problème de téléchargement, contactez nos services</li>
-                    </ul>
                 </div>
             </div>
-        </div>
-        @endif
-        
-        <!-- Section spécifique pour les demandes en brouillon -->
-        @if($request->status == 'draft')
-        <div class="card shadow mt-4">
-            <div class="card-header bg-warning text-dark">
-                <h3 class="mb-0">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    Demande en brouillon
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-warning">
-                    <i class="fas fa-info-circle me-2"></i> 
-                    Cette demande est en mode brouillon. Vous pouvez la soumettre ou la supprimer.
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5>Statut : Brouillon</h5>
-                        <p class="mb-0">Vous pouvez confirmer cette demande pour qu'elle soit traitée par nos agents, ou la supprimer si vous ne souhaitez pas la soumettre.</p>
+
+            @if($request->status == 'pending')
+            <!-- Actions pour l'administrateur (si connecté en tant qu'admin) -->
+            @auth
+                @if(auth()->user()->isAdmin() || auth()->user()->isAgent())
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Actions administrateur</h3>
                     </div>
-                    
-                    <div>
-                        <span class="badge bg-warning fs-6 p-3">
-                            <i class="fas fa-pencil-alt me-1"></i>
-                            Brouillon
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="mt-4 d-flex justify-content-between">
-                    <form action="{{ route('requests.destroy', $request->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash me-2"></i>Supprimer
-                        </button>
-                    </form>
-                    
-                    <form action="{{ route('requests.confirm', $request->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check me-2"></i>Confirmer et soumettre
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        @endif
-        
-        <!-- Section de statut avec gestion des paiements -->
-        @if($request->status != 'draft')
-            @if($request->status == 'approved' && $request->requiresPayment() && !$request->hasSuccessfulPayment())
-                <!-- Demande approuvée - Paiement requis -->
-                <div class="card shadow mt-4">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">
-                            <i class="fas fa-credit-card me-2"></i>
-                            Paiement requis
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> 
-                            Félicitations ! Votre demande a été approuvée. Veuillez procéder au paiement pour finaliser le traitement.
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5>Statut : Approuvée - Paiement en attente</h5>
-                                <p class="mb-0">
-                                    <strong>Montant à payer :</strong> 25 000 FCFA<br>
-                                    <small class="text-muted">Cliquez sur "Procéder au paiement" pour effectuer votre paiement en ligne.</small>
-                                </p>
-                            </div>
+                    <div class="p-6">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <!-- Approuver -->
+                            <form method="POST" action="{{ route('admin.requests.approve', $request->id) }}">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Commentaires (optionnel)</label>
+                                    <textarea name="comments" rows="3" 
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                              placeholder="Ajoutez des commentaires pour le citoyen..."></textarea>
+                                </div>
+                                <button type="submit" 
+                                        class="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                    <i class="fas fa-check mr-2"></i>Approuver la demande
+                                </button>
+                            </form>
                             
-                            <div>
-                                <span class="badge bg-warning fs-6 p-3">
-                                    <i class="fas fa-credit-card me-1"></i>
-                                    Paiement requis
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <a href="{{ route('payments.show', $request->id) }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-credit-card me-2"></i>
-                                Procéder au paiement
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            @elseif($request->hasSuccessfulPayment())
-                <!-- Demande payée - En traitement -->
-                <div class="card shadow mt-4">
-                    <div class="card-header bg-success text-white">
-                        <h3 class="mb-0">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Paiement effectué - En traitement
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i> 
-                            Votre paiement a été effectué avec succès ! Votre demande est maintenant en cours de traitement par nos services.
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5>Statut : {{ ucfirst($request->status) }} - Payée</h5>
-                                <p class="mb-0">Nos agents traitent actuellement votre demande. Vous recevrez une notification dès qu'elle sera prête.</p>
-                            </div>
-                            
-                            <div>
-                                <span class="badge bg-success fs-6 p-3">
-                                    <i class="fas fa-cogs me-1"></i>
-                                    En traitement
-                                </span>
-                            </div>
+                            <!-- Rejeter -->
+                            <form method="POST" action="{{ route('admin.requests.reject', $request->id) }}">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Raison du rejet</label>
+                                    <textarea name="comments" rows="3" 
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                              placeholder="Expliquez la raison du rejet..." required></textarea>
+                                </div>
+                                <button type="submit" 
+                                        class="w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
+                                    <i class="fas fa-times mr-2"></i>Rejeter la demande
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
-            @else
-                <!-- Autres statuts -->
-                <div class="card shadow mt-4">
-                    <div class="card-header {{ $request->status == 'approved' ? 'bg-success' : ($request->status == 'rejected' ? 'bg-danger' : 'bg-warning') }} text-white">
-                        <h3 class="mb-0">
-                            <i class="fas fa-{{ $request->status == 'approved' ? 'check-circle' : ($request->status == 'rejected' ? 'times-circle' : 'clock') }} me-2"></i>
-                            Statut de la demande
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-{{ $request->status == 'approved' ? 'success' : ($request->status == 'rejected' ? 'danger' : 'warning') }}">
-                            <i class="fas fa-info-circle me-2"></i> 
-                            @if($request->status == 'pending')
-                                Votre demande a été soumise avec succès et est en attente d'examen par nos agents.
-                            @elseif($request->status == 'approved')
-                                Votre demande a été approuvée avec succès !
-                            @elseif($request->status == 'rejected')
-                                Malheureusement, votre demande a été rejetée.
-                            @else
-                                Votre demande est en cours de traitement.
-                            @endif
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5>Statut : {{ ucfirst($request->status) }}</h5>
-                                <p class="mb-0">
-                                    @if($request->status == 'pending')
-                                        Nos agents examinent actuellement votre demande.
-                                    @elseif($request->status == 'approved')
-                                        Votre demande a été approuvée !
-                                    @elseif($request->status == 'rejected')
-                                        @if($request->admin_comments)
-                                            Raison: {{ $request->admin_comments }}
-                                        @endif
-                                    @endif
-                                </p>
-                            </div>
-                            
-                            <div>
-                                <span class="badge bg-{{ $request->status == 'approved' ? 'success' : ($request->status == 'rejected' ? 'danger' : 'warning') }} fs-6 p-3">
-                                    <i class="fas fa-{{ $request->status == 'approved' ? 'check' : ($request->status == 'rejected' ? 'times' : 'clock') }} me-1"></i>
-                                    {{ ucfirst($request->status) }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endif
+            @endauth
             @endif
-        @endif
+        </div>
     </div>
 </section>
 @endsection

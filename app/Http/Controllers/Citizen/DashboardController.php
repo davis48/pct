@@ -8,6 +8,7 @@ use App\Models\CitizenRequest;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
@@ -116,6 +117,52 @@ class DashboardController extends Controller
             }),
             'count' => $notifications->count()
         ]);
+    }
+
+    /**
+     * Get notifications for AJAX dropdown.
+     */
+    public function getNotificationsAjax()
+    {
+        $user = Auth::user();
+        
+        $notifications = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'notifications' => $notifications->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'title' => $notification->title,
+                    'message' => Str::limit($notification->message, 80),
+                    'type' => $notification->type,
+                    'time_ago' => $notification->created_at->diffForHumans(),
+                    'icon' => $this->getNotificationIcon($notification->type),
+                ];
+            }),
+            'count' => $notifications->count()
+        ]);
+    }
+
+    /**
+     * Get notification icon based on type.
+     */
+    private function getNotificationIcon($type)
+    {
+        $icons = [
+            'success' => 'fas fa-check-circle text-green-500',
+            'info' => 'fas fa-info-circle text-blue-500',
+            'warning' => 'fas fa-exclamation-triangle text-yellow-500',
+            'error' => 'fas fa-times-circle text-red-500',
+            'payment' => 'fas fa-credit-card text-purple-500',
+            'request' => 'fas fa-file-alt text-gray-500',
+            'message' => 'fas fa-envelope text-blue-500',
+        ];
+        
+        return $icons[$type] ?? 'fas fa-bell text-gray-500';
     }
 
     /**
@@ -413,7 +460,7 @@ class DashboardController extends Controller
                 ->count(),
         ];
         
-        return view('citizen.notifications.center', compact('notifications'), ['stats' => $notificationStats]);
+        return view('citizen.notifications-center', compact('notifications', 'notificationStats'));
     }
 
     /**
@@ -479,50 +526,44 @@ class DashboardController extends Controller
     public function filterNotifications(Request $request)
     {
         $user = Auth::user();
-        $filter = $request->get('filter', 'all');
-        $search = $request->get('search', '');
+        $type = $request->get('type', 'all');
+        $page = $request->get('page', 1);
         
         $query = Notification::where('user_id', $user->id);
         
-        // Appliquer les filtres
-        switch ($filter) {
+        // Apply filters
+        switch ($type) {
             case 'unread':
                 $query->where('is_read', false);
                 break;
-            case 'read':
-                $query->where('is_read', true);
+            case 'success':
+            case 'info':
+            case 'warning':
+            case 'error':
+            case 'payment':
+            case 'request':
+            case 'message':
+                $query->where('type', $type);
                 break;
-            case 'today':
-                $query->whereDate('created_at', today());
-                break;
-            case 'week':
-                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-                break;
-            case 'month':
-                $query->whereMonth('created_at', now()->month)
-                      ->whereYear('created_at', now()->year);
+            case 'all':
+            default:
+                // No additional filter
                 break;
         }
         
-        // Recherche textuelle
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%$search%")
-                  ->orWhere('message', 'like', "%$search%")
-                  ->orWhereJsonContains('data->message', $search);
-            });
-        }
+        $notifications = $query->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'page', $page);
         
-        $notifications = $query->orderBy('created_at', 'desc')->paginate(20);
-        
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'html' => view('citizen.notifications.partials.list', compact('notifications'))->render(),
-                'pagination' => $notifications->links()->render()
-            ]);
-        }
-        
-        return view('citizen.notifications.center', compact('notifications'));
+        return response()->json([
+            'notifications' => $notifications->items(),
+            'pagination' => [
+                'current_page' => $notifications->currentPage(),
+                'last_page' => $notifications->lastPage(),
+                'total' => $notifications->total(),
+                'per_page' => $notifications->perPage(),
+            ]
+        ]);
     }
+
+    // ...existing code...
 }

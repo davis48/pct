@@ -16,44 +16,51 @@ class DocumentSeeder extends Seeder
         // Création de documents de test
         $documents = [
             [
-                'title' => 'Formulaire de demande de carte nationale d\'identité',
+                'name' => 'Formulaire de demande de carte nationale d\'identité',
+                'type' => 'Identité',
                 'description' => 'Formulaire officiel pour demander une carte nationale d\'identité.',
-                'category' => 'Identité',
-                'file_path' => 'documents/cni-form.pdf',
-                'is_public' => true,
-                'status' => 'active',
+                'requirements' => json_encode([
+                    'Pièce d\'identité valide',
+                    'Photo d\'identité récente',
+                    'Justificatif de domicile'
+                ]),
             ],
             [
-                'title' => 'Formulaire de demande de passeport',
+                'name' => 'Formulaire de demande de passeport',
+                'type' => 'Identité',
                 'description' => 'Formulaire officiel pour demander un passeport.',
-                'category' => 'Identité',
-                'file_path' => 'documents/passport-form.pdf',
-                'is_public' => true,
-                'status' => 'active',
+                'requirements' => json_encode([
+                    'Pièce d\'identité valide',
+                    'Photo d\'identité récente',
+                    'Justificatif de domicile',
+                    'Ancien passeport (si renouvellement)'
+                ]),
             ],
             [
-                'title' => 'Formulaire de déclaration de naissance',
+                'name' => 'Formulaire de déclaration de naissance',
+                'type' => 'État civil',
                 'description' => 'Formulaire pour déclarer une naissance à l\'état civil.',
-                'category' => 'État civil',
-                'file_path' => 'documents/birth-form.pdf',
-                'is_public' => true,
-                'status' => 'active',
+                'requirements' => json_encode([
+                    'Certificat de naissance de l\'hôpital',
+                    'Pièces d\'identité des parents',
+                    'Livret de famille (si existant)'
+                ]),
             ],
             [
-                'title' => 'Demande de certificat de résidence',
+                'name' => 'Demande de certificat de résidence',
+                'type' => 'Résidence',
                 'description' => 'Formulaire pour obtenir un certificat de résidence.',
-                'category' => 'Résidence',
-                'file_path' => 'documents/residence-form.pdf',
-                'is_public' => true,
-                'status' => 'active',
+                'requirements' => json_encode([
+                    'Pièce d\'identité valide',
+                    'Justificatif de domicile',
+                    'Photo d\'identité récente'
+                ]),
             ],
             [
-                'title' => 'Guide des procédures administratives',
+                'name' => 'Guide des procédures administratives',
+                'type' => 'Guide',
                 'description' => 'Guide complet des procédures administratives pour les citoyens.',
-                'category' => 'Guide',
-                'file_path' => 'documents/procedures-guide.pdf',
-                'is_public' => true,
-                'status' => 'active',
+                'requirements' => json_encode([]),
             ],
         ];
 

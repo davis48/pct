@@ -122,9 +122,8 @@
     </div>
 
     <div class="document-info">
-        <strong>Référence :</strong> {{ $reference }}<br>
-        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
+        <strong>Référence :</strong> {{ $reference_number }}<br>        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
@@ -154,7 +153,7 @@
 
         <div class="legal-notice">
             <h4 style="margin-top: 0; color: #17a2b8;">CONDITIONS DE VÉRIFICATION</h4>
-            <p>Cette certification a été établie après vérification des registres d'état civil de la commune d'Abidjan pour la période de {{ $date_generation->subYears(10)->format('Y') }} à {{ $date_generation->format('Y') }}.</p>
+            <p>Cette certification a été établie après vérification des registres d'état civil de la commune d'Abidjan pour la période de {{ is_string($date_generation) ? (date('Y') - 10) : $date_generation->copy()->subYears(10)->format('Y') }} à {{ is_string($date_generation) ? date('Y') : $date_generation->format('Y') }}.</p>
             <p>Cette vérification ne couvre que les actes de mariage enregistrés dans cette commune.</p>
         </div>
 
@@ -178,9 +177,9 @@
     </div>
 
     <div class="footer">
-        <p>Document généré électroniquement le {{ $date_generation->format('d/m/Y à H:i') }}</p>
+        <p>Document généré électroniquement le {{ is_string($date_generation) ? $date_generation . ' à ' . date('H:i') : $date_generation->format('d/m/Y à H:i') }}</p>
         <p>Mairie d'Abidjan - Service d'État Civil - Tél: +225 XX XX XX XX</p>
-        <p>Ce document est authentique et vérifiable avec la référence: {{ $reference }}</p>
+        <p>Ce document est authentique et vérifiable avec la référence: {{ $reference_number }}</p>
     </div>
 </body>
 </html>

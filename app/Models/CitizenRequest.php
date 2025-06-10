@@ -35,6 +35,9 @@ class CitizenRequest extends Model
         'document_id',
         'type',
         'description',
+        'reason',
+        'urgency',
+        'contact_preference',
         'status',
         'admin_comments',
         'additional_requirements',
@@ -46,6 +49,7 @@ class CitizenRequest extends Model
         'is_read',
         'payment_status',
         'payment_required',
+        'additional_data',
     ];
 
     /**
@@ -257,6 +261,16 @@ class CitizenRequest extends Model
     }
 
     /**
+     * Vérifier si le document de cette demande est téléchargeable
+     */
+    public function isDownloadable(): bool
+    {
+        $downloadableStatuses = ['approved', 'processed', 'ready', 'completed'];
+        return in_array($this->status, $downloadableStatuses) || 
+               ($this->status == 'in_progress' && $this->processed_by);
+    }
+
+    /**
      * Get status badge color
      */
     public function getStatusBadgeAttribute()
@@ -271,18 +285,43 @@ class CitizenRequest extends Model
     }
 
     /**
-     * Get status label
+     * Obtenir le libellé du statut pour l'affichage
      */
-    public function getStatusLabelAttribute()
+    public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
-            self::STATUS_DRAFT => 'Brouillon',
-            self::STATUS_PENDING => 'En attente',
-            self::STATUS_IN_PROGRESS => 'En cours',
-            self::STATUS_APPROVED => 'Approuvée',
-            self::STATUS_REJECTED => 'Rejetée',
-            default => 'Inconnu'
-        };
+        $labels = [
+            'pending' => 'En attente',
+            'en_attente' => 'En attente',
+            'in_progress' => 'En cours',
+            'approved' => 'Approuvée',
+            'processed' => 'Prêt',
+            'ready' => 'Prêt',
+            'completed' => 'Terminé',
+            'rejected' => 'Rejetée',
+            'draft' => 'Brouillon'
+        ];
+        
+        return $labels[$this->status] ?? ucfirst($this->status);
+    }
+
+    /**
+     * Obtenir la classe CSS pour le statut
+     */
+    public function getStatusColorAttribute(): string
+    {
+        $colors = [
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'en_attente' => 'bg-yellow-100 text-yellow-800',
+            'in_progress' => 'bg-blue-100 text-blue-800',
+            'approved' => 'bg-green-100 text-green-800',
+            'processed' => 'bg-green-100 text-green-800',
+            'ready' => 'bg-green-100 text-green-800',
+            'completed' => 'bg-green-100 text-green-800',
+            'rejected' => 'bg-red-100 text-red-800',
+            'draft' => 'bg-gray-100 text-gray-800'
+        ];
+        
+        return $colors[$this->status] ?? 'bg-gray-100 text-gray-800';
     }
 
     /**

@@ -34,7 +34,20 @@ class User extends Authenticatable
         'role',
         'phone',
         'address',
+        'complete_address',
         'profile_photo',
+        'place_of_birth',
+        'profession',
+        'cin_number',
+        'nationality',
+        'father_name',
+        'father_profession',
+        'father_address',
+        'mother_name',
+        'mother_profession',
+        'mother_address',
+        'marital_status',
+        'emergency_contact',
     ];
 
     /**

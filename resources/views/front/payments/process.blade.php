@@ -4,324 +4,304 @@
 
 @push('styles')
 <style>
-    .payment-processing {
-        text-align: center;
-        padding: 2rem;
-    }
-    
-    .payment-animation {
-        width: 150px;
-        height: 150px;
-        margin: 0 auto 2rem;
-        position: relative;
-    }
-    
-    .payment-animation .circle {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #0d6efd;
-        animation: spin 2s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .transaction-details {
-        background-color: #f8f9fa;
-        border-radius: 10px;
+    .phone-simulation {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 25px;
         padding: 20px;
-        margin-top: 2rem;
+        color: white;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        transform: perspective(1000px) rotateY(-5deg);
+        transition: all 0.3s ease;
+    }
+    
+    .phone-simulation:hover {
+        transform: perspective(1000px) rotateY(0deg);
+    }
+    
+    .phone-content {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 15px 0;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .notification-item {
+        background: rgba(255,255,255,0.15);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 10px;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.5s ease;
+        border-left: 4px solid rgba(255,255,255,0.3);
+    }
+    
+    .notification-item.show {
+        transform: translateY(0);
+        opacity: 1;
     }
     
     .step-indicator {
         display: flex;
         justify-content: space-between;
         margin-bottom: 2rem;
-    }
-    
-    .step {
-        text-align: center;
-        flex: 1;
         position: relative;
     }
     
-    .step:not(:last-child):after {
+    .step-indicator::before {
         content: '';
         position: absolute;
-        top: 15px;
-        right: -50%;
-        width: 100%;
-        height: 3px;
-        background-color: #e9ecef;
-        z-index: 0;
-    }
-    
-    .step.active:not(:last-child):after,
-    .step.completed:not(:last-child):after {
-        background-color: #0d6efd;
-    }
-    
-    .step-icon {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background-color: #e9ecef;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 10px;
-        position: relative;
+        top: 16px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(to right, #10b981, #3b82f6, #6366f1);
         z-index: 1;
     }
     
-    .step.active .step-icon {
-        background-color: #0d6efd;
-        color: white;
-    }
-    
-    .step.completed .step-icon {
-        background-color: #198754;
-        color: white;
-    }
-    
-    /* Simulation d'écran de téléphone */
-    .phone-simulation {
-        max-width: 300px;
-        margin: 0 auto;
-        border: 10px solid #333;
-        border-radius: 30px;
-        padding: 20px;
-        background-color: #fff;
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
         position: relative;
+        z-index: 2;
     }
     
-    .phone-simulation:before {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100px;
-        height: 10px;
-        background-color: #333;
-        border-radius: 0 0 10px 10px;
-    }
-    
-    .phone-header {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-    }
-    
-    .phone-content {
-        padding: 10px 0;
-    }
-    
-    .phone-footer {
-        border-top: 1px solid #eee;
-        padding-top: 10px;
-        margin-top: 15px;
-    }
-    
-    /* Animation de notification */
-    .notification {
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-radius: 5px;
-        margin-bottom: 10px;
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
         transition: all 0.3s ease;
-        transform: translateY(20px);
-        opacity: 0;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     
-    .notification.show {
-        transform: translateY(0);
-        opacity: 1;
+    .step-item.completed .step-circle {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
     }
     
-    /* Bouton de confirmation */
-    .confirm-btn {
-        position: relative;
-        overflow: hidden;
+    .step-item.active .step-circle {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        animation: pulse 2s infinite;
     }
     
-    .confirm-btn .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 0;
-        background-color: rgba(255,255,255,0.3);
-        transition: width 1.5s ease;
+    .step-item.pending .step-circle {
+        background: #f3f4f6;
+        color: #9ca3af;
     }
     
-    .confirm-btn.processing .overlay {
-        width: 100%;
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        50% { box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6); }
+    }
+    
+    .processing-animation {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
+<!-- MODERNE TAILWINDCSS VIEW - v2.0 -->
+<section class="py-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
             
-            <!-- Indicateur d'étapes -->
-            <div class="step-indicator mb-4">
-                <div class="step completed">
-                    <div class="step-icon">
+            <!-- En-tête -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">Traitement du paiement</h1>
+                <p class="text-gray-600">Suivez le processus de votre transaction en temps réel</p>
+            </div>
+
+            <!-- Indicateur d'étapes moderne -->
+            <div class="step-indicator mb-12">
+                <div class="step-item completed">
+                    <div class="step-circle">
                         <i class="fas fa-check"></i>
                     </div>
-                    <div class="step-label">Demande</div>
+                    <div class="mt-2 text-sm font-medium text-gray-700">Demande</div>
                 </div>
-                <div class="step completed">
-                    <div class="step-icon">
+                <div class="step-item completed">
+                    <div class="step-circle">
                         <i class="fas fa-check"></i>
                     </div>
-                    <div class="step-label">Paiement</div>
+                    <div class="mt-2 text-sm font-medium text-gray-700">Paiement</div>
                 </div>
-                <div class="step active">
-                    <div class="step-icon">
-                        <i class="fas fa-sync"></i>
+                <div class="step-item active">
+                    <div class="step-circle">
+                        <i class="fas fa-sync processing-animation"></i>
                     </div>
-                    <div class="step-label">Traitement</div>
+                    <div class="mt-2 text-sm font-medium text-primary-600">Traitement</div>
                 </div>
-                <div class="step">
-                    <div class="step-icon">
+                <div class="step-item pending">
+                    <div class="step-circle">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="step-label">Réception</div>
+                    <div class="mt-2 text-sm font-medium text-gray-400">Réception</div>
                 </div>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Traitement de votre paiement</h4>
+            @if (session('error'))
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center text-red-800">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        {{ session('error') }}
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    @if (session('error'))
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
+            @endif
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Simulation mobile -->
+                <div class="space-y-6">
+                    <div class="phone-simulation">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex space-x-2">
+                                <i class="fas fa-signal text-white"></i>
+                                <i class="fas fa-wifi text-white"></i>
+                            </div>
+                            <div class="font-bold text-white">{{ strtoupper($payment->provider) }} Money</div>
+                            <div>
+                                <i class="fas fa-battery-three-quarters text-white"></i>
+                            </div>
                         </div>
-                    @endif
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-4 mb-md-0">
-                            <div class="phone-simulation">
-                                <div class="phone-header">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i></div>
-                                        <div><strong>{{ strtoupper($payment->provider) }} Money</strong></div>
-                                        <div><i class="fas fa-battery-three-quarters"></i></div>
-                                    </div>
+                        
+                        <div class="phone-content">
+                            <div class="text-center mb-6">
+                                <div class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-4">
+                                    <img src="{{ asset('images/logos/' . $payment->provider . '.png') }}" 
+                                         alt="{{ ucfirst($payment->provider) }} Logo" 
+                                         class="w-10 h-10 object-contain"
+                                         onerror="this.src='{{ asset('images/logos/default.png') }}'">
+                                </div>
+                                <h3 class="text-xl font-bold text-white">Demande de paiement</h3>
+                            </div>
+                            
+                            <div class="space-y-3" id="phone-notifications">
+                                <div class="notification-item" id="notification-1">
+                                    <div class="text-xs text-white opacity-75 mb-1">De: Service des documents administratifs</div>
+                                    <div class="font-semibold">Paiement de {{ number_format($payment->amount, 0, ',', ' ') }} FCFA</div>
                                 </div>
                                 
-                                <div class="phone-content" id="phone-content">
-                                    <div class="text-center mb-3">
-                                        <img src="{{ asset('images/logos/' . $payment->provider . '.png') }}" 
-                                             alt="{{ ucfirst($payment->provider) }} Logo" 
-                                             class="img-fluid mb-2" 
-                                             style="max-height: 40px;"
-                                             onerror="this.src='{{ asset('images/logos/default.png') }}'">
-                                        <h5>Demande de paiement</h5>
-                                    </div>
-                                    
-                                    <div class="notification" id="notification-1">
-                                        <small class="text-muted">De: Service des documents administratifs</small>
-                                        <p class="mb-0">Paiement de <strong>{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</strong></p>
-                                    </div>
-                                    
-                                    <div class="notification" id="notification-2">
-                                        <small class="text-muted">Référence</small>
-                                        <p class="mb-0">{{ $payment->reference }}</p>
-                                    </div>
-                                    
-                                    <div class="notification" id="notification-3">
-                                        <small class="text-muted">Numéro</small>
-                                        <p class="mb-0">{{ $payment->phone_number }}</p>
-                                    </div>
+                                <div class="notification-item" id="notification-2">
+                                    <div class="text-xs text-white opacity-75 mb-1">Référence</div>
+                                    <div class="font-semibold">{{ $payment->reference }}</div>
                                 </div>
                                 
-                                <div class="phone-footer">
-                                    <form action="{{ route('payments.simulate', $payment->id) }}" method="POST" id="payment-form">
-                                        @csrf
-                                        <input type="hidden" name="confirm" value="1">
-                                        <button type="submit" class="btn btn-success btn-sm w-100 confirm-btn" id="confirm-btn">
-                                            <span>Confirmer le paiement</span>
-                                            <div class="overlay"></div>
-                                        </button>
-                                    </form>
+                                <div class="notification-item" id="notification-3">
+                                    <div class="text-xs text-white opacity-75 mb-1">Numéro</div>
+                                    <div class="font-semibold">{{ $payment->phone_number }}</div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="transaction-details">
-                                <h5 class="mb-4">Détails de la transaction</h5>
-                                
-                                <div class="mb-3">
-                                    <div class="fw-bold text-muted">Numéro de référence</div>
-                                    <div>{{ $payment->reference }}</div>
+                        <form action="{{ route('payments.simulate', $payment->id) }}" method="POST" id="payment-form">
+                            @csrf
+                            <input type="hidden" name="confirm" value="1">
+                            <button type="submit" 
+                                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200" 
+                                    id="confirm-btn">
+                                <i class="fas fa-check mr-2"></i>
+                                <span>Confirmer le paiement</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Détails de la transaction -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="bg-gradient-to-r from-primary-600 to-primary-700 p-6">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i class="fas fa-receipt mr-3"></i>
+                                Détails de la transaction
+                            </h2>
+                        </div>
+                        
+                        <div class="p-6 space-y-6">
+                            <div class="grid gap-4">
+                                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                    <div class="text-sm font-medium text-gray-500">Numéro de référence</div>
+                                    <div class="font-semibold text-gray-900">{{ $payment->reference }}</div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <div class="fw-bold text-muted">Méthode de paiement</div>
-                                    <div>
+                                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                    <div class="text-sm font-medium text-gray-500">Méthode de paiement</div>
+                                    <div class="flex items-center font-semibold text-gray-900">
                                         @if($payment->payment_method === 'mobile_money')
-                                            <i class="fas fa-mobile-alt me-2"></i> Mobile Money ({{ ucfirst($payment->provider) }})
+                                            <i class="fas fa-mobile-alt mr-2 text-primary-600"></i>
+                                            Mobile Money ({{ ucfirst($payment->provider) }})
                                         @else
                                             {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}
                                         @endif
                                     </div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <div class="fw-bold text-muted">Numéro</div>
-                                    <div>{{ $payment->phone_number }}</div>
+                                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                    <div class="text-sm font-medium text-gray-500">Numéro</div>
+                                    <div class="font-semibold text-gray-900">{{ $payment->phone_number }}</div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <div class="fw-bold text-muted">Date</div>
-                                    <div>{{ $payment->created_at->format('d/m/Y à H:i') }}</div>
+                                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                    <div class="text-sm font-medium text-gray-500">Date</div>
+                                    <div class="font-semibold text-gray-900">{{ $payment->created_at->format('d/m/Y à H:i') }}</div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <div class="fw-bold text-muted">Montant</div>
-                                    <div class="fs-5 fw-bold text-primary">{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</div>
-                                </div>
-                                
-                                <hr>
-                                
-                                <div class="alert alert-info mb-0">
-                                    <i class="fas fa-info-circle me-2"></i> Pour ce démonstrateur, le paiement est simulé. Aucun frais réel ne sera prélevé. Cliquez sur "Confirmer le paiement" pour simuler un paiement réussi.
+                                <div class="flex justify-between items-center py-3">
+                                    <div class="text-sm font-medium text-gray-500">Montant</div>
+                                    <div class="text-2xl font-bold text-primary-600">{{ number_format($payment->amount, 0, ',', ' ') }} FCFA</div>
                                 </div>
                             </div>
                             
-                            <div class="mt-3">
-                                <a href="{{ route('payments.cancel', $payment->id) }}" class="btn btn-outline-danger w-100"
-                                   onclick="return confirm('Êtes-vous sûr de vouloir annuler ce paiement?')">
-                                    <i class="fas fa-times me-2"></i> Annuler le paiement
-                                </a>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-blue-800">Mode démonstration</h3>
+                                        <div class="mt-1 text-sm text-blue-700">
+                                            Pour ce démonstrateur, le paiement est simulé. Aucun frais réel ne sera prélevé. 
+                                            Cliquez sur "Confirmer le paiement" pour simuler un paiement réussi.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Bouton d'annulation -->
+                    <a href="{{ route('payments.cancel', $payment->id) }}" 
+                       class="w-full inline-flex items-center justify-center px-6 py-3 border border-red-300 text-red-700 bg-white hover:bg-red-50 font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
+                       onclick="return confirm('Êtes-vous sûr de vouloir annuler ce paiement?')">
+                        <i class="fas fa-times mr-2"></i>
+                        Annuler le paiement
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Afficher les notifications avec délai
+        // Animation des notifications avec délai
         setTimeout(function() {
             document.getElementById('notification-1').classList.add('show');
             
@@ -332,55 +312,66 @@
                     document.getElementById('notification-3').classList.add('show');
                 }, 500);
             }, 500);
-        }, 500);
-          // Animation du bouton de confirmation
+        }, 1000);
+
+        // Animation du bouton de confirmation
         const paymentForm = document.getElementById('payment-form');
         const confirmBtn = document.getElementById('confirm-btn');
         
         paymentForm.addEventListener('submit', function(e) {
             confirmBtn.disabled = true;
-            confirmBtn.classList.add('processing');
-            confirmBtn.innerHTML = '<span><i class="fas fa-circle-notch fa-spin me-2"></i> Traitement en cours...</span><div class="overlay"></div>';
+            confirmBtn.className = 'w-full bg-gray-400 text-white font-bold py-3 px-6 rounded-lg cursor-not-allowed';
+            confirmBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Traitement en cours...';
             
-            // Afficher une notification de traitement
-            setTimeout(() => {
-                showPaymentNotification('Paiement en cours de traitement...', 'info');
-            }, 1000);
+            // Afficher une notification moderne
+            showModernNotification('Paiement en cours de traitement...', 'info');
             
-            // Simulation du succès du paiement (en cas de redirection problématique)
+            // Simulation du succès du paiement
             setTimeout(() => {
-                showPaymentNotification('✅ Paiement effectué avec succès !', 'success');
+                showModernNotification('✅ Paiement effectué avec succès !', 'success');
             }, 3000);
         });
         
-        // Fonction pour afficher les notifications toast
-        function showPaymentNotification(message, type = 'success') {
-            // Créer l'élément notification
+        // Fonction pour afficher les notifications modernes
+        function showModernNotification(message, type = 'success') {
             const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed animate__animated animate__slideInRight`;
-            notification.style.cssText = `
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 350px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            `;
+            const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 
+                           type === 'info' ? 'bg-blue-50 border-blue-200 text-blue-800' : 
+                           'bg-red-50 border-red-200 text-red-800';
             
-            const icon = type === 'success' ? 'fa-check-circle' : type === 'info' ? 'fa-info-circle' : 'fa-exclamation-circle';
+            const icon = type === 'success' ? 'fa-check-circle text-green-500' : 
+                        type === 'info' ? 'fa-info-circle text-blue-500' : 
+                        'fa-exclamation-circle text-red-500';
+            
+            notification.className = `fixed top-24 right-4 z-50 ${bgColor} border rounded-lg p-4 shadow-2xl transform transition-all duration-500 translate-x-full`;
+            notification.style.minWidth = '350px';
             
             notification.innerHTML = `
-                <i class="fas ${icon} me-2"></i>
-                <strong>${type === 'success' ? 'Succès !' : type === 'info' ? 'Information' : 'Erreur'}</strong><br>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas ${icon} text-xl"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium">${type === 'success' ? 'Succès !' : type === 'info' ? 'Information' : 'Erreur'}</h3>
+                        <div class="mt-1 text-sm">${message}</div>
+                    </div>
+                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 hover:bg-gray-100 inline-flex h-8 w-8" onclick="this.parentElement.parentElement.remove()">
+                        <span class="sr-only">Fermer</span>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             `;
             
-            // Ajouter au body
             document.body.appendChild(notification);
+            
+            // Animer l'entrée
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
             
             // Auto-disparition après 5 secondes
             setTimeout(() => {
-                notification.classList.add('animate__fadeOutRight');
+                notification.classList.add('translate-x-full');
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.parentNode.removeChild(notification);
@@ -390,14 +381,14 @@
         }
         
         // Animation des étapes
-        document.querySelectorAll('.step').forEach(function(step, index) {
+        document.querySelectorAll('.step-item').forEach(function(step, index) {
+            step.style.opacity = '0';
+            step.style.transform = 'translateY(20px)';
             setTimeout(function() {
-                step.style.opacity = '0';
-                setTimeout(function() {
-                    step.style.transition = 'all 0.5s ease';
-                    step.style.opacity = '1';
-                }, 100 * index);
-            }, 0);
+                step.style.transition = 'all 0.5s ease';
+                step.style.opacity = '1';
+                step.style.transform = 'translateY(0)';
+            }, 200 * index);
         });
     });
 </script>

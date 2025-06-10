@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('citizen_requests', function (Blueprint $table) {
-            $table->unsignedBigInteger('assigned_to')->nullable()->after('processed_by');
-            $table->foreign('assigned_to')->references('id')->on('users')->onDelete('set null');
+            if (!Schema::hasColumn('citizen_requests', 'processed_by')) {
+                $table->unsignedBigInteger('processed_by')->nullable()->after('admin_comments');
+                $table->foreign('processed_by')->references('id')->on('users')->onDelete('set null');
+                $table->timestamp('processed_at')->nullable()->after('processed_by');
+            }
+            
+            if (!Schema::hasColumn('citizen_requests', 'assigned_to')) {
+                $table->unsignedBigInteger('assigned_to')->nullable()->after('processed_by');
+                $table->foreign('assigned_to')->references('id')->on('users')->onDelete('set null');
+            }
         });
     }
 

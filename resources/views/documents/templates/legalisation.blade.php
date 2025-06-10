@@ -134,33 +134,28 @@
     </div>
 
     <div class="document-info">
-        <strong>Référence :</strong> {{ $reference }}<br>
-        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
+        <strong>Référence :</strong> {{ $reference_number }}<br>        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
         LÉGALISATION DE DOCUMENT
     </div>
 
-    <div class="content">
-        <div class="legalization-info">
+    <div class="content">        <div class="legalization-info">
             <h3 style="margin-top: 0; color: #0066cc;">DEMANDEUR</h3>
-            <strong>Nom et Prénoms :</strong> {{ $user->name }}<br>
-            <strong>Date de naissance :</strong> {{ $user->date_of_birth ?? 'Non renseignée' }}<br>
-            <strong>Lieu de naissance :</strong> {{ $user->place_of_birth ?? 'Non renseigné' }}<br>
-            <strong>Profession :</strong> {{ $user->profession ?? 'Non renseignée' }}<br>
-            <strong>Domicile :</strong> {{ $user->address ?? 'Non renseigné' }}<br>
-            <strong>Numéro CNI :</strong> {{ $user->cin_number ?? 'Non renseigné' }}
-        </div>
-
-        <div class="document-details">
+            <strong>Nom et Prénoms :</strong> {{ $data['nom'] ?? $user->name ?? 'Non renseigné' }}<br>
+            <strong>Date de naissance :</strong> {{ isset($data['date_naissance']) ? \Carbon\Carbon::parse($data['date_naissance'])->format('d/m/Y') : ($user->date_of_birth ?? 'Non renseignée') }}<br>
+            <strong>Lieu de naissance :</strong> {{ $data['lieu_naissance'] ?? $user->place_of_birth ?? 'Non renseigné' }}<br>
+            <strong>Profession :</strong> {{ $data['profession'] ?? $user->profession ?? 'Non renseignée' }}<br>
+            <strong>Domicile :</strong> {{ $data['adresse'] ?? $user->address ?? 'Non renseigné' }}<br>
+            <strong>Numéro CNI :</strong> {{ $data['numero_cni'] ?? $user->cin_number ?? 'Non renseigné' }}
+        </div><div class="document-details">
             <h3 style="margin-top: 0; color: #ffc107;">DOCUMENT À LÉGALISER</h3>
-            <strong>Type de document :</strong> {{ $document->title ?? 'Document administratif' }}<br>
-            <strong>Origine du document :</strong> {{ $user->document_origin ?? 'Administration publique' }}<br>
-            <strong>Date du document original :</strong> {{ $user->original_document_date ?? $request->created_at->format('d/m/Y') }}<br>
-            <strong>Autorité émettrice :</strong> {{ $user->issuing_authority ?? 'Administration compétente' }}<br>
-            <strong>Numéro du document :</strong> {{ $user->original_document_number ?? 'Non renseigné' }}
+            <strong>Type de document :</strong> {{ $data['document_type'] ?? 'Document administratif' }}<br>
+            <strong>Date du document original :</strong> {{ isset($data['document_date']) ? \Carbon\Carbon::parse($data['document_date'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Autorité émettrice :</strong> {{ $data['issuing_authority'] ?? 'Administration compétente' }}<br>
+            <strong>Numéro du document :</strong> {{ $data['document_number'] ?? 'Non renseigné' }}
         </div>
 
         <div class="certification-box">
@@ -174,17 +169,15 @@
             <h4 style="margin-top: 0; color: #17a2b8;">CONDITIONS DE LÉGALISATION</h4>
             <p>Cette légalisation ne porte que sur l'authenticité de la signature et du cachet ou sceau. Elle ne préjuge en rien du contenu du document légalisé.</p>
             <p>La présente légalisation a été effectuée conformément aux dispositions légales en vigueur.</p>
-        </div>
+        </div>        <p><strong>Motif de la demande :</strong> {{ $data['motif_demande'] ?? 'Usage administratif' }}</p>
 
-        <p><strong>Motif de la demande :</strong> {{ $request->reason ?? 'Usage administratif' }}</p>
-
-        <p><strong>Destination :</strong> {{ $user->document_destination ?? 'Administration publique' }}</p>
+        <p><strong>Destination :</strong> {{ $data['destination'] ?? 'Administration publique' }}</p>
 
         <div class="stamp-area">
             <p><strong>CACHET DE LÉGALISATION</strong></p>
             <p>MAIRIE D'ABIDJAN</p>
-            <p>LÉGALISÉ LE {{ $date_generation->format('d/m/Y') }}</p>
-            <p>N° {{ $reference }}</p>
+            <p>LÉGALISÉ LE {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}</p>
+            <p>N° {{ $reference_number }}</p>
             <div style="height: 40px; border: 1px solid #ccc; margin: 10px auto; width: 120px; display: flex; align-items: center; justify-content: center;">
                 CACHET OFFICIEL
             </div>
@@ -206,9 +199,9 @@
     </div>
 
     <div class="footer">
-        <p>Document généré électroniquement le {{ $date_generation->format('d/m/Y à H:i') }}</p>
+        <p>Document généré électroniquement le {{ is_string($date_generation) ? $date_generation . ' à ' . date('H:i') : $date_generation->format('d/m/Y à H:i') }}</p>
         <p>Mairie d'Abidjan - Service de Légalisation - Tél: +225 XX XX XX XX</p>
-        <p>Ce document est authentique et vérifiable avec la référence: {{ $reference }}</p>
+        <p>Ce document est authentique et vérifiable avec la référence: {{ $reference_number }}</p>
     </div>
 </body>
 </html>

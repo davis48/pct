@@ -47,10 +47,9 @@ class DocumentGeneratorService
      * Obtenir le template approprié pour le type de document
      */
     protected function getTemplateForDocumentType($type)
-    {
-        $templates = [
+    {        $templates = [
             'attestation' => 'documents.templates.attestation-domicile',
-            'legalisation' => 'documents.templates.legalisation-document',
+            'legalisation' => 'documents.templates.legalisation',
             'mariage' => 'documents.templates.certificat-mariage',
             'extrait-acte' => 'documents.templates.extrait-acte-naissance',
             'declaration-naissance' => 'documents.templates.declaration-naissance',

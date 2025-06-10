@@ -8,6 +8,7 @@ use App\Models\CitizenRequest;
 use App\Models\Document;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class RequestController extends Controller
 {
@@ -27,7 +28,7 @@ class RequestController extends Controller
     {
         // Liste toutes les demandes de l'utilisateur
         $requests = CitizenRequest::where('user_id', Auth::id())->latest()->get();
-        return view('front.requests.index', compact('requests'));
+        return view('front.requests.index_standalone', compact('requests'));
     }
 
     /**
@@ -40,7 +41,7 @@ class RequestController extends Controller
                            ->where('status', 'active')
                            ->get();
 
-        return view('front.requests.create', compact('documents'));
+        return view('front.requests.create_standalone', compact('documents'));
     }
 
     /**
@@ -48,44 +49,107 @@ class RequestController extends Controller
      */
     public function store(Request $request)
     {
-        // Validation des données
+        // Validation étendue des données
         $validated = $request->validate([
             'document_id' => 'required|exists:documents,id',
             'type' => 'required|string',
             'description' => 'required|string|max:1000',
-            'attachments.*' => 'nullable|file|max:10240' // Max 10MB par fichier
+            'reason' => 'required|string|max:500',
+            'urgency' => 'nullable|string|in:normal,urgent,very_urgent',
+            'contact_preference' => 'nullable|string|in:email,phone,both',
+            
+            // Informations personnelles pour le document
+            'place_of_birth' => 'required|string|max:255',
+            'profession' => 'required|string|max:255',
+            'cin_number' => 'required|string|regex:/^[A-Z]{2}[0-9]{10}$/',
+            'nationality' => 'required|string|max:100',
+            'complete_address' => 'required|string|max:500',
+            
+            // Validation et conditions
+            'confirm_accuracy' => 'required|accepted',
+            'accept_terms' => 'required|accepted',
+            
+            // Fichiers joints
+            'attachments.*' => 'required|file|max:5120|mimes:pdf,jpg,jpeg,png' // Max 5MB par fichier
+        ], [
+            'cin_number.regex' => 'Le numéro CNI doit suivre le format: 2 lettres suivies de 10 chiffres (ex: CI0123456789)',
+            'attachments.required' => 'Vous devez joindre au moins un document à votre demande',
+            'attachments.*.mimes' => 'Les fichiers doivent être au format PDF, JPG, JPEG ou PNG',
+            'attachments.*.max' => 'Chaque fichier ne doit pas dépasser 5MB',
+            'confirm_accuracy.accepted' => 'Vous devez certifier que les informations sont exactes',
+            'accept_terms.accepted' => 'Vous devez accepter les conditions générales'
         ]);
 
-        // Gérer les pièces jointes
-        $attachments = [];
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('public/attachments', $filename);
-                $attachments[] = [
-                    'name' => $filename,
-                    'path' => $path,
-                    'size' => $file->getSize(),
-                    'type' => $file->getMimeType()
-                ];
+        try {
+            // Mettre à jour les informations personnelles de l'utilisateur
+            $user = Auth::user();
+            $user->update([
+                'place_of_birth' => $validated['place_of_birth'],
+                'profession' => $validated['profession'],
+                'cin_number' => $validated['cin_number'],
+                'nationality' => $validated['nationality'],
+                'address' => $validated['complete_address'],
+            ]);
+
+            // Gérer les pièces jointes
+            $attachments = [];
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                    $path = $file->storeAs('public/attachments', $filename);
+                    $attachments[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'stored_name' => $filename,
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'type' => $file->getMimeType(),
+                        'uploaded_at' => now()->toISOString()
+                    ];
+                }
             }
+
+            // Créer la demande avec les nouvelles informations
+            $citizenRequest = CitizenRequest::create([
+                'user_id' => Auth::id(),
+                'document_id' => $validated['document_id'],
+                'type' => $validated['type'],
+                'description' => $validated['description'],
+                'reason' => $validated['reason'],
+                'urgency' => $validated['urgency'] ?? 'normal',
+                'contact_preference' => $validated['contact_preference'] ?? 'email',
+                'attachments' => $attachments,
+                'status' => 'pending',
+                'payment_status' => 'unpaid',
+                'payment_required' => true,
+                'additional_data' => json_encode([
+                    'place_of_birth' => $validated['place_of_birth'],
+                    'profession' => $validated['profession'],
+                    'cin_number' => $validated['cin_number'],
+                    'nationality' => $validated['nationality'],
+                    'complete_address' => $validated['complete_address'],
+                    'form_version' => '2.0',
+                    'submitted_at' => now()->toISOString()
+                ])
+            ]);
+
+            // Supprimer les données sauvegardées du localStorage (sera géré côté client)
+            
+            // Rediriger vers la page de paiement avec un message de succès détaillé
+            return redirect()->route('payments.show', $citizenRequest)
+                ->with('success', '🎉 Votre demande a été créée avec succès ! Référence: ' . $citizenRequest->reference_number . '. Veuillez procéder au paiement pour finaliser votre demande.');
+                
+        } catch (\Exception $e) {
+            // Log de l'erreur
+            Log::error('Erreur lors de la création de la demande', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Une erreur est survenue lors de la création de votre demande. Veuillez réessayer ou contacter le support.');
         }
-
-        // Créer la demande
-        $citizenRequest = CitizenRequest::create([
-            'user_id' => Auth::id(),
-            'document_id' => $request->document_id,
-            'type' => $request->type,
-            'description' => $request->description,
-            'attachments' => $attachments,
-            'status' => 'pending', // Changé de 'draft' à 'pending'
-            'payment_status' => 'unpaid',
-            'payment_required' => true, // Changé à true pour forcer le paiement
-        ]);
-
-        // Rediriger vers la page de paiement
-        return redirect()->route('payments.show', $citizenRequest)
-            ->with('success', 'Votre demande a été créée. Veuillez procéder au paiement pour finaliser votre demande.');
     }
 
     /**
@@ -99,7 +163,7 @@ class RequestController extends Controller
                    ->where('user_id', Auth::id())
                    ->firstOrFail();
 
-        return view('front.requests.show', compact('request'));
+        return view('front.requests.show_standalone', compact('request'));
     }
 
     /**

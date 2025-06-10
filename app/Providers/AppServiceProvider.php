@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Partager les données de notification avec le navbar
+        view()->composer('layouts.app', \App\View\Composers\NavbarComposer::class);
     }
 }

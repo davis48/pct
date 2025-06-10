@@ -123,9 +123,8 @@
     </div>
 
     <div class="document-info">
-        <strong>Référence :</strong> {{ $reference }}<br>
-        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
+        <strong>Référence :</strong> {{ $reference_number }}<br>        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
@@ -134,8 +133,8 @@
 
     <div class="content">
         <div class="registry-info">
-            <strong>Registre d'État Civil :</strong> Année {{ $date_generation->year }}<br>
-            <strong>Acte N° :</strong> {{ $reference }}<br>
+            <strong>Registre d'État Civil :</strong> Année {{ is_string($date_generation) ? date('Y') : $date_generation->year }}<br>
+            <strong>Acte N° :</strong> {{ $reference_number }}<br>
             <strong>Centre d'État Civil :</strong> Mairie d'Abidjan
         </div>
 
@@ -192,9 +191,9 @@
     </div>
 
     <div class="footer">
-        <p>Document généré électroniquement le {{ $date_generation->format('d/m/Y à H:i') }}</p>
+        <p>Document généré électroniquement le {{ is_string($date_generation) ? $date_generation . ' à ' . date('H:i') : $date_generation->format('d/m/Y à H:i') }}</p>
         <p>Mairie d'Abidjan - Service d'État Civil - Tél: +225 XX XX XX XX</p>
-        <p>Ce document est authentique et vérifiable avec la référence: {{ $reference }}</p>
+        <p>Ce document est authentique et vérifiable avec la référence: {{ $reference_number }}</p>
     </div>
 </body>
 </html>

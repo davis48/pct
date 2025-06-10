@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('documents', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->text('description');
-            $table->string('category');
-            $table->string('file_path');
-            $table->boolean('is_public')->default(false);
-            $table->string('status')->default('active'); // active, archived
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('documents')) {
+            Schema::create('documents', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->text('description');
+                $table->string('category');
+                $table->string('file_path');
+                $table->boolean('is_public')->default(false);
+                $table->string('status')->default('active'); // active, archived
+                $table->timestamps();
+            });
+        }
     }
 
     /**

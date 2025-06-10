@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('citizen_requests', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('document_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('type'); // certificate, authorization, complaint, etc.
-            $table->text('description');
-            $table->string('status')->default('pending'); // pending, approved, rejected
-            $table->text('admin_comments')->nullable();
-            $table->json('attachments')->nullable(); // Store file paths as JSON
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('citizen_requests')) {
+            Schema::create('citizen_requests', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('document_id')->nullable()->constrained()->onDelete('set null');
+                $table->string('type'); // certificate, authorization, complaint, etc.
+                $table->text('description');
+                $table->string('status')->default('pending'); // pending, approved, rejected
+                $table->text('admin_comments')->nullable();
+                $table->json('attachments')->nullable(); // Store file paths as JSON
+                $table->timestamps();
+            });
+        }
     }
 
     /**

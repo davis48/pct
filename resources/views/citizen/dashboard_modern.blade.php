@@ -271,82 +271,104 @@
 
         <!-- My Requests Section -->
         <div class="row">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-light">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-list-alt me-2"></i>
+            <div class="col-12">                <!-- Section Mes Demandes Moderne -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                            <div class="mb-3 sm:mb-0">
+                                <h5 class="text-xl font-semibold text-gray-900 flex items-center">
+                                    <i class="fas fa-list-alt mr-2 text-primary-600"></i>
                                     Mes Demandes
                                 </h5>
-                                <small class="text-muted">Suivez l'état de toutes vos demandes en temps réel</small>
+                                <p class="text-sm text-gray-600">Suivez l'état de toutes vos demandes en temps réel</p>
                             </div>
-                            <div class="col-md-4 text-md-end">
-                                <div class="d-flex align-items-center justify-content-md-end gap-3">
-                                    <a href="{{ route('requests.create') }}" class="btn btn-primary action-btn">
-                                        <i class="fas fa-plus me-2"></i>Nouvelle Demande
-                                    </a>
-                                    <div class="d-flex align-items-center">
-                                        <small class="text-muted me-2">Mise à jour auto</small>
-                                        <div id="auto-refresh-indicator" class="bg-success rounded-circle pulse-animation" style="width: 10px; height: 10px;"></div>
-                                    </div>
+                            <div class="flex items-center space-x-4">
+                                <a href="{{ route('requests.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                    <i class="fas fa-plus mr-2"></i>Nouvelle Demande
+                                </a>
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-500 mr-2">Mise à jour auto</span>
+                                    <div id="auto-refresh-indicator" class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="p-6">
                         <div id="requests-container">
                             @if($requests->count() > 0)
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Document</th>
-                                            <th>Statut</th>
-                                            <th>Date de Demande</th>
-                                            <th>Dernière Mise à Jour</th>
-                                            <th>Agent Assigné</th>
-                                            <th>Actions</th>
+                            <!-- Version desktop moderne -->
+                            <div class="hidden md:block overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-4 px-4 font-semibold text-gray-700">Document</th>
+                                            <th class="text-left py-4 px-4 font-semibold text-gray-700">Statut</th>
+                                            <th class="text-left py-4 px-4 font-semibold text-gray-700">Date de Demande</th>
+                                            <th class="text-left py-4 px-4 font-semibold text-gray-700">Dernière Mise à Jour</th>
+                                            <th class="text-left py-4 px-4 font-semibold text-gray-700">Agent Assigné</th>
+                                            <th class="text-left py-4 px-4 font-semibold text-gray-700">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-gray-100">
                                         @foreach($requests as $request)
-                                        <tr class="request-item" data-id="{{ $request->id }}">                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <i class="fas fa-file-alt text-primary me-2"></i>
+                                        <tr class="request-item hover:bg-gray-50 transition-colors duration-200" data-id="{{ $request->id }}">
+                                            <td class="py-4 px-4">
+                                                <div class="flex items-center">
+                                                    <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                                                        <i class="fas fa-file-alt text-primary-600 text-sm"></i>
+                                                    </div>
                                                     <div>
-                                                        <strong>{{ $request->type_label }}</strong>
-                                                        <br><small class="text-muted">ID: #{{ $request->id }}</small>
+                                                        <div class="font-medium text-gray-900">{{ $request->type_label ?? ucfirst($request->type) }}</div>
+                                                        <div class="text-sm text-gray-500">ID: #{{ $request->id }}</div>
                                                     </div>
                                                 </div>
-                                            </td><td>
-                                                <span class="request-status status-{{ $request->payment_status === 'unpaid' ? 'unpaid' : $request->status }}">
-                                                    @if($request->payment_status === 'unpaid' && $request->requiresPayment())
-                                                        <i class="fas fa-credit-card me-1"></i>À Payer
-                                                    @else
-                                                        @switch($request->status)
-                                                            @case('draft')
-                                                                <i class="fas fa-edit me-1"></i>Brouillon
-                                                                @break
-                                                            @case('pending')
-                                                                <i class="fas fa-hourglass-half me-1"></i>En Attente
-                                                                @break
-                                                            @case('in_progress')
-                                                                <i class="fas fa-cog fa-spin me-1"></i>En Cours
-                                                                @break
-                                                            @case('approved')
-                                                                <i class="fas fa-check-circle me-1"></i>Approuvée
-                                                                @break
-                                                            @case('rejected')
-                                                                <i class="fas fa-times-circle me-1"></i>Rejetée
-                                                                @break
-                                                            @default
-                                                                <i class="fas fa-question-circle me-1"></i>{{ ucfirst($request->status) }}
-                                                        @endswitch
-                                                    @endif
-                                                </span>
-                                                @if($request->status === 'pending')
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                @if($request->payment_status === 'unpaid' && $request->requiresPayment())
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        <span class="w-1.5 h-1.5 mr-1.5 bg-yellow-400 rounded-full"></span>
+                                                        <i class="fas fa-credit-card mr-1"></i>À Payer
+                                                    </span>
+                                                @else
+                                                    @switch($request->status)
+                                                        @case('draft')
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                <span class="w-1.5 h-1.5 mr-1.5 bg-gray-400 rounded-full"></span>
+                                                                <i class="fas fa-edit mr-1"></i>Brouillon
+                                                            </span>
+                                                            @break
+                                                        @case('pending')
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                <span class="w-1.5 h-1.5 mr-1.5 bg-yellow-400 rounded-full"></span>
+                                                                <i class="fas fa-hourglass-half mr-1"></i>En Attente
+                                                            </span>
+                                                            @break
+                                                        @case('in_progress')
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                <span class="w-1.5 h-1.5 mr-1.5 bg-blue-400 rounded-full animate-spin"></span>
+                                                                <i class="fas fa-cog mr-1"></i>En Cours
+                                                            </span>
+                                                            @break
+                                                        @case('approved')
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                <span class="w-1.5 h-1.5 mr-1.5 bg-green-400 rounded-full"></span>
+                                                                <i class="fas fa-check-circle mr-1"></i>Approuvée
+                                                            </span>
+                                                            @break
+                                                        @case('rejected')
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                <span class="w-1.5 h-1.5 mr-1.5 bg-red-400 rounded-full"></span>
+                                                                <i class="fas fa-times-circle mr-1"></i>Rejetée
+                                                            </span>
+                                                            @break
+                                                        @default
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                <span class="w-1.5 h-1.5 mr-1.5 bg-gray-400 rounded-full"></span>
+                                                                <i class="fas fa-question-circle mr-1"></i>{{ ucfirst($request->status) }}
+                                                            </span>
+                                                    @endswitch
+                                                @endif
+                                            </td>
                                                     <div class="mt-1">
                                                         <small class="text-success fw-bold">
                                                             <i class="fas fa-clock me-1"></i>Soumise et en cours de traitement

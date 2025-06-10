@@ -27,6 +27,7 @@ Route::get('/connexion', [HomeController::class, 'login'])->name('login');
 Route::get('/inscription', [HomeController::class, 'register'])->name('register');
 
 // Routes standalone pour l'inscription et la connexion (utilisées par les formulaires interactifs)
+Route::get('/choose-role-standalone', [HomeController::class, 'chooseRoleStandalone'])->name('choose.role.standalone');
 Route::get('/inscription-standalone', [HomeController::class, 'registerStandalone'])->name('register.standalone');
 Route::post('/inscription-standalone', [HomeController::class, 'processRegisterStandalone']);
 Route::get('/connexion-standalone', [HomeController::class, 'loginStandalone'])->name('login.standalone');

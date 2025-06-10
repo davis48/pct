@@ -52,6 +52,7 @@ Route::prefix('requests')->name('requests.')->group(function () {
     
     // Gestion des pièces jointes
     Route::get('/attachment/{id}/download', [RequestController::class, 'downloadAttachment'])->name('attachment.download');
+    Route::get('/attachment/{id}/preview', [RequestController::class, 'previewAttachment'])->name('attachment.preview');
     Route::get('/citizen-attachment/{requestId}/{fileIndex}/download', [RequestController::class, 'downloadCitizenAttachment'])->name('citizen-attachment.download');
     Route::get('/citizen-attachment/{requestId}/debug', [RequestController::class, 'debugCitizenAttachments'])->name('citizen-attachment.debug');
     Route::get('/{id}/download-document/{type}', [RequestController::class, 'downloadDocument'])->name('download-document');

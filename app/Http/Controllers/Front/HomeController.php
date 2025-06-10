@@ -38,10 +38,11 @@ class HomeController extends Controller
         // Valider le paramètre role
         $role = $request->query('role');
         if (!in_array($role, ['agent', 'citizen'])) {
-            return redirect()->route('choose.role');
+            return redirect()->route('choose.role.standalone');
         }
 
-        return view('front.login', ['selectedRole' => $role]);
+        // Rediriger automatiquement vers la version standalone pour éviter les pages doubles
+        return redirect()->route('login.standalone', ['role' => $role]);
     }
 
     /**
@@ -69,6 +70,24 @@ class HomeController extends Controller
         }
 
         return view('front.choose-role');
+    }
+
+    /**
+     * Affiche la page de sélection du rôle standalone
+     */
+    public function chooseRoleStandalone()
+    {
+        if (Auth::check()) {
+            // Si l'utilisateur est déjà connecté, le rediriger selon son rôle
+            if (Auth::user()->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            } elseif (Auth::user()->isAgent()) {
+                return redirect()->route('agent.dashboard');
+            }
+            return redirect()->route('citizen.dashboard');
+        }
+
+        return view('front.choose-role-standalone');
     }
 
     /**
@@ -251,9 +270,12 @@ class HomeController extends Controller
     /**
      * Affiche la page de connexion standalone
      */
-    public function loginStandalone()
+    public function loginStandalone(Request $request)
     {
-        return view('front.login_standalone');
+        // Récupérer le rôle depuis l'URL ou session
+        $role = $request->query('role', 'citizen');
+        
+        return view('front.login_standalone', ['selectedRole' => $role]);
     }
 
     /**
@@ -262,11 +284,38 @@ class HomeController extends Controller
     public function processLoginStandalone(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'login' => ['required', 'string'], // Peut être email ou téléphone
+            'password' => ['required'],
+            'role' => ['required', 'string', 'in:agent,citizen'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Détecter si c'est un email ou un numéro de téléphone
+        $login = $request->login;
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        
+        // Rechercher l'utilisateur par email ou téléphone
+        $user = User::where($field, $login)->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'login' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
+            ])->onlyInput('login');
+        }
+
+        // Vérifier si le rôle sélectionné correspond au rôle de l'utilisateur
+        if ($user->role !== $request->role) {
+            return back()->withErrors([
+                'role' => 'Vous ne pouvez pas vous connecter avec ce rôle.',
+            ])->onlyInput('login', 'role');
+        }
+
+        // Tentative d'authentification
+        $authCredentials = [
+            $field => $login,
+            'password' => $request->password,
+        ];
+
+        if (Auth::attempt($authCredentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             // Vérifier s'il y a une demande en attente
@@ -275,12 +324,19 @@ class HomeController extends Controller
                     ->with('success', 'Connexion réussie ! Traitement de votre demande en cours...');
             }
 
-            return redirect()->intended(route('citizen.dashboard'))
-                ->with('success', 'Connexion réussie ! Bienvenue.');
+            // Redirection selon le rôle
+            if (Auth::user()->isAdmin()) {
+                return redirect()->intended('/admin/dashboard');
+            } elseif (Auth::user()->isAgent()) {
+                return redirect()->intended('/agent/dashboard');
+            } else {
+                // Rediriger les citoyens vers leur espace dédié
+                return redirect()->intended(route('citizen.dashboard'));
+            }
         }
 
         return back()->withErrors([
-            'email' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('email');
+            'login' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
+        ])->onlyInput('login');
     }
 }

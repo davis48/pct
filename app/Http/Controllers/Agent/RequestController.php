@@ -780,4 +780,80 @@ class RequestController extends Controller
 
         return view('agent.requests.processable', compact('requests'));
     }
+
+    /**
+     * Prévisualiser un fichier joint sans télécharger
+     */
+    public function previewAttachment(string $id)
+    {
+        $attachment = Attachment::findOrFail($id);
+
+        // Journaliser pour le débogage
+        Log::info('Tentative de prévisualisation d\'attachment', [
+            'attachment_id' => $id,
+            'file_path' => $attachment->file_path,
+            'file_name' => $attachment->file_name
+        ]);
+
+        // Le file_path dans la DB est "attachments/request_XX_doc_X.ext"
+        // Les fichiers sont stockés dans storage/app/public/attachments/
+        // Donc on doit utiliser le disque 'public' et le chemin sans le préfixe 'public/'
+        $filePath = $attachment->file_path;
+        
+        // Vérifier si le fichier existe sur le disque public
+        if (Storage::disk('public')->exists($filePath)) {
+            Log::info('Fichier trouvé pour prévisualisation', ['path' => $filePath]);
+            
+            try {
+                // Obtenir le contenu du fichier depuis le disque public
+                $fileContent = Storage::disk('public')->get($filePath);
+                
+                // Obtenir le type MIME - utiliser le chemin physique pour mime_content_type
+                $physicalPath = storage_path('app/public/' . $filePath);
+                $mimeType = file_exists($physicalPath) ? mime_content_type($physicalPath) : 'application/octet-stream';
+                
+                // Retourner le fichier avec les bons headers pour la prévisualisation
+                return response($fileContent, 200)
+                    ->header('Content-Type', $mimeType)
+                    ->header('Content-Disposition', 'inline; filename="' . $attachment->file_name . '"')
+                    ->header('Cache-Control', 'private, max-age=3600');
+                    
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de la lecture du fichier', [
+                    'attachment_id' => $id,
+                    'path' => $filePath,
+                    'error' => $e->getMessage()
+                ]);
+                abort(500, 'Erreur lors de la lecture du fichier');
+            }
+        }
+
+        // Fallback : essayer avec le chemin physique direct
+        $physicalPath = storage_path('app/public/' . $filePath);
+        if (file_exists($physicalPath)) {
+            Log::info('Fichier trouvé physiquement pour prévisualisation', ['path' => $physicalPath]);
+            
+            try {
+                $mimeType = mime_content_type($physicalPath);
+                
+                return response()->file($physicalPath, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'inline; filename="' . $attachment->file_name . '"',
+                    'Cache-Control' => 'private, max-age=3600'
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de la lecture physique', ['path' => $physicalPath, 'error' => $e->getMessage()]);
+            }
+        }
+
+        Log::error('Fichier attachment non trouvé pour prévisualisation', [
+            'attachment_id' => $id,
+            'file_path' => $filePath,
+            'public_disk_exists' => Storage::disk('public')->exists($filePath),
+            'physical_path' => $physicalPath,
+            'physical_exists' => file_exists($physicalPath ?? '')
+        ]);
+
+        abort(404, 'Fichier non trouvé : ' . $attachment->file_name);
+    }
 }

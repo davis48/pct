@@ -299,11 +299,10 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="container">
-            <div class="page-header">
+        <div class="container">            <div class="page-header">
                 <h1 class="page-title">
                     <i class="fas fa-sign-in-alt"></i>
-                    Connexion
+                    Connexion {{ $selectedRole === 'agent' ? 'Agent' : 'Citoyen' }}
                 </h1>
                 <p class="page-subtitle">
                     Connectez-vous pour accéder aux services en ligne de PCT UVCI
@@ -350,20 +349,19 @@
                         @endforeach
                     </ul>
                 </div>
-            @endif
-
-            <div class="form-container">
+            @endif            <div class="form-container">
                 <form action="{{ route('login.standalone') }}" method="POST">
                     @csrf
+                    <input type="hidden" name="role" value="{{ $selectedRole ?? 'citizen' }}">
                     
                     <div class="input-group">
-                        <label class="input-label" for="email">
-                            Adresse e-mail <span class="input-required">*</span>
+                        <label class="input-label" for="login">
+                            Email ou Numéro de téléphone <span class="input-required">*</span>
                         </label>
-                        <input type="email" name="email" id="email" 
-                               class="input-field @error('email') error @enderror" 
-                               value="{{ old('email') }}" required>
-                        @error('email')
+                        <input type="text" name="login" id="login" 
+                               class="input-field @error('login') error @enderror" 
+                               value="{{ old('login') }}" required>
+                        @error('login')
                             <div class="error-text">{{ $message }}</div>
                         @enderror
                     </div>

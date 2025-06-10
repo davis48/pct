@@ -54,7 +54,11 @@ Route::prefix('requests')->name('requests.')->group(function () {
     Route::get('/attachment/{id}/download', [RequestController::class, 'downloadAttachment'])->name('attachment.download');
     Route::get('/citizen-attachment/{requestId}/{fileIndex}/download', [RequestController::class, 'downloadCitizenAttachment'])->name('citizen-attachment.download');
     Route::get('/citizen-attachment/{requestId}/debug', [RequestController::class, 'debugCitizenAttachments'])->name('citizen-attachment.debug');
+    Route::get('/{id}/download-document/{type}', [RequestController::class, 'downloadDocument'])->name('download-document');
     Route::delete('/attachment/{id}', [RequestController::class, 'deleteAttachment'])->name('attachment.delete');
+    
+    // Route temporaire pour debug des attachments
+    Route::get('/{id}/debug-attachments', [RequestController::class, 'debugAttachments'])->name('debug-attachments');
 });
 
 // Routes pour les citoyens

@@ -545,11 +545,13 @@
         }, observerOptions);        // Observe elements with animation class
         document.querySelectorAll('.hover-lift, .stat-card').forEach(el => {
             observer.observe(el);
-        });
-
-        // Dropdown management
+        });        // Dropdown management
         function toggleDropdown(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) {
+                return; // Simply return without warning since we now check upstream
+            }
+            
             const isVisible = !dropdown.classList.contains('hidden');
             
             // Hide all dropdowns first
@@ -570,12 +572,17 @@
                     dropdown.classList.remove('animate-fade-in');
                 }
             });
-        }
-
-        // User menu dropdown
+        }        // User menu dropdown
         document.addEventListener('DOMContentLoaded', function() {
             const userMenuBtn = document.getElementById('user-menu-btn');
             const notificationsBtn = document.getElementById('notifications-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+            
+            // Only set up dropdown functionality if the elements exist
+            if (!userDropdown && !notificationsDropdown) {
+                return; // Exit early if no dropdowns are present
+            }
             
             if (userMenuBtn) {
                 userMenuBtn.addEventListener('click', function(e) {
@@ -592,7 +599,7 @@
                 });
             }
 
-            // Close dropdowns when clicking outside
+            // Close dropdowns when clicking outside (only if dropdowns exist)
             document.addEventListener('click', function(e) {
                 const userDropdown = document.getElementById('user-dropdown');
                 const notificationsDropdown = document.getElementById('notifications-dropdown');

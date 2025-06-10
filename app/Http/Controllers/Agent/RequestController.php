@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
 use App\Models\CitizenRequest;
+use App\Models\Attachment;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -280,7 +281,7 @@ class RequestController extends Controller
      */
     public function show(string $id)
     {
-        $citizenRequest = CitizenRequest::with(['user', 'document', 'assignedAgent', 'processedBy'])->findOrFail($id);
+        $citizenRequest = CitizenRequest::with(['user', 'document', 'assignedAgent', 'processedBy', 'attachments'])->findOrFail($id);
 
         // Pour l'instant, utiliser une vue simple
         return view('agent.requests.show', [
@@ -430,11 +431,56 @@ class RequestController extends Controller
     {
         $attachment = Attachment::findOrFail($id);
 
-        if (!Storage::exists($attachment->file_path)) {
-            abort(404);
+        // Journaliser pour le débogage
+        Log::info('Tentative de téléchargement d\'attachment', [
+            'attachment_id' => $id,
+            'file_path' => $attachment->file_path,
+            'file_name' => $attachment->file_name
+        ]);
+
+        $filePath = $attachment->file_path;
+        $filename = $attachment->file_name;
+
+        // Liste des chemins possibles à essayer
+        $pathsToTry = [
+            // Chemin direct
+            $filePath,
+            // Avec préfixe public/
+            'public/' . $filePath,
+            // Sans le préfixe attachments/ si présent
+            $filePath,
+        ];
+
+        // Chemins physiques à essayer
+        $physicalPaths = [
+            storage_path('app/' . $filePath),
+            storage_path('app/public/' . $filePath),
+            public_path('storage/' . $filePath),
+        ];
+
+        // Essayer les chemins via Storage
+        foreach ($pathsToTry as $path) {
+            if (Storage::exists($path)) {
+                Log::info('Fichier trouvé via Storage', ['path' => $path]);
+                return Storage::download($path, $filename);
+            }
         }
 
-        return Storage::download($attachment->file_path, $attachment->file_name);
+        // Essayer les chemins physiques
+        foreach ($physicalPaths as $path) {
+            if (file_exists($path)) {
+                Log::info('Fichier trouvé physiquement', ['path' => $path]);
+                return response()->download($path, $filename);
+            }
+        }
+
+        Log::error('Fichier attachment non trouvé', [
+            'attachment_id' => $id,
+            'tried_storage_paths' => $pathsToTry,
+            'tried_physical_paths' => $physicalPaths
+        ]);
+
+        abort(404, 'Fichier non trouvé : ' . $filename);
     }
 
     /**
@@ -461,7 +507,7 @@ class RequestController extends Controller
         $citizenRequest = CitizenRequest::findOrFail($requestId);
 
         // Journaliser pour le débogage
-        \Log::info('Tentative de téléchargement de pièce jointe', [
+        Log::info('Tentative de téléchargement de pièce jointe', [
             'request_id' => $requestId,
             'file_index' => $fileIndex,
             'attachments' => $citizenRequest->attachments
@@ -489,7 +535,7 @@ class RequestController extends Controller
             $filePath = 'attachments/' . $filename;
         }
 
-        \Log::info('Nom du fichier identifié', [
+        Log::info('Nom du fichier identifié', [
             'filename' => $filename,
             'filepath' => $filePath
         ]);
@@ -504,7 +550,7 @@ class RequestController extends Controller
             $exampleContent .= "Date: " . date('Y-m-d H:i:s');
 
             Storage::put('public/attachments/' . $filename, $exampleContent);
-            \Log::info('Fichier exemple créé', ['path' => 'public/attachments/' . $filename]);
+            Log::info('Fichier exemple créé', ['path' => 'public/attachments/' . $filename]);
 
             return Storage::download('public/attachments/' . $filename, $filename);
         }
@@ -539,88 +585,120 @@ class RequestController extends Controller
     }
 
     /**
-     * Déboguer les pièces jointes du citoyen
+     * Télécharger un document spécifique (uploaded_document ou processed_document)
      */
-    public function debugCitizenAttachments(string $requestId)
+    public function downloadDocument(string $id, string $type)
     {
-        $citizenRequest = CitizenRequest::findOrFail($requestId);
+        $citizenRequest = CitizenRequest::findOrFail($id);
 
+        if ($type === 'uploaded' && $citizenRequest->uploaded_document) {
+            $filePath = $citizenRequest->uploaded_document;
+            $filename = basename($filePath);
+
+            if (Storage::exists($filePath)) {
+                return Storage::download($filePath, $filename);
+            }
+
+            // Essayer avec le préfixe public/
+            $publicPath = 'public/' . $filePath;
+            if (Storage::exists($publicPath)) {
+                return Storage::download($publicPath, $filename);
+            }
+
+            // Vérifier dans le dossier public directement
+            $publicFilePath = public_path('storage/' . $filePath);
+            if (file_exists($publicFilePath)) {
+                return response()->download($publicFilePath, $filename);
+            }
+        }
+
+        if ($type === 'processed' && $citizenRequest->processed_document) {
+            $filePath = $citizenRequest->processed_document;
+            $filename = basename($filePath);
+
+            if (Storage::exists($filePath)) {
+                return Storage::download($filePath, $filename);
+            }
+
+            // Essayer avec le préfixe public/
+            $publicPath = 'public/' . $filePath;
+            if (Storage::exists($publicPath)) {
+                return Storage::download($publicPath, $filename);
+            }
+
+            // Vérifier dans le dossier public directement
+            $publicFilePath = public_path('storage/' . $filePath);
+            if (file_exists($publicFilePath)) {
+                return response()->download($publicFilePath, $filename);
+            }
+        }
+
+        abort(404, 'Document non trouvé');
+    }
+
+    /**
+     * Debug des attachments pour une demande
+     */
+    public function debugAttachments(string $id)
+    {
+        $citizenRequest = CitizenRequest::with(['attachments'])->findOrFail($id);
+        
         $debug = [
-            'request_id' => $requestId,
-            'attachments' => $citizenRequest->attachments,
-            'storage_paths' => []
+            'request_id' => $id,
+            'uploaded_document' => $citizenRequest->uploaded_document,
+            'processed_document' => $citizenRequest->processed_document,
+            'attachments_json' => $citizenRequest->attachments, // Le champ JSON
+            'attachments_relation' => $citizenRequest->attachments()->get()->toArray(), // La relation
+            'storage_paths_check' => []
         ];
 
-        // Vérifier les chemins de stockage possibles
-        if ($citizenRequest->attachments && is_array($citizenRequest->attachments)) {
-            foreach ($citizenRequest->attachments as $index => $attachment) {
-                $filename = is_string($attachment) ? $attachment : ($attachment['name'] ?? 'unknown.file');
-
-                $possiblePaths = [
-                    'attachments/' . $filename,
-                    'public/attachments/' . $filename,
-                    'citizen_attachments/' . $filename,
-                    'public/citizen_attachments/' . $filename,
-                    $filename
-                ];
-
-                $pathInfo = [];
-
-                foreach ($possiblePaths as $path) {
-                    $pathInfo[$path] = [
-                        'exists' => Storage::exists($path),
-                        'size' => Storage::exists($path) ? Storage::size($path) : null,
-                        'url' => Storage::exists($path) ? Storage::url($path) : null
-                    ];
-                }
-
-                // Vérifier dans le dossier public également
-                $publicPaths = [
-                    'storage/attachments/' . $filename,
-                    'attachments/' . $filename,
-                    'uploads/' . $filename,
-                    $filename
-                ];
-
-                foreach ($publicPaths as $path) {
-                    $fullPath = public_path($path);
-                    $pathInfo['public_' . $path] = [
-                        'exists' => file_exists($fullPath),
-                        'size' => file_exists($fullPath) ? filesize($fullPath) : null,
-                        'url' => file_exists($fullPath) ? asset($path) : null
-                    ];
-                }
-
-                $debug['storage_paths'][$index] = [
-                    'filename' => $filename,
-                    'paths' => $pathInfo
-                ];
-            }
-        }
-
-        // Vérifier les permissions des dossiers
-        $storageFolders = [
-            'storage_app' => storage_path('app'),
-            'storage_app_public' => storage_path('app/public'),
-            'public_storage' => public_path('storage')
-        ];
-
-        foreach ($storageFolders as $key => $folder) {
-            $debug['folders'][$key] = [
-                'path' => $folder,
-                'exists' => file_exists($folder),
-                'is_dir' => is_dir($folder),
-                'is_readable' => is_readable($folder),
-                'is_writable' => is_writable($folder)
+        // Vérifier les chemins de stockage
+        if ($citizenRequest->uploaded_document) {
+            $paths = [
+                'direct' => $citizenRequest->uploaded_document,
+                'public_prefix' => 'public/' . $citizenRequest->uploaded_document,
+                'public_path' => public_path('storage/' . $citizenRequest->uploaded_document)
             ];
-
-            if (is_dir($folder)) {
-                $debug['folders'][$key]['contents'] = array_slice(scandir($folder), 0, 10); // Lister les 10 premiers éléments
+            
+            foreach ($paths as $label => $path) {
+                if ($label === 'public_path') {
+                    $debug['storage_paths_check']['uploaded_document'][$label] = [
+                        'path' => $path,
+                        'exists' => file_exists($path)
+                    ];
+                } else {
+                    $debug['storage_paths_check']['uploaded_document'][$label] = [
+                        'path' => $path,
+                        'exists' => Storage::exists($path)
+                    ];
+                }
             }
         }
 
-        return redirect()->route('agent.requests.process', $requestId)
-            ->with('debug', $debug);
+        // Vérifier chaque attachment de la relation
+        foreach ($citizenRequest->attachments()->get() as $attachment) {
+            $paths = [
+                'direct' => $attachment->file_path,
+                'public_prefix' => 'public/' . $attachment->file_path,
+                'public_path' => public_path('storage/' . $attachment->file_path)
+            ];
+            
+            foreach ($paths as $label => $path) {
+                if ($label === 'public_path') {
+                    $debug['storage_paths_check']['attachment_' . $attachment->id][$label] = [
+                        'path' => $path,
+                        'exists' => file_exists($path)
+                    ];
+                } else {
+                    $debug['storage_paths_check']['attachment_' . $attachment->id][$label] = [
+                        'path' => $path,
+                        'exists' => Storage::exists($path)
+                    ];
+                }
+            }
+        }
+
+        return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
     }
 
     /**

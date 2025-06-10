@@ -203,7 +203,10 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <i class="fas fa-file-alt text-blue-500 mr-2"></i>
-                                    <div class="text-sm text-gray-900">{{ $request->document ? $request->document->title : 'N/A' }}</div>
+                                    <div>
+                                        <div class="text-sm text-gray-900">{{ $request->getDocumentTitle() }}</div>
+                                        <div class="text-xs text-gray-500">{{ $request->getDocumentCategory() }}</div>
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -251,10 +254,17 @@
                                 <div class="text-sm text-gray-500">{{ $request->created_at->format('H:i') }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($request->attachments && count($request->attachments) > 0)
+                                @php
+                                    $attachmentCount = $request->citizenAttachments->count();
+                                    // Fallback pour les anciennes demandes avec attachments JSON
+                                    if ($attachmentCount == 0 && $request->attachments && is_array($request->attachments)) {
+                                        $attachmentCount = count($request->attachments);
+                                    }
+                                @endphp
+                                @if($attachmentCount > 0)
                                     <div class="flex items-center space-x-1">
                                         <i class="fas fa-paperclip text-gray-400"></i>
-                                        <span class="text-sm text-gray-600">{{ count($request->attachments) }}</span>
+                                        <span class="text-sm text-gray-600">{{ $attachmentCount }}</span>
                                         <button onclick="showAttachments({{ $request->id }})" class="text-blue-600 hover:text-blue-800 text-xs">
                                             voir
                                         </button>

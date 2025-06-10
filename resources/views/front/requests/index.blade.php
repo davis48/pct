@@ -64,10 +64,9 @@
                             </td>
                             <td class="py-4 px-6">
                                 <span class="text-sm text-gray-700">{{ $request->created_at->format('d/m/Y') }}</span>
-                            </td>
-                            <td class="py-4 px-6">
-                                <span class="text-sm text-gray-700">{{ $request->document ? $request->document->title : 'Document général' }}</span>
                             </td>                            <td class="py-4 px-6">
+                                <span class="text-sm text-gray-700">{{ $request->getDocumentTitle() }}</span>
+                            </td><td class="py-4 px-6">
                                 @if($request->status == 'pending' || $request->status == 'en_attente')
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                     <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></span>
@@ -185,10 +184,9 @@
                         <div class="flex items-center text-sm text-gray-600">
                             <i class="fas fa-calendar mr-2 text-blue-500"></i>
                             <span>Soumise le {{ $request->created_at->format('d/m/Y à H:i') }}</span>
-                        </div>
-                        <div class="flex items-center text-sm text-gray-600">
+                        </div>                        <div class="flex items-center text-sm text-gray-600">
                             <i class="fas fa-file-alt mr-2 text-green-500"></i>
-                            <span>{{ $request->document ? $request->document->title : 'Document général' }}</span>
+                            <span>{{ $request->getDocumentTitle() }}</span>
                         </div>
                     </div>                    <!-- Actions -->
                     <div class="flex gap-3 pt-4 border-t border-gray-200">

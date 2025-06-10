@@ -192,12 +192,8 @@
                             <div class="space-y-2 mb-4">
                                 <div>
                                     <span class="text-xs font-medium text-gray-500">Document:</span>
-                                    @if($request->document)
-                                        <p class="text-sm text-gray-900">{{ $request->document->title }}</p>
-                                        <p class="text-xs text-gray-500">{{ $request->document->category }}</p>
-                                    @else
-                                        <p class="text-sm text-gray-500">Document non spécifié</p>
-                                    @endif
+                                    <p class="text-sm text-gray-900">{{ $request->getDocumentTitle() }}</p>
+                                    <p class="text-xs text-gray-500">{{ $request->getDocumentCategory() }}</p>
                                 </div>
                                 <div>
                                     <span class="text-xs font-medium text-gray-500">Citoyen:</span>
@@ -280,12 +276,8 @@
                                     <td class="px-4 py-4">
                                         <div class="space-y-1">
                                             <!-- Document -->
-                                            @if($request->document)
-                                                <div class="text-sm font-medium text-gray-900">{{ Str::limit($request->document->title, 25) }}</div>
-                                                <div class="text-xs text-gray-500">{{ $request->document->category }}</div>
-                                            @else
-                                                <div class="text-sm text-gray-500">Document non spécifié</div>
-                                            @endif
+                                                <div class="text-sm font-medium text-gray-900">{{ Str::limit($request->getDocumentTitle(), 25) }}</div>
+                                                <div class="text-xs text-gray-500">{{ $request->getDocumentCategory() }}</div>
                                             <!-- Citoyen -->
                                             <div class="text-sm text-gray-700 border-t pt-1">
                                                 {{ Str::limit($request->user->nom . ' ' . $request->user->prenoms, 25) }}

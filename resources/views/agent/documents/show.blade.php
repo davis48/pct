@@ -1,6 +1,6 @@
 @extends('layouts.agent')
 
-@section('title', 'Détails du Document - ' . $documentRequest->reference_number)
+@section('title', 'Détails du Document - ' . $request->reference_number)
 
 @section('content')
 <div class="space-y-6" x-data="documentDetails">
@@ -15,8 +15,9 @@
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ $documentRequest->reference_number }}</h1>
-                    <p class="text-gray-600">{{ $documentRequest->document ? $documentRequest->document->title : 'N/A' }}</p>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ $request->reference_number }}</h1>
+                    <p class="text-gray-600">{{ $request->getDocumentTitle() }}</p>
+                    <p class="text-sm text-gray-500">{{ $request->getDocumentCategory() }}</p>
                 </div>
             </div>
 
@@ -114,40 +115,102 @@
     @endif
 
     <!-- Pièces jointes -->
-    @if($documentRequest->attachments && count($documentRequest->attachments) > 0)
+    @if($request->citizenAttachments->count() > 0 || ($request->attachments && is_array($request->attachments) && count($request->attachments) > 0))
     <div class="bg-white rounded-lg shadow-sm border p-6">
         <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
             <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
             </svg>
-            Pièces jointes ({{ count($documentRequest->attachments) }})
+            Pièces jointes 
+            @if($request->citizenAttachments->count() > 0)
+                ({{ $request->citizenAttachments->count() }})
+            @else
+                ({{ count($request->attachments) }} - format legacy)
+            @endif
         </h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($documentRequest->attachments as $attachment)
-            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="flex items-center space-x-2">
-                        @php
-                            $extension = pathinfo($attachment->file_path, PATHINFO_EXTENSION);
-                            $iconClass = match($extension) {
-                                'pdf' => 'text-red-600',
-                                'doc', 'docx' => 'text-blue-600',
-                                'jpg', 'jpeg', 'png', 'gif' => 'text-green-600',
-                                default => 'text-gray-600'
-                            };
-                        @endphp
-                        <svg class="w-8 h-8 {{ $iconClass }}" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"></path>
-                        </svg>
-                        <div>
-                            <p class="font-medium text-sm truncate max-w-32" title="{{ $attachment->original_name }}">
-                                {{ $attachment->original_name }}
-                            </p>
-                            <p class="text-xs text-gray-500">{{ $attachment->file_size ? number_format($attachment->file_size / 1024, 1) . ' KB' : '' }}</p>
+        {{-- Nouvelles pièces jointes (table attachments) --}}
+        @if($request->citizenAttachments->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($request->citizenAttachments as $attachment)
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            @php
+                                $extension = pathinfo($attachment->file_path, PATHINFO_EXTENSION);
+                                $iconClass = match($extension) {
+                                    'pdf' => 'text-red-600',
+                                    'doc', 'docx' => 'text-blue-600',
+                                    'jpg', 'jpeg', 'png', 'gif' => 'text-green-600',
+                                    default => 'text-gray-600'
+                                };
+                            @endphp
+                            <svg class="w-8 h-8 {{ $iconClass }}" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium text-sm truncate max-w-32" title="{{ $attachment->file_name }}">
+                                    {{ $attachment->file_name }}
+                                </p>
+                                <p class="text-xs text-gray-500">{{ $attachment->file_size ? number_format($attachment->file_size / 1024, 1) . ' KB' : '' }}</p>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="flex space-x-2">
+                        <a href="{{ route('agent.requests.attachment.download', $attachment->id) }}" 
+                           class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded transition-colors text-center">
+                            <i class="fas fa-download mr-1"></i> Télécharger
+                        </a>
+                        <a href="{{ Storage::url($attachment->file_path) }}" 
+                           target="_blank"
+                           class="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-2 rounded transition-colors text-center">
+                            <i class="fas fa-eye mr-1"></i> Voir
+                        </a>
+                    </div>
                 </div>
+                @endforeach
+            </div>
+        
+        {{-- Anciennes pièces jointes (format JSON legacy) --}}
+        @elseif($request->attachments && is_array($request->attachments) && count($request->attachments) > 0)
+            <div class="bg-orange-50 border border-orange-200 rounded-md p-3 mb-4">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-orange-400 mr-2 mt-0.5"></i>
+                    <div class="text-sm text-orange-700">
+                        Cette demande utilise l'ancien système de fichiers. Les fichiers peuvent ne pas être accessibles.
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($request->attachments as $key => $attachment)
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium text-sm truncate max-w-32">
+                                    {{ is_string($attachment) ? $attachment : ($attachment['name'] ?? 'Fichier') }}
+                                </p>
+                                <p class="text-xs text-gray-500">Format legacy</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <a href="{{ route('agent.requests.citizen-attachment.download', ['requestId' => $request->id, 'fileIndex' => $key]) }}" 
+                           class="flex-1 bg-orange-600 hover:bg-orange-700 text-white text-xs px-3 py-2 rounded transition-colors text-center">
+                            <i class="fas fa-download mr-1"></i> Télécharger (Legacy)
+                        </a>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+    @endif
 
                 <div class="flex space-x-2">
                     <a href="{{ route('agent.documents.attachment.preview', $attachment) }}"

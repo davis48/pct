@@ -91,23 +91,6 @@ class RequestController extends Controller
                 'address' => $validated['complete_address'],
             ]);
 
-            // Gérer les pièces jointes
-            $attachments = [];
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                    $path = $file->storeAs('public/attachments', $filename);
-                    $attachments[] = [
-                        'name' => $file->getClientOriginalName(),
-                        'stored_name' => $filename,
-                        'path' => $path,
-                        'size' => $file->getSize(),
-                        'type' => $file->getMimeType(),
-                        'uploaded_at' => now()->toISOString()
-                    ];
-                }
-            }
-
             // Créer la demande avec les nouvelles informations
             $citizenRequest = CitizenRequest::create([
                 'user_id' => Auth::id(),
@@ -117,7 +100,6 @@ class RequestController extends Controller
                 'reason' => $validated['reason'],
                 'urgency' => $validated['urgency'] ?? 'normal',
                 'contact_preference' => $validated['contact_preference'] ?? 'email',
-                'attachments' => $attachments,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
                 'payment_required' => true,
@@ -131,6 +113,24 @@ class RequestController extends Controller
                     'submitted_at' => now()->toISOString()
                 ])
             ]);
+
+            // Gérer les pièces jointes et les enregistrer dans la table attachments
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                    $path = $file->storeAs('attachments', $filename, 'public');
+                    
+                    // Créer l'enregistrement dans la table attachments
+                    $citizenRequest->attachments()->create([
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                        'uploaded_by' => Auth::id(),
+                        'type' => 'citizen'
+                    ]);
+                }
+            }
 
             // Supprimer les données sauvegardées du localStorage (sera géré côté client)
             

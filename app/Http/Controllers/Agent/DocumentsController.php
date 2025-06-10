@@ -22,7 +22,7 @@ class DocumentsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CitizenRequest::with(['document', 'user']);
+        $query = CitizenRequest::with(['document', 'user', 'citizenAttachments']);
 
         // Recherche
         if ($request->filled('search')) {
@@ -83,7 +83,7 @@ class DocumentsController extends Controller
      */
     public function show(CitizenRequest $request)
     {
-        $request->load(['user', 'document']);
+        $request->load(['user', 'document', 'citizenAttachments']);
 
         // Statistiques pour le sidebar agent
         $stats = [
@@ -97,7 +97,7 @@ class DocumentsController extends Controller
                 ->count(),
         ];
 
-        return view('agent.documents.show', compact('request', 'stats'));
+        return view('agent.documents.show', compact('request', 'stats'))->with('documentRequest', $request);
     }
 
     /**

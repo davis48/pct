@@ -98,14 +98,21 @@
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-gray-500">Document demandé</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        @if($request->document)
-                            <div>
-                                <p class="font-medium">{{ $request->document->title }}</p>
-                                <p class="text-gray-500">{{ $request->document->category }}</p>
-                            </div>
-                        @else
-                            <p class="text-gray-500">Document non spécifié</p>
-                        @endif
+                        <div>
+                            <p class="font-medium">{{ $request->getDocumentTitle() }}</p>
+                            <p class="text-gray-500">{{ $request->getDocumentCategory() }}</p>
+                            @if($request->additional_data)
+                                @php
+                                    $additionalData = json_decode($request->additional_data, true);
+                                @endphp
+                                @if(isset($additionalData['generated_via']) && $additionalData['generated_via'] === 'interactive_form')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                                        <i class="fas fa-magic mr-1"></i>
+                                        Formulaire interactif
+                                    </span>
+                                @endif
+                            @endif
+                        </div>
                     </dd>
                 </div>
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -132,54 +139,64 @@
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <div class="mb-2 flex justify-between">
                             <span class="text-sm text-gray-500">
-                                {{ count($request->attachments ?? []) }} fichier(s) joint(s)
+                                {{ $request->citizenAttachments->count() }} fichier(s) joint(s)
                             </span>
-                            <a href="{{ route('agent.requests.citizen-attachment.debug', $request->id) }}" 
-                               class="text-xs text-blue-500 hover:text-blue-700">
-                                <i class="fas fa-bug mr-1"></i> Déboguer les fichiers
-                            </a>
+                            @if($request->citizenAttachments->count() == 0 && $request->attachments && is_array($request->attachments) && count($request->attachments) > 0)
+                                <span class="text-xs text-orange-500">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Fichiers dans l'ancien format
+                                </span>
+                            @endif
                         </div>
-                        @if($request->attachments && is_array($request->attachments) && count($request->attachments) > 0)
+
+                        {{-- Nouvelle méthode : utiliser la relation attachments --}}
+                        @if($request->citizenAttachments->count() > 0)
+                            <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                                @foreach($request->citizenAttachments as $attachment)
+                                    <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                                        <div class="w-0 flex-1 flex items-center">
+                                            <i class="fas fa-paperclip flex-shrink-0 text-gray-400"></i>
+                                            <span class="ml-2 flex-1 w-0 truncate">{{ $attachment->file_name }}</span>
+                                            <span class="ml-2 text-xs text-gray-500">{{ number_format($attachment->file_size / 1024, 1) }} KB</span>
+                                        </div>
+                                        <div class="ml-4 flex-shrink-0 flex space-x-2">
+                                            <a href="{{ route('agent.requests.attachment.download', $attachment->id) }}" 
+                                               class="font-medium text-indigo-600 hover:text-indigo-500"
+                                               target="_blank">
+                                               <i class="fas fa-download mr-1"></i> Télécharger
+                                            </a>
+                                            <a href="{{ Storage::url($attachment->file_path) }}" 
+                                               class="font-medium text-blue-600 hover:text-blue-500"
+                                               target="_blank">
+                                               <i class="fas fa-eye mr-1"></i> Voir
+                                            </a>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        
+                        {{-- Ancienne méthode : pour les anciennes demandes --}}
+                        @elseif($request->attachments && is_array($request->attachments) && count($request->attachments) > 0)
+                            <div class="bg-orange-50 border border-orange-200 rounded-md p-3 mb-3">
+                                <div class="flex">
+                                    <i class="fas fa-exclamation-triangle text-orange-400 mr-2 mt-0.5"></i>
+                                    <div class="text-sm text-orange-700">
+                                        Cette demande utilise l'ancien système de fichiers. Les fichiers peuvent ne pas être accessibles.
+                                    </div>
+                                </div>
+                            </div>
                             <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
                                 @foreach($request->attachments as $key => $attachment)
                                     <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
                                         <div class="w-0 flex-1 flex items-center">
                                             <i class="fas fa-paperclip flex-shrink-0 text-gray-400"></i>
-                                            <span class="ml-2 flex-1 w-0 truncate">{{ is_string($attachment) ? $attachment : $attachment['name'] ?? 'Fichier' }}</span>
+                                            <span class="ml-2 flex-1 w-0 truncate">{{ is_string($attachment) ? $attachment : ($attachment['name'] ?? 'Fichier') }}</span>
                                         </div>
                                         <div class="ml-4 flex-shrink-0 flex space-x-2">
-                                            <!-- Méthode 1: Via la route -->
                                             <a href="{{ route('agent.requests.citizen-attachment.download', ['requestId' => $request->id, 'fileIndex' => $key]) }}" 
                                                class="font-medium text-indigo-600 hover:text-indigo-500"
                                                target="_blank">
-                                               <i class="fas fa-download mr-1"></i> Télécharger
+                                               <i class="fas fa-download mr-1"></i> Télécharger (Legacy)
                                             </a>
-                                            
-                                            <!-- Méthode 2: Lien direct si possible -->
-                                            @php
-                                                $filename = is_string($attachment) ? $attachment : ($attachment['name'] ?? '');
-                                                $directUrl = null;
-                                                $possiblePaths = [
-                                                    '/storage/attachments/' . $filename,
-                                                    '/attachments/' . $filename,
-                                                    '/uploads/' . $filename
-                                                ];
-                                                
-                                                foreach ($possiblePaths as $path) {
-                                                    if (file_exists(public_path(ltrim($path, '/')))) {
-                                                        $directUrl = $path;
-                                                        break;
-                                                    }
-                                                }
-                                            @endphp
-                                            
-                                            @if($directUrl)
-                                                <a href="{{ $directUrl }}" 
-                                                   class="font-medium text-green-600 hover:text-green-500"
-                                                   download>
-                                                   <i class="fas fa-external-link-alt mr-1"></i> Ouvrir
-                                                </a>
-                                            @endif
                                         </div>
                                     </li>
                                 @endforeach

@@ -50,6 +50,8 @@ class CitizenRequest extends Model
         'payment_status',
         'payment_required',
         'additional_data',
+        'uploaded_document',
+        'processed_document',
     ];
 
     /**
@@ -197,6 +199,122 @@ class CitizenRequest extends Model
     public function latestPayment()
     {
         return $this->hasOne(Payment::class)->latest();
+    }
+
+    /**
+     * Obtenir le titre du document demandé de manière intelligente
+     * Prend en compte les formulaires interactifs et les demandes classiques
+     */
+    public function getDocumentTitle()
+    {
+        // Si la demande a un document associé (demandes classiques)
+        if ($this->document) {
+            return $this->document->title;
+        }
+
+        // Pour les formulaires interactifs, utiliser les données additionnelles
+        if ($this->additional_data) {
+            $additionalData = json_decode($this->additional_data, true);
+            
+            // Si c'est un formulaire interactif, utiliser le form_type
+            if (isset($additionalData['form_type'])) {
+                return $this->getFormTypeTitle($additionalData['form_type']);
+            }
+        }
+
+        // Fallback : utiliser le type de demande
+        return $this->getTypeTitle($this->type);
+    }
+
+    /**
+     * Obtenir le titre selon le form_type des formulaires interactifs
+     */
+    private function getFormTypeTitle($formType)
+    {
+        $titles = [
+            'certificat-mariage' => 'Certificat de Mariage',
+            'certificat-celibat' => 'Certificat de Célibat',
+            'extrait-naissance' => 'Extrait de Naissance',
+            'certificat-deces' => 'Certificat de Décès',
+            'attestation-domicile' => 'Attestation de Domicile',
+            'legalisation' => 'Légalisation de Document'
+        ];
+
+        return $titles[$formType] ?? ucfirst(str_replace('-', ' ', $formType));
+    }
+
+    /**
+     * Obtenir le titre selon le type de demande
+     */
+    private function getTypeTitle($type)
+    {
+        $titles = [
+            'mariage' => 'Certificat de Mariage',
+            'certificat' => 'Certificat',
+            'extrait-acte' => 'Extrait d\'Acte',
+            'attestation' => 'Attestation',
+            'legalisation' => 'Légalisation de Document',
+            'autre' => 'Autre Document'
+        ];
+
+        return $titles[$type] ?? ucfirst($type);
+    }
+
+    /**
+     * Obtenir la catégorie du document demandé
+     */
+    public function getDocumentCategory()
+    {
+        // Si la demande a un document associé (demandes classiques)
+        if ($this->document) {
+            return $this->document->category;
+        }
+
+        // Pour les formulaires interactifs, déduire la catégorie
+        if ($this->additional_data) {
+            $additionalData = json_decode($this->additional_data, true);
+            
+            if (isset($additionalData['form_type'])) {
+                return $this->getFormTypeCategory($additionalData['form_type']);
+            }
+        }
+
+        // Fallback : déduire de la catégorie selon le type
+        return $this->getTypeCategory($this->type);
+    }
+
+    /**
+     * Obtenir la catégorie selon le form_type
+     */
+    private function getFormTypeCategory($formType)
+    {
+        $categories = [
+            'certificat-mariage' => 'État civil',
+            'certificat-celibat' => 'État civil',
+            'extrait-naissance' => 'État civil',
+            'certificat-deces' => 'État civil',
+            'attestation-domicile' => 'Résidence',
+            'legalisation' => 'Légalisation'
+        ];
+
+        return $categories[$formType] ?? 'Autre';
+    }
+
+    /**
+     * Obtenir la catégorie selon le type
+     */
+    private function getTypeCategory($type)
+    {
+        $categories = [
+            'mariage' => 'État civil',
+            'certificat' => 'État civil',
+            'extrait-acte' => 'État civil',
+            'attestation' => 'Résidence',
+            'legalisation' => 'Légalisation',
+            'autre' => 'Autre'
+        ];
+
+        return $categories[$type] ?? 'Autre';
     }
 
     /**

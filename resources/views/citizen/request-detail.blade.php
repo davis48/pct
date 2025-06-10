@@ -266,10 +266,9 @@
                                 <dd class="mt-1 text-sm text-gray-900">{{ $request->type_label }}</dd>
                             </div>
                             
-                            @if($request->document)
-                            <div>
+                            @if($request->document)                            <div>
                                 <dt class="text-sm font-medium text-gray-500">Document associé</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $request->document->title ?? 'Non spécifié' }}</dd>
+                                <dd class="mt-1 text-sm text-gray-900">{{ $request->getDocumentTitle() }}</dd>
                             </div>
                             @endif
                             

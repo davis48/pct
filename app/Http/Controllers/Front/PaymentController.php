@@ -444,7 +444,7 @@ class PaymentController extends Controller
             }
 
             // Vérifier si le paiement a déjà été effectué
-            if ($citizenRequest->payment_status === 'paid') {
+            if ($citizenRequest->payment_status === \App\Models\CitizenRequest::PAYMENT_STATUS_PAID) {
                 return redirect()->route('citizen.dashboard')
                     ->with('info', 'Le paiement pour cette demande a déjà été effectué.');
             }
@@ -522,8 +522,8 @@ class PaymentController extends Controller
                 ]);
 
                 $citizenRequest->update([
-                    'payment_status' => 'paid',
-                    'status' => 'pending'
+                    'payment_status' => \App\Models\CitizenRequest::PAYMENT_STATUS_PAID,
+                    'status' => \App\Models\CitizenRequest::STATUS_PENDING
                 ]);
 
                 Log::info('Paiement standalone validé', [
@@ -591,8 +591,8 @@ class PaymentController extends Controller
 
             // Mettre à jour le statut de la demande
             $citizenRequest->update([
-                'payment_status' => 'paid',
-                'status' => 'pending' // Maintenant en attente de traitement
+                'payment_status' => \App\Models\CitizenRequest::PAYMENT_STATUS_PAID,
+                'status' => \App\Models\CitizenRequest::STATUS_PENDING // Maintenant en attente de traitement
             ]);
 
             Log::info('Paiement validé automatiquement (démo)', [

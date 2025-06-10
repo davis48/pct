@@ -50,7 +50,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('requests.create') }}" class="nav-link {{ request()->routeIs('requests.create') ? 'active' : '' }}">
+                        <a href="{{ route('interactive-forms.index') }}" class="nav-link {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
                             <i class="fas fa-plus me-2"></i>
                             Nouvelle demande
                         </a>

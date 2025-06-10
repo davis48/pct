@@ -40,7 +40,7 @@
                 </div>
             </div>
 
-            <form action="#" method="POST" class="space-y-8" id="legalisationForm">
+            <form action="#" method="POST" class="space-y-8" id="legalisationForm" enctype="multipart/form-data">
                 <!-- Informations personnelles -->
                 <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
                     <div class="flex items-center mb-6">
@@ -206,9 +206,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="flex items-center">
+                        </div>                        <div class="flex items-center">
                             <input id="accept_terms" name="accept_terms" type="checkbox" required 
                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="accept_terms" class="ml-2 block text-sm text-gray-900">
@@ -216,6 +214,60 @@
                             </label>
                         </div>
                     </div>
+                </div>
+
+                <!-- Documents Justificatifs -->
+                <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                    <div class="flex items-center mb-6">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 000-2.828z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-semibold text-gray-900">Documents Justificatifs</h2>
+                    </div>
+                    
+                    <!-- Directives -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="text-blue-800 font-semibold mb-2">Documents requis pour une légalisation</h3>
+                                <ul class="text-blue-700 text-sm space-y-1 list-disc list-inside">
+                                    <li>Document original à légaliser</li>
+                                    <li>Copie de la pièce d'identité du demandeur</li>
+                                    <li>Justificatif de domicile récent</li>
+                                    <li>Procuration si vous agissez au nom d'un tiers</li>
+                                    <li>Justificatif de paiement des frais de légalisation</li>
+                                </ul>
+                                <p class="text-blue-600 text-sm mt-2 italic">
+                                    Formats acceptés: PDF, JPG, PNG. Taille max: 5MB par fichier.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Zone d'upload -->
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:bg-gray-100 hover:border-blue-400 transition-all duration-200 cursor-pointer" onclick="document.getElementById('documents').click()">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <div class="text-lg font-medium text-gray-700 mb-2">Cliquez ici pour sélectionner vos documents</div>
+                        <div class="text-gray-500">ou glissez-déposez vos fichiers ici</div>
+                    </div>
+                    
+                    <input type="file" id="documents" name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect(event)">
+                    
+                    <!-- Liste des fichiers -->
+                    <div id="fileList" class="mt-4 space-y-2"></div>
+                    <div id="fileCounter" class="text-sm text-gray-600 mt-2">0/8 documents sélectionnés</div>
+                    
+                    <!-- Messages -->
+                    <div id="errorMessage" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"></div>
+                    <div id="successMessage" class="hidden mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"></div>
                 </div>
 
                 <!-- Actions -->
@@ -305,10 +357,154 @@
                 alert('Veuillez remplir tous les champs obligatoires:\n• ' + errors.join('\n• '));
                 return false;
             }
-            
-            // Simulation de soumission
+              // Simulation de soumission
             alert('Formulaire soumis avec succès!\n\nVotre demande de légalisation a été enregistrée.\nUn numéro de référence vous sera communiqué par email.');
         });
+        
+        // Gestion de l'upload de documents
+        let selectedFiles = [];
+        const maxFiles = 8;
+        const maxFileSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        
+        window.handleFileSelect = function(event) {
+            const files = Array.from(event.target.files);
+            processFiles(files);
+        };
+        
+        function processFiles(files) {
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            
+            for (let file of files) {
+                if (selectedFiles.length >= maxFiles) {
+                    showError(`Vous ne pouvez sélectionner que ${maxFiles} documents maximum.`);
+                    break;
+                }
+                
+                if (!allowedTypes.includes(file.type)) {
+                    showError(`Format non autorisé pour ${file.name}. Utilisez PDF, JPG ou PNG.`);
+                    continue;
+                }
+                
+                if (file.size > maxFileSize) {
+                    showError(`${file.name} est trop volumineux. Taille maximum: 5MB.`);
+                    continue;
+                }
+                
+                if (selectedFiles.find(f => f.name === file.name)) {
+                    showError(`${file.name} est déjà sélectionné.`);
+                    continue;
+                }
+                
+                selectedFiles.push(file);
+            }
+              updateFileList();
+            updateFileCounter();
+            updateFileInput();
+            
+            if (selectedFiles.length > 0) {
+                showSuccess(`${selectedFiles.length} document(s) sélectionné(s) avec succès.`);
+            }
+        }
+        
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
+                fileItem.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${file.name}</div>
+                            <div class="text-xs text-gray-500">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 p-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        function updateFileCounter() {
+            const counter = document.getElementById('fileCounter');
+            counter.textContent = `${selectedFiles.length}/${maxFiles} documents sélectionnés`;
+        }
+        
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            updateFileCounter();
+            updateFileInput();
+        };
+        
+        function updateFileInput() {
+            const input = document.getElementById('documents');
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successMessage.classList.remove('hidden');
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.border-dashed');
+        
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-blue-400', 'bg-blue-50');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-400', 'bg-blue-50');
+                
+                const files = Array.from(e.dataTransfer.files);
+                processFiles(files);
+            });
+        }
     });
     </script>
 </body>

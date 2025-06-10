@@ -56,8 +56,7 @@ class InteractiveFormController extends Controller
                 'icon' => 'fas fa-home',
                 'estimated_time' => '3-5 minutes'
             ],
-            'legalisation' => [
-                'title' => 'Légalisation de Document',
+            'legalisation' => [                'title' => 'Légalisation de Document',
                 'description' => 'Formulaire pour demander la légalisation d\'un document',
                 'icon' => 'fas fa-stamp',
                 'estimated_time' => '5-8 minutes'
@@ -108,67 +107,22 @@ class InteractiveFormController extends Controller
         } else {
             return view($normalView, compact('userData'));
         }
-    }
-
-    /**
-     * Méthodes pour les formulaires standalone
-     */
-    public function extraitNaissanceStandalone()
-    {
-        return $this->show('extrait-naissance');
-    }
-
-    public function attestationDomicileStandalone()
-    {
-        return $this->show('attestation-domicile');
-    }
-
-    public function certificatMariageStandalone()
-    {
-        return $this->show('certificat-mariage');
-    }
-
-    public function certificatCelibatStandalone()
-    {
-        return $this->show('certificat-celibat');
-    }
-
-    public function certificatDecesStandalone()
-    {
-        return $this->show('certificat-deces');
-    }
-
-    public function legalisationStandalone()
-    {
-        return $this->show('legalisation');
-    }
-
-    /**
+    }    /**
      * Traite et génère le document depuis le formulaire interactif
-     */    public function generate(Request $request, $formType)
+     */
+    public function generate(Request $request, $formType)
     {
-        // Log de debug
-        Log::info('=== DÉBUT GÉNÉRATION FORMULAIRE ===', [
-            'form_type' => $formType,
-            'method' => $request->method(),
-            'all_data' => $request->all(),
-            'user_connected' => Auth::check(),
-            'user_id' => Auth::id()
-        ]);
-
         $validForms = [
             'certificat-mariage', 'certificat-celibat', 'extrait-naissance', 
             'certificat-deces', 'attestation-domicile', 'legalisation'
         ];
 
         if (!in_array($formType, $validForms)) {
-            Log::warning('Formulaire non valide', ['form_type' => $formType]);
             abort(404, 'Formulaire non trouvé');
-        }
-
-        // Validation des données selon le type de formulaire
+        }        // Validation des données selon le type de formulaire
         $validatedData = $this->validateFormData($request, $formType);
-          // Gérer les documents uploadés
+        
+        // Gérer les documents uploadés
         $uploadedDocuments = [];
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $file) {
@@ -177,13 +131,13 @@ class InteractiveFormController extends Controller
                         'original_name' => $file->getClientOriginalName(),
                         'size' => $file->getSize(),
                         'type' => $file->getClientMimeType(),
-                        // Ne pas stocker le contenu ici pour éviter les données trop volumineuses
-                        'temp_path' => $file->getRealPath() // Chemin temporaire pour traitement ultérieur
+                        'content' => base64_encode(file_get_contents($file->getRealPath()))
                     ];
                 }
             }
-        }        // L'utilisateur doit être connecté pour créer une demande
-        if (!Auth::check()) {
+        }
+
+        // L'utilisateur doit être connecté pour créer une demande        if (!Auth::check()) {
             // Pour les formulaires standalone, sauvegarder les données en session et rediriger vers connexion
             session([
                 'pending_form_submission' => [
@@ -194,7 +148,7 @@ class InteractiveFormController extends Controller
                 ]
             ]);
             
-            return redirect()->route('login.standalone')
+            return redirect()->route('login')
                 ->with('info', 'Pour finaliser votre demande et procéder au paiement, veuillez vous connecter ou créer un compte.')
                 ->with('show_register_option', true);
         }
@@ -230,40 +184,51 @@ class InteractiveFormController extends Controller
                 'status' => 'draft', // Statut draft pour passer par le paiement
                 'payment_status' => 'unpaid',
                 'payment_required' => true,
-                'contact_preference' => 'email',                'additional_data' => json_encode([
+                'priority' => 'normal',
+                'contact_preference' => 'email',
+                'additional_data' => json_encode([
                     'form_type' => $formType,
                     'form_data' => $validatedData,
-                    'uploaded_documents_count' => count($uploadedDocuments),
+                    'uploaded_documents' => $uploadedDocuments,
                     'generated_via' => 'interactive_form',
                     'form_version' => '1.0',
                     'submitted_at' => now()->toISOString()
                 ])
-            ]);            // Stocker les documents uploadés si disponibles
+            ]);
+
+            // Stocker les documents uploadés si disponibles
             if (!empty($uploadedDocuments)) {
                 foreach ($uploadedDocuments as $index => $docData) {
-                    // Utiliser le fichier temporaire directement
+                    // Créer un fichier temporaire à partir du contenu base64
+                    $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+                    file_put_contents($tempFile, base64_decode($docData['content']));
+                    
+                    // Déterminer l'extension à partir du nom original
                     $extension = pathinfo($docData['original_name'], PATHINFO_EXTENSION);
                     $filename = 'request_' . $citizenRequest->id . '_doc_' . ($index + 1) . '.' . $extension;
                     
                     // Stocker le fichier dans le storage Laravel
                     $path = Storage::disk('public')->putFileAs(
                         'attachments',
-                        new \Illuminate\Http\File($docData['temp_path']),
+                        new \Illuminate\Http\File($tempFile),
                         $filename
                     );
-                      // Créer l'enregistrement dans la base de données
+                    
+                    // Créer l'enregistrement dans la base de données
                     $citizenRequest->attachments()->create([
-                        'file_name' => $docData['original_name'],
-                        'file_path' => $path,
-                        'file_size' => $docData['size'],
-                        'file_type' => $docData['type'],                        'uploaded_by' => Auth::id(),
-                        'type' => 'citizen'
+                        'filename' => $docData['original_name'],
+                        'path' => $path,
+                        'size' => $docData['size'],
+                        'mime_type' => $docData['type']
                     ]);
+                    
+                    // Supprimer le fichier temporaire
+                    unlink($tempFile);
                 }
             }
 
-            // Rediriger vers la page de paiement standalone
-            return redirect()->route('payments.standalone.show', $citizenRequest)
+            // Rediriger vers la page de paiement comme pour les demandes normales
+            return redirect()->route('payments.show', $citizenRequest)
                 ->with('success', '🎉 Votre formulaire a été traité avec succès ! Référence: ' . $citizenRequest->reference_number . '. Veuillez procéder au paiement pour finaliser votre demande.');
                 
         } catch (\Exception $e) {
@@ -276,43 +241,7 @@ class InteractiveFormController extends Controller
             
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Une erreur est survenue lors du traitement de votre formulaire. Veuillez réessayer.');
-        }
-    }
-
-    /**
-     * Traite une soumission en attente après connexion
-     */    public function processPendingSubmission()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login.standalone')->with('error', 'Vous devez être connecté pour continuer.');
-        }
-
-        $pendingSubmission = session('pending_form_submission');
-        if (!$pendingSubmission) {
-            return redirect()->route('interactive-forms.index')
-                ->with('info', 'Aucune demande en attente trouvée.');
-        }
-
-        // Effacer la session
-        session()->forget('pending_form_submission');
-
-        // Créer une nouvelle requête avec les données sauvegardées
-        $request = new Request();
-        $request->merge($pendingSubmission['form_data']);
-        
-        // Reconstituer les fichiers uploadés s'il y en a
-        if (!empty($pendingSubmission['uploaded_documents'])) {
-            // Note: Les fichiers ne peuvent pas être reconstitués de cette façon
-            // Il faudrait les stocker temporairement dans le filesystem
-            // Pour l'instant, on traite sans les fichiers
-            Log::info('Documents en attente trouvés mais non reconstitués', [
-                'count' => count($pendingSubmission['uploaded_documents'])
-            ]);
-        }
-
-        // Traiter la soumission
-        return $this->generate($request, $pendingSubmission['form_type']);
+                ->with('error', 'Une erreur est survenue lors du traitement de votre formulaire. Veuillez réessayer.');        }
     }
 
     /**
@@ -323,20 +252,21 @@ class InteractiveFormController extends Controller
         // Créer un PDF à la volée avec les données stockées
         if (Auth::check() && is_numeric($requestId)) {
             $citizenRequest = CitizenRequest::findOrFail($requestId);
-            $data = json_decode($citizenRequest->additional_data, true);
+            $data = json_decode($citizenRequest->data, true);
         } else {
             // Pour les téléchargements temporaires, on ne peut pas récupérer les données
+            // Il faudrait implémenter un système de cache ou de stockage temporaire
             return abort(404, 'Document non trouvé ou expiré');
         }
 
-        if (!$data || !isset($data['form_data'])) {
+        if (!$data) {
             return abort(404, 'Données du document non trouvées');
         }
 
         // Générer le PDF
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
             "front.interactive-forms.previews.{$formType}",
-            ['data' => $data['form_data']]
+            ['data' => $data]
         );
         
         $fileName = "{$formType}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
@@ -388,7 +318,6 @@ class InteractiveFormController extends Controller
             'date_of_birth' => 'required|date',
             'place_of_birth' => 'required|string|max:255',
             'nationality' => 'required|string|max:100',
-            'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max per file
         ];
 
         $specificRules = [];
@@ -413,21 +342,18 @@ class InteractiveFormController extends Controller
                 ];
                 break;            case 'extrait-naissance':
                 $specificRules = [
-                    'first_names' => 'required|string|max:255',
                     'father_name' => 'required|string|max:255',
                     'mother_name' => 'required|string|max:255',
                     'birth_time' => 'nullable|string',
                     'gender' => 'required|string|in:Masculin,Féminin',
-                    'registry_number' => 'nullable|string|max:100',
-                    'registration_date' => 'nullable|date',
+                    'registry_number' => 'required|string|max:100',
+                    'registration_date' => 'required|date',
                     'father_profession' => 'nullable|string|max:255',
                     'mother_profession' => 'nullable|string|max:255',
                     'declarant_name' => 'nullable|string|max:255',
-                    'centre_etat_civil' => 'nullable|string|max:255',
+                    'registration_number' => 'nullable|string|max:100',
                 ];
-                break;
-
-            case 'certificat-deces':
+                break;            case 'certificat-deces':
                 $specificRules = [
                     'deceased_last_name' => 'required|string|max:255',
                     'deceased_first_name' => 'required|string|max:255',
@@ -445,9 +371,7 @@ class InteractiveFormController extends Controller
                     'declaration' => 'required|accepted',
                 ];
                 // Remove common rules for death certificate as it has different structure
-                $commonRules = [
-                    'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-                ];
+                $commonRules = [];
                 break;
 
             case 'attestation-domicile':
@@ -456,9 +380,7 @@ class InteractiveFormController extends Controller
                     'district' => 'required|string|max:255',
                     'residence_duration' => 'required|string|max:100',
                 ];
-                break;
-
-            case 'legalisation':
+                break;            case 'legalisation':
                 $specificRules = [
                     'document_type' => 'required|string|max:255',
                     'document_date' => 'required|date',

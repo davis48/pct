@@ -255,7 +255,7 @@
                         <div class="text-center">
                             <p class="text-sm text-gray-600">
                                 Déjà un compte ? 
-                                <a href="{{ route('choose-role') }}" class="text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200">
+                                <a href="{{ route('choose.role') }}" class="text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200">
                                     Se connecter
                                 </a>
                             </p>
@@ -354,7 +354,7 @@
         // Fonction pour fermer le modal
         window.closeModal = function() {
             document.getElementById('confirmationModal').classList.add('hidden');
-            window.location.href = '{{ route("choose-role") }}';
+            window.location.href = '{{ route("choose.role") }}';
         };
 
         // Animations d'entrée

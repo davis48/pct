@@ -298,6 +298,187 @@
             color: #166534;
             font-size: 0.875rem;
         }
+        
+        /* Styles pour l'upload de documents */
+        .document-upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .upload-area {
+            border: 2px dashed #6ee7b7;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: #f0fdf4;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #34d399;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: #059669;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .upload-hint {
+            color: #34d399;
+            font-size: 0.875rem;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #f0fdf4;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .file-icon {
+            color: #10b981;
+            font-size: 1.25rem;
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #1f2937;
+            font-size: 0.875rem;
+        }
+        
+        .file-size {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .remove-file {
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+        
+        .remove-file:hover {
+            background: #fee2e2;
+        }
+        
+        .file-counter {
+            color: #059669;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .guidelines {
+            background: #f0fdf4;
+            border: 1px solid #6ee7b7;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .guidelines-title {
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .guidelines-list {
+            color: #059669;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .guidelines-list ul {
+            margin-left: 1rem;
+            list-style-type: disc;
+        }
+        
+        .guidelines-list li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+            background: #fef2f2;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #fecaca;
+        }
+        
+        .success-message {
+            color: #059669;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+            background: #f0fdf4;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 640px) {
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .file-info {
+                width: 100%;
+            }
+            
+            .document-upload-section {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -375,7 +556,7 @@
                     <p class="form-description">Remplissez vos informations personnelles ci-dessous</p>
                 </div>
 
-                <form action="{{ route('interactive-forms.generate', 'certificat-celibat') }}" method="POST">
+                <form action="{{ route('interactive-forms.generate', 'certificat-celibat') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-body">
                         <!-- Informations personnelles -->
@@ -537,11 +718,52 @@
                                     <input type="text" name="lieu_delivrance" id="lieu_delivrance" 
                                            class="input-field" value="{{ old('lieu_delivrance', 'ABIDJAN') }}">
                                 </div>
-                            </div>
-                        </div>
+                            </div>                        </div>
                     </div>
 
                     <!-- Actions du formulaire -->
+                    <!-- Documents Justificatifs -->
+                    <div class="document-upload-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-paperclip"></i>
+                            Documents Justificatifs
+                        </h3>
+                        
+                        <div class="guidelines">
+                            <div class="guidelines-title">
+                                <i class="fas fa-info-circle"></i>
+                                Documents requis pour un certificat de célibat
+                            </div>
+                            <div class="guidelines-list">
+                                <ul>
+                                    <li>Copie de la pièce d'identité du demandeur</li>
+                                    <li>Justificatif de domicile récent</li>
+                                    <li>Acte de naissance récent (moins de 3 mois)</li>
+                                    <li>Procuration si vous agissez au nom d'un tiers</li>
+                                    <li>Affidavit ou déclaration sous serment</li>
+                                </ul>
+                                <p style="margin-top: 0.5rem; font-style: italic;">
+                                    Formats acceptés: PDF, JPG, PNG. Taille max: 5MB par fichier.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="upload-area" onclick="document.getElementById('documents').click()">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Cliquez ici pour sélectionner vos documents</div>
+                            <div class="upload-hint">ou glissez-déposez vos fichiers ici</div>
+                        </div>
+                        
+                        <input type="file" id="documents" name="documents[]" multiple 
+                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
+                        
+                        <div class="file-list" id="fileList"></div>
+                        <div class="file-counter" id="fileCounter">0/8 documents sélectionnés</div>
+                        
+                        <div class="error-message" id="errorMessage"></div>
+                        <div class="success-message" id="successMessage"></div>
+                    </div>
+
                     <div class="form-actions">
                         <a href="{{ route('interactive-forms.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i>
@@ -557,5 +779,224 @@
             </div>
         </div>
     </main>
+
+    <script>
+        // Script pour gérer l'upload de documents
+        document.addEventListener('DOMContentLoaded', function() {
+            var uploadArea = document.getElementById('uploadArea');
+            var fileList = document.getElementById('fileList');
+
+            uploadArea.addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+
+            function handleFiles(files) {
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (validateFile(file)) {
+                        addFileToList(file);
+                    }
+                }
+            }
+
+            function validateFile(file) {
+                var allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+                return allowedTypes.includes(file.type);
+            }
+
+            function addFileToList(file) {
+                var fileItem = document.createElement('div');
+                fileItem.classList.add('file-item');
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <i class="fas fa-file file-icon"></i>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${(file.size / 1024).toFixed(2)} Ko</div>
+                        </div>
+                    </div>
+                    <div class="remove-file" data-file="${file.name}">
+                        <i class="fas fa-times"></i>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            }
+
+            fileList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-file')) {
+                    var fileName = e.target.getAttribute('data-file');
+                    removeFile(fileName);
+                }            });
+
+            function removeFile(fileName) {
+                var fileItems = document.querySelectorAll('.file-item');
+                fileItems.forEach(function(item) {
+                    if (item.querySelector('.remove-file').getAttribute('data-file') === fileName) {
+                        item.remove();
+                    }
+                });
+            }
+            
+            // Gestion de l'upload de documents
+            let selectedFiles = [];
+            const maxFiles = 8;
+            const maxFileSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            
+            window.handleFileSelect = function(event) {
+                const files = Array.from(event.target.files);
+                processFiles(files);
+            };
+            
+            function processFiles(files) {
+                const errorMessage = document.getElementById('errorMessage');
+                const successMessage = document.getElementById('successMessage');
+                
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                for (let file of files) {
+                    if (selectedFiles.length >= maxFiles) {
+                        showError(`Vous ne pouvez sélectionner que ${maxFiles} documents maximum.`);
+                        break;
+                    }
+                    
+                    if (!allowedTypes.includes(file.type)) {
+                        showError(`Format non autorisé pour ${file.name}. Utilisez PDF, JPG ou PNG.`);
+                        continue;
+                    }
+                    
+                    if (file.size > maxFileSize) {
+                        showError(`${file.name} est trop volumineux. Taille maximum: 5MB.`);
+                        continue;
+                    }
+                    
+                    if (selectedFiles.find(f => f.name === file.name)) {
+                        showError(`${file.name} est déjà sélectionné.`);
+                        continue;
+                    }
+                    
+                    selectedFiles.push(file);
+                }
+                  updateDocumentFileList();
+                updateDocumentFileCounter();
+                updateDocumentFileInput();
+                
+                if (selectedFiles.length > 0) {
+                    showSuccess(`${selectedFiles.length} document(s) sélectionné(s) avec succès.`);
+                }
+            }
+            
+            function updateDocumentFileList() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                
+                selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <i class="fas fa-file-${getFileIcon(file.type)} file-icon"></i>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-times remove-file" onclick="removeDocumentFile(${index})"></i>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            }
+            
+            function updateDocumentFileCounter() {
+                const counter = document.getElementById('fileCounter');
+                counter.textContent = `${selectedFiles.length}/${maxFiles} documents sélectionnés`;
+            }
+            
+            window.removeDocumentFile = function(index) {
+                selectedFiles.splice(index, 1);
+                updateDocumentFileList();
+                updateDocumentFileCounter();
+                updateDocumentFileInput();
+            };
+            
+            function updateDocumentFileInput() {
+                const input = document.getElementById('documents');
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                input.files = dt.files;
+            }
+            
+            function getFileIcon(type) {
+                if (type === 'application/pdf') return 'pdf';
+                if (type.startsWith('image/')) return 'image';
+                return 'alt';
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function showError(message) {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function showSuccess(message) {
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Drag and drop functionality
+            const uploadArea = document.querySelector('.upload-area');
+            
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                
+                uploadArea.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                });
+                
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    
+                    const files = Array.from(e.dataTransfer.files);
+                    processFiles(files);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

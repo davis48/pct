@@ -95,7 +95,7 @@
                         </div>
                         <div class="col-md-4 text-md-end">
                             <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
-                                <a href="{{ route('requests.create') }}" class="btn btn-light btn-lg action-btn">
+                                <a href="{{ route('interactive-forms.index') }}" class="btn btn-light btn-lg action-btn">
                                     <i class="fas fa-plus me-2"></i>Nouvelle Demande
                                 </a>
                                 <a href="{{ route('documents.index') }}" class="btn btn-outline-light action-btn">
@@ -283,7 +283,7 @@
                                 <p class="text-sm text-gray-600">Suivez l'état de toutes vos demandes en temps réel</p>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <a href="{{ route('requests.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                <a href="{{ route('interactive-forms.index') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                     <i class="fas fa-plus mr-2"></i>Nouvelle Demande
                                 </a>
                                 <div class="flex items-center">
@@ -420,7 +420,7 @@
                                 </div>
                                 <h4 class="text-muted mb-3">Aucune demande pour le moment</h4>
                                 <p class="text-muted mb-4">Commencez par soumettre votre première demande administrative</p>
-                                <a href="{{ route('requests.create') }}" class="btn btn-primary btn-lg action-btn">
+                                <a href="{{ route('interactive-forms.index') }}" class="btn btn-primary btn-lg action-btn">
                                     <i class="fas fa-plus me-2"></i>Faire ma première demande
                                 </a>
                             </div>

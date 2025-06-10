@@ -26,53 +26,8 @@ class PaymentController extends Controller
      */
     public function show(CitizenRequest $citizenRequest)
     {
-        // TEMPORARY BYPASS FOR TESTING - Comment out authorization check
-        /*
-        // Vérifier que la demande appartient à l'utilisateur connecté
-        // BYPASSED FOR TESTING: /* BYPASSED FOR TESTING
-        // BYPASSED FOR TESTING - Authorization check disabled
-        /*
- if ($citizenRequest->user_id !== Auth::id()) {
-            return redirect()->route('requests.index')
-                ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
-        }
-        */
-
-        // FOR TESTING: Always allow access to payment page
-        // This should be removed in production
-        Log::info('PaymentController::show - TEST MODE ENABLED', [
-            'request_id' => $citizenRequest->id,
-            'user_id' => $citizenRequest->user_id,
-            'auth_id' => Auth::id(),
-            'authenticated' => Auth::check()
-        ]);
-
-        // Vérifier si un paiement est nécessaire
-        if (!$citizenRequest->requiresPayment()) {
-            return redirect()->route('requests.show', $citizenRequest)
-                ->with('info', 'Aucun paiement n\'est requis pour cette demande.');
-        }
-
-        // Vérifier si la demande a déjà été payée
-        if ($citizenRequest->hasSuccessfulPayment()) {
-            return redirect()->route('requests.show', $citizenRequest)
-                ->with('success', 'Cette demande a déjà été payée.');
-        }
-
-        // Récupérer le dernier paiement en attente s'il existe
-        $pendingPayment = $citizenRequest->payments()->pending()->latest()->first();
-
-        return view('front.payments.show', [
-            'request' => $citizenRequest,
-            'pendingPayment' => $pendingPayment,
-            'providers' => [
-                Payment::PROVIDER_CINET => 'CinetPay',
-                Payment::PROVIDER_MTN => 'MTN Mobile Money',
-                Payment::PROVIDER_ORANGE => 'Orange Money',
-                Payment::PROVIDER_MOOV => 'Moov Money',
-                Payment::PROVIDER_WAVE => 'Wave',
-            ]
-        ]);
+        // Rediriger vers la version standalone pour éviter les problèmes de couches
+        return redirect()->route('payments.standalone.show', $citizenRequest);
     }
 
     /**
@@ -146,29 +101,8 @@ class PaymentController extends Controller
      */
     public function process(Payment $payment)
     {
-        // TEMPORARY BYPASS FOR TESTING - Comment out authorization check
-        /*
-        // Vérifier que le paiement appartient à l'utilisateur connecté
-        // BYPASSED FOR TESTING: /* BYPASSED FOR TESTING
-        // BYPASSED FOR TESTING - Authorization check disabled
-        /*
- if ($payment->citizenRequest->user_id !== Auth::id()) {
-            return redirect()->route('requests.index')
-                ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
-        }
-        */
-        
- 
-
-        // Vérifier que le paiement est en attente
-        if (!$payment->isPending()) {
-            return redirect()->route('payments.status', $payment);
-        }
-
-        return view('front.payments.process', [
-            'payment' => $payment,
-            'request' => $payment->citizenRequest,
-        ]);
+        // Rediriger vers la version standalone pour éviter les problèmes de couches
+        return redirect()->route('payments.standalone.show', $payment->citizenRequest);
     }
 
     /**
@@ -422,6 +356,265 @@ class PaymentController extends Controller
 
             return redirect()->back()
                 ->with('error', 'Une erreur est survenue lors de la réinitialisation du paiement.');
+        }
+    }
+
+    /**
+     * Affiche la page de paiement standalone
+     */
+    public function showStandalone(CitizenRequest $citizenRequest)
+    {
+        // Vérifier que la demande appartient à l'utilisateur connecté
+        if ($citizenRequest->user_id !== Auth::id()) {
+            return redirect()->route('interactive-forms.index')
+                ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
+        }
+
+        // Vérifier si un paiement est nécessaire
+        if (!$citizenRequest->payment_required) {
+            return redirect()->route('citizen.dashboard')
+                ->with('info', 'Cette demande ne nécessite pas de paiement.');
+        }
+
+        // Vérifier si le paiement a déjà été effectué
+        if ($citizenRequest->payment_status === 'paid') {
+            return redirect()->route('citizen.dashboard')
+                ->with('info', 'Le paiement pour cette demande a déjà été effectué.');
+        }
+
+        // Vérifier s'il y a déjà un paiement en cours
+        $existingPayment = Payment::where('citizen_request_id', $citizenRequest->id)
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($existingPayment) {
+            return view('front.payments.process_standalone', [
+                'citizenRequest' => $citizenRequest,
+                'payment' => $existingPayment,
+                'paymentMethod' => $existingPayment->payment_method ?? 'Mobile Money'
+            ]);
+        }
+
+        return view('front.payments.show_standalone', compact('citizenRequest'));
+    }
+
+    /**
+     * Affiche la page de validation de paiement standalone
+     */
+    public function showProcessStandalone(CitizenRequest $citizenRequest)
+    {
+        // Vérifier que la demande appartient à l'utilisateur connecté
+        if ($citizenRequest->user_id !== Auth::id()) {
+            return redirect()->route('interactive-forms.index')
+                ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
+        }
+
+        // Chercher le paiement en cours
+        $payment = Payment::where('citizen_request_id', $citizenRequest->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$payment) {
+            return redirect()->route('payments.standalone.show', $citizenRequest)
+                ->with('error', 'Aucun paiement trouvé pour cette demande.');
+        }
+
+        return view('front.payments.process_standalone', [
+            'citizenRequest' => $citizenRequest,
+            'payment' => $payment,
+            'paymentMethod' => $payment->payment_method ?? 'Mobile Money'
+        ]);
+    }
+
+    /**
+     * Traite le paiement standalone
+     */
+    public function processStandalone(Request $request, CitizenRequest $citizenRequest)
+    {
+        $request->validate([
+            'payment_method' => 'required|string|in:orange_money,mtn_money,moov_money,wave'
+        ]);
+
+        try {
+            // Vérifier que la demande appartient à l'utilisateur connecté
+            if ($citizenRequest->user_id !== Auth::id()) {
+                return redirect()->route('interactive-forms.index')
+                    ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
+            }
+
+            // Vérifier si le paiement a déjà été effectué
+            if ($citizenRequest->payment_status === 'paid') {
+                return redirect()->route('citizen.dashboard')
+                    ->with('info', 'Le paiement pour cette demande a déjà été effectué.');
+            }
+
+            // Créer l'enregistrement de paiement
+            $payment = Payment::create([
+                'citizen_request_id' => $citizenRequest->id,
+                'user_id' => Auth::id(),
+                'amount' => 5000, // Montant fixe pour les extraits
+                'currency' => 'XOF',
+                'status' => 'pending',
+                'payment_method' => $request->payment_method,
+                'reference' => 'PAY-' . strtoupper(Str::random(8)),
+            ]);
+
+            Log::info('Paiement standalone initié', [
+                'payment_id' => $payment->id,
+                'user_id' => Auth::id(),
+                'amount' => $payment->amount,
+                'method' => $request->payment_method
+            ]);
+
+            // Simuler l'initiation du paiement mobile
+            // $this->paymentService->initiateMobilePayment($payment, $request->payment_method);
+
+            // Rediriger vers la page de validation
+            return view('front.payments.process_standalone', [
+                'citizenRequest' => $citizenRequest,
+                'payment' => $payment,
+                'paymentMethod' => $request->payment_method
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du traitement du paiement standalone', [
+                'error' => $e->getMessage(),
+                'citizen_request_id' => $citizenRequest->id,
+                'user_id' => Auth::id(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Une erreur est survenue lors du traitement du paiement. Veuillez réessayer.');
+        }
+    }
+
+    /**
+     * Vérifie le statut du paiement standalone
+     */
+    public function checkStatusStandalone(Request $request, CitizenRequest $citizenRequest)
+    {
+        try {
+            // Vérifier que la demande appartient à l'utilisateur connecté
+            if ($citizenRequest->user_id !== Auth::id()) {
+                return redirect()->route('interactive-forms.index')
+                    ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
+            }
+
+            // Chercher le paiement en cours
+            $payment = Payment::where('citizen_request_id', $citizenRequest->id)
+                ->where('status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$payment) {
+                return redirect()->route('payments.standalone.show', $citizenRequest)
+                    ->with('error', 'Aucun paiement en cours trouvé.');
+            }
+
+            // Simuler la vérification du statut (en production, vérifier avec l'API de l'opérateur)
+            // Pour la démo, on considère que le paiement réussit après 30 secondes
+            if ($payment->created_at->diffInSeconds(now()) > 30) {
+                $payment->update([
+                    'status' => 'completed',
+                    'transaction_id' => 'TXN-' . strtoupper(Str::random(10)),
+                    'completed_at' => now()
+                ]);
+
+                $citizenRequest->update([
+                    'payment_status' => 'paid',
+                    'status' => 'pending'
+                ]);
+
+                Log::info('Paiement standalone validé', [
+                    'payment_id' => $payment->id,
+                    'transaction_id' => $payment->transaction_id,
+                    'user_id' => Auth::id()
+                ]);
+
+                return redirect()->route('citizen.dashboard')
+                    ->with('success', '🎉 Paiement effectué avec succès ! Votre demande est maintenant en cours de traitement.');
+            }
+
+            // Paiement toujours en attente
+            return redirect()->back()
+                ->with('info', 'Le paiement est toujours en cours de validation. Veuillez patienter...');
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la vérification du statut du paiement standalone', [
+                'error' => $e->getMessage(),
+                'citizen_request_id' => $citizenRequest->id,
+                'user_id' => Auth::id(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Une erreur est survenue lors de la vérification du paiement.');
+        }
+    }
+
+    /**
+     * Valide directement le paiement standalone (pour la démo)
+     */
+    public function validatePaymentStandalone(Request $request, CitizenRequest $citizenRequest)
+    {
+        try {
+            // Vérifier que la demande appartient à l'utilisateur connecté
+            if ($citizenRequest->user_id !== Auth::id()) {
+                return redirect()->route('interactive-forms.index')
+                    ->with('error', 'Vous n\'êtes pas autorisé à effectuer cette action.');
+            }
+
+            // Chercher le paiement en cours ou en créer un nouveau
+            $payment = Payment::where('citizen_request_id', $citizenRequest->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$payment) {
+                // Créer un paiement si aucun n'existe
+                $payment = Payment::create([
+                    'citizen_request_id' => $citizenRequest->id,
+                    'user_id' => Auth::id(),
+                    'amount' => 5000,
+                    'currency' => 'XOF',
+                    'status' => 'pending',
+                    'payment_method' => 'demo_payment',
+                    'reference' => 'PAY-' . strtoupper(Str::random(8)),
+                ]);
+            }
+
+            // Valider le paiement automatiquement (pour la démo)
+            $payment->update([
+                'status' => 'completed',
+                'transaction_id' => 'TXN-DEMO-' . strtoupper(Str::random(10)),
+                'completed_at' => now()
+            ]);
+
+            // Mettre à jour le statut de la demande
+            $citizenRequest->update([
+                'payment_status' => 'paid',
+                'status' => 'pending' // Maintenant en attente de traitement
+            ]);
+
+            Log::info('Paiement validé automatiquement (démo)', [
+                'payment_id' => $payment->id,
+                'transaction_id' => $payment->transaction_id,
+                'user_id' => Auth::id(),
+                'citizen_request_id' => $citizenRequest->id
+            ]);
+
+            // Rediriger vers l'interface des demandes standalone
+            return redirect()->route('citizen.request.standalone.show', $citizenRequest->id)
+                ->with('success', '🎉 Paiement effectué avec succès ! Votre demande est maintenant en cours de traitement.');
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la validation du paiement standalone', [
+                'error' => $e->getMessage(),
+                'citizen_request_id' => $citizenRequest->id,
+                'user_id' => Auth::id(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Une erreur est survenue lors de la validation du paiement.');
         }
     }
 }

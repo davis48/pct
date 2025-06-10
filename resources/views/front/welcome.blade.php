@@ -142,7 +142,7 @@
                             <a href="{{ route('choose.role') }}" class="group bg-white text-purple-600 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all duration-300 text-center transform hover:scale-105 hover:shadow-xl">
                                 <i class="fas fa-sign-in-alt mr-2 group-hover:translate-x-1 transition-transform"></i>Se Connecter
                             </a>
-                            <a href="{{ route('register') }}" class="group border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-purple-600 transition-all duration-300 text-center transform hover:scale-105">
+                            <a href="{{ route('register.standalone') }}" class="group border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-purple-600 transition-all duration-300 text-center transform hover:scale-105">
                                 <i class="fas fa-user-plus mr-2 group-hover:rotate-12 transition-transform"></i>S'inscrire
                             </a>
                         @endauth
@@ -450,7 +450,7 @@
                 </p>
                 @guest
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{{ route('register') }}" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200">
+                        <a href="{{ route('register.standalone') }}" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200">
                             <i class="fas fa-user-plus mr-2"></i>Créer un Compte Citoyen
                         </a>
                         <a href="{{ route('choose.role') }}" class="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-200">

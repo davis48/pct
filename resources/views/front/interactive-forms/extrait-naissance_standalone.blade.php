@@ -298,6 +298,187 @@
             color: #7c2d92;
             font-size: 0.875rem;
         }
+        
+        /* Styles pour l'upload de documents */
+        .document-upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .upload-area {
+            border: 2px dashed #c4b5fd;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: #faf5ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #7c3aed;
+            background: #f3e8ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #a855f7;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: #6b21a8;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .upload-hint {
+            color: #a855f7;
+            font-size: 0.875rem;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #faf5ff;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .file-icon {
+            color: #7c3aed;
+            font-size: 1.25rem;
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #1f2937;
+            font-size: 0.875rem;
+        }
+        
+        .file-size {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .remove-file {
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+        
+        .remove-file:hover {
+            background: #fee2e2;
+        }
+        
+        .file-counter {
+            color: #6b21a8;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .guidelines {
+            background: #f3e8ff;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .guidelines-title {
+            font-weight: 600;
+            color: #6b21a8;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .guidelines-list {
+            color: #6b21a8;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .guidelines-list ul {
+            margin-left: 1rem;
+            list-style-type: disc;
+        }
+        
+        .guidelines-list li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+            background: #fef2f2;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #fecaca;
+        }
+        
+        .success-message {
+            color: #059669;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+            background: #f0fdf4;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 640px) {
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .file-info {
+                width: 100%;
+            }
+            
+            .document-upload-section {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -367,16 +548,72 @@
                 </div>
             </div>
 
+            <!-- Messages d'erreur et de succès -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Erreurs de validation :</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('info'))
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    {{ session('info') }}
+                </div>
+            @endif
+
+            <style>
+                .alert {
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                    border-radius: 8px;
+                    border: 1px solid;
+                }
+                .alert-danger {
+                    background-color: #fee2e2;
+                    border-color: #fecaca;
+                    color: #dc2626;
+                }
+                .alert-success {
+                    background-color: #d1fae5;
+                    border-color: #a7f3d0;
+                    color: #065f46;
+                }
+                .alert-info {
+                    background-color: #dbeafe;
+                    border-color: #93c5fd;
+                    color: #1e40af;
+                }
+            </style>
+
             <!-- Formulaire principal -->
             <div class="form-container">
                 <div class="form-header">
                     <i class="fas fa-baby form-icon"></i>
                     <h2 class="form-title">Extrait de Naissance</h2>
                     <p class="form-description">Remplissez les informations de naissance ci-dessous</p>
-                </div>
-
-                <form action="{{ route('interactive-forms.generate', 'extrait-naissance') }}" method="POST">
+                </div>                <form action="{{ route('interactive-forms.standalone.generate', 'extrait-naissance') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="type_document" value="extrait-naissance">
                     <div class="form-body">
                         <!-- Informations de la personne née -->
                         <div class="form-section">
@@ -384,56 +621,61 @@
                                 <i class="fas fa-user section-icon"></i>
                                 Informations de la personne
                             </h3>
-                            <div class="form-grid">
-                                <div class="input-group">
-                                    <label class="input-label" for="nom">
+                            <div class="form-grid">                                <div class="input-group">
+                                    <label class="input-label" for="name">
                                         Nom <span class="input-required">*</span>
                                     </label>
-                                    <input type="text" name="nom" id="nom" 
-                                           class="input-field" value="{{ old('nom', $userData['name'] ?? '') }}" required>
+                                    <input type="text" name="name" id="name" 
+                                           class="input-field" value="{{ old('name', $userData['name'] ?? '') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label class="input-label" for="prenoms">
+                                    <label class="input-label" for="first_names">
                                         Prénoms <span class="input-required">*</span>
                                     </label>
-                                    <input type="text" name="prenoms" id="prenoms" 
-                                           class="input-field" value="{{ old('prenoms') }}" required>
+                                    <input type="text" name="first_names" id="first_names" 
+                                           class="input-field" value="{{ old('first_names') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label class="input-label" for="sexe">
+                                    <label class="input-label" for="gender">
                                         Sexe <span class="input-required">*</span>
                                     </label>
-                                    <select name="sexe" id="sexe" class="input-field" required>
+                                    <select name="gender" id="gender" class="input-field" required>
                                         <option value="">Sélectionner</option>
-                                        <option value="Masculin" {{ old('sexe') == 'Masculin' ? 'selected' : '' }}>Masculin</option>
-                                        <option value="Féminin" {{ old('sexe') == 'Féminin' ? 'selected' : '' }}>Féminin</option>
+                                        <option value="Masculin" {{ old('gender') == 'Masculin' ? 'selected' : '' }}>Masculin</option>
+                                        <option value="Féminin" {{ old('gender') == 'Féminin' ? 'selected' : '' }}>Féminin</option>
                                     </select>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label class="input-label" for="date_naissance">
+                                    <label class="input-label" for="date_of_birth">
                                         Date de naissance <span class="input-required">*</span>
                                     </label>
-                                    <input type="date" name="date_naissance" id="date_naissance" 
-                                           class="input-field" value="{{ old('date_naissance', $userData['date_of_birth'] ?? '') }}" required>
+                                    <input type="date" name="date_of_birth" id="date_of_birth" 
+                                           class="input-field" value="{{ old('date_of_birth', $userData['date_of_birth'] ?? '') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
                                     <label class="input-label" for="heure_naissance">
                                         Heure de naissance
+                                    </label>                                    <input type="time" name="birth_time" id="birth_time" 
+                                           class="input-field" value="{{ old('birth_time') }}">
+                                </div>
+                                  <div class="input-group">
+                                    <label class="input-label" for="place_of_birth">
+                                        Lieu de naissance <span class="input-required">*</span>
                                     </label>
-                                    <input type="time" name="heure_naissance" id="heure_naissance" 
-                                           class="input-field" value="{{ old('heure_naissance') }}">
+                                    <input type="text" name="place_of_birth" id="place_of_birth" 
+                                           class="input-field" value="{{ old('place_of_birth', $userData['place_of_birth'] ?? '') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label class="input-label" for="lieu_naissance">
-                                        Lieu de naissance <span class="input-required">*</span>
+                                    <label class="input-label" for="nationality">
+                                        Nationalité <span class="input-required">*</span>
                                     </label>
-                                    <input type="text" name="lieu_naissance" id="lieu_naissance" 
-                                           class="input-field" value="{{ old('lieu_naissance', $userData['place_of_birth'] ?? '') }}" required>
+                                    <input type="text" name="nationality" id="nationality" 
+                                           class="input-field" value="{{ old('nationality', $userData['nationality'] ?? 'Ivoirienne') }}" required>
                                 </div>
                             </div>
                         </div>
@@ -444,13 +686,12 @@
                                 <i class="fas fa-male section-icon"></i>
                                 Informations du père
                             </h3>
-                            <div class="form-grid">
-                                <div class="input-group">
-                                    <label class="input-label" for="nom_pere">
+                            <div class="form-grid">                                <div class="input-group">
+                                    <label class="input-label" for="father_name">
                                         Nom du père <span class="input-required">*</span>
                                     </label>
-                                    <input type="text" name="nom_pere" id="nom_pere" 
-                                           class="input-field" value="{{ old('nom_pere', $userData['father_name'] ?? '') }}" required>
+                                    <input type="text" name="father_name" id="father_name" 
+                                           class="input-field" value="{{ old('father_name', $userData['father_name'] ?? '') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
@@ -493,13 +734,12 @@
                                 <i class="fas fa-female section-icon"></i>
                                 Informations de la mère
                             </h3>
-                            <div class="form-grid">
-                                <div class="input-group">
-                                    <label class="input-label" for="nom_mere">
+                            <div class="form-grid">                                <div class="input-group">
+                                    <label class="input-label" for="mother_name">
                                         Nom de la mère <span class="input-required">*</span>
                                     </label>
-                                    <input type="text" name="nom_mere" id="nom_mere" 
-                                           class="input-field" value="{{ old('nom_mere', $userData['mother_name'] ?? '') }}" required>
+                                    <input type="text" name="mother_name" id="mother_name" 
+                                           class="input-field" value="{{ old('mother_name', $userData['mother_name'] ?? '') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
@@ -576,8 +816,48 @@
                                            class="input-field" value="{{ old('declarant') }}"
                                            placeholder="Nom de la personne qui a déclaré la naissance">
                                 </div>
+                            </div>                        </div>
+
+                    <!-- Documents Justificatifs -->
+                    <div class="document-upload-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-paperclip"></i>
+                            Documents Justificatifs
+                        </h3>
+                        
+                        <div class="guidelines">
+                            <div class="guidelines-title">
+                                <i class="fas fa-info-circle"></i>
+                                Documents requis pour un extrait de naissance
+                            </div>
+                            <div class="guidelines-list">
+                                <ul>
+                                    <li>Copie de la pièce d'identité du demandeur</li>
+                                    <li>Justificatif de domicile récent (facture, quittance de loyer, etc.)</li>
+                                    <li>Acte de naissance original ou copie certifiée conforme (si disponible)</li>
+                                    <li>Procuration si vous agissez au nom d'un tiers</li>
+                                    <li>Justificatif de lien de parenté (livret de famille, etc.)</li>
+                                </ul>
+                                <p style="margin-top: 0.5rem; font-style: italic;">
+                                    Formats acceptés: PDF, JPG, PNG. Taille max: 5MB par fichier.
+                                </p>
                             </div>
                         </div>
+                        
+                        <div class="upload-area" onclick="document.getElementById('documents').click()">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Cliquez ici pour sélectionner vos documents</div>
+                            <div class="upload-hint">ou glissez-déposez vos fichiers ici</div>
+                        </div>
+                        
+                        <input type="file" id="documents" name="documents[]" multiple 
+                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
+                        
+                        <div class="file-list" id="fileList"></div>
+                        <div class="file-counter" id="fileCounter">0/8 documents sélectionnés</div>
+                        
+                        <div class="error-message" id="errorMessage"></div>
+                        <div class="success-message" id="successMessage"></div>
                     </div>
 
                     <!-- Actions du formulaire -->
@@ -595,6 +875,187 @@
                 </form>
             </div>
         </div>
-    </main>
+    </main>    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Gestion de l'upload de documents
+            let selectedFiles = [];
+            const maxFiles = 8;
+            const maxFileSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            
+            window.handleFileSelect = function(event) {
+                const files = Array.from(event.target.files);
+                processFiles(files);
+            };
+            
+            function processFiles(files) {
+                const errorMessage = document.getElementById('errorMessage');
+                const successMessage = document.getElementById('successMessage');
+                
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                for (let file of files) {
+                    if (selectedFiles.length >= maxFiles) {
+                        showError(`Vous ne pouvez sélectionner que ${maxFiles} documents maximum.`);
+                        break;
+                    }
+                    
+                    if (!allowedTypes.includes(file.type)) {
+                        showError(`Format non autorisé pour ${file.name}. Utilisez PDF, JPG ou PNG.`);
+                        continue;
+                    }
+                    
+                    if (file.size > maxFileSize) {
+                        showError(`${file.name} est trop volumineux. Taille maximum: 5MB.`);
+                        continue;
+                    }
+                    
+                    if (selectedFiles.find(f => f.name === file.name)) {
+                        showError(`${file.name} est déjà sélectionné.`);
+                        continue;
+                    }
+                    
+                    selectedFiles.push(file);
+                }
+                  updateDocumentFileList();
+                updateDocumentFileCounter();
+                updateDocumentFileInput();
+                
+                if (selectedFiles.length > 0) {
+                    showSuccess(`${selectedFiles.length} document(s) sélectionné(s) avec succès.`);
+                }
+            }
+            
+            function updateDocumentFileList() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                
+                selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <i class="fas fa-file-${getFileIcon(file.type)} file-icon"></i>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-times remove-file" onclick="removeDocumentFile(${index})"></i>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            }
+            
+            function updateDocumentFileCounter() {
+                const counter = document.getElementById('fileCounter');
+                counter.textContent = `${selectedFiles.length}/${maxFiles} documents sélectionnés`;
+            }
+            
+            window.removeDocumentFile = function(index) {
+                selectedFiles.splice(index, 1);
+                updateDocumentFileList();
+                updateDocumentFileCounter();
+                updateDocumentFileInput();
+            };
+            
+            function updateDocumentFileInput() {
+                const input = document.getElementById('documents');
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                input.files = dt.files;
+            }
+            
+            function getFileIcon(type) {
+                if (type === 'application/pdf') return 'pdf';
+                if (type.startsWith('image/')) return 'image';
+                return 'alt';
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function showError(message) {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function showSuccess(message) {
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+              // Drag and drop functionality
+            const uploadArea = document.querySelector('.upload-area');
+            
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                
+                uploadArea.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                });
+                
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    
+                    const files = Array.from(e.dataTransfer.files);
+                    processFiles(files);
+                });
+            }
+            
+            // Form submission handler
+            const form = document.querySelector('form[action*="generate"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // S'assurer que l'input de fichiers est à jour
+                    updateDocumentFileInput();
+                    
+                    // Optionnel: validation côté client
+                    const requiredFields = form.querySelectorAll('input[required], select[required]');
+                    let isValid = true;
+                    
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.style.borderColor = '#ef4444';
+                        } else {
+                            field.style.borderColor = '';
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        showError('Veuillez remplir tous les champs obligatoires.');
+                        return false;
+                    }
+                    
+                    // Afficher un message de chargement
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement en cours...';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

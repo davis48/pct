@@ -11,7 +11,7 @@
         </a>
     </li>
     <li>
-        <a href="{{ route('requests.create') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('requests.create') ? 'active' : '' }}">
+        <a href="{{ route('interactive-forms.index') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
             <i class="fas fa-plus mr-3"></i>
             Nouvelle Demande
         </a>
@@ -106,9 +106,8 @@
 
 <!-- Quick Actions -->
 <div class="content-card p-6 mb-8">
-    <h3 class="text-lg font-semibold mb-4 text-gray-800">Actions Rapides</h3>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <a href="{{ route('requests.create') }}" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:scale-105">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800">Actions Rapides</h3>    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <a href="{{ route('interactive-forms.index') }}" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:scale-105">
             <div class="bg-blue-600 text-white p-3 rounded-full mb-2">
                 <i class="fas fa-plus"></i>
             </div>
@@ -335,7 +334,7 @@
                     <i class="fas fa-file-alt text-gray-300 text-6xl mb-4"></i>
                     <h4 class="text-lg font-medium text-gray-500 mb-2">Aucune demande</h4>
                     <p class="text-gray-400 mb-4">Vous n'avez pas encore créé de demande</p>
-                    <a href="{{ route('requests.create') }}" class="btn-primary">
+                    <a href="{{ route('interactive-forms.index') }}" class="btn-primary">
                         <i class="fas fa-plus mr-2"></i>
                         Créer ma première demande
                     </a>

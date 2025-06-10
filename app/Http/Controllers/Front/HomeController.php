@@ -49,7 +49,8 @@ class HomeController extends Controller
      */
     public function register()
     {
-        return view('front.register');
+        // Rediriger vers la version standalone qui fonctionne correctement
+        return redirect()->route('register.standalone');
     }
 
     /**
@@ -185,5 +186,101 @@ class HomeController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    /**
+     * Affiche la page d'inscription standalone
+     */
+    public function registerStandalone()
+    {
+        return view('front.register_standalone');
+    }
+
+    /**
+     * Traite l'inscription standalone
+     */
+    public function processRegisterStandalone(Request $request)
+    {
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenoms' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'required|string|max:20|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'date_naissance' => 'nullable|date',
+            'place_of_birth' => 'nullable|string|max:255',
+            'genre' => 'nullable|in:M,F',
+            'nationality' => 'nullable|string|max:100',
+            'address' => 'nullable|string|max:500',
+            'profession' => 'nullable|string|max:255',
+        ]);
+
+        $user = User::create([
+            'nom' => $request->nom,
+            'prenoms' => $request->prenoms,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'date_naissance' => $request->date_naissance,
+            'place_of_birth' => $request->place_of_birth,
+            'genre' => $request->genre,
+            'nationality' => $request->nationality ?? 'Ivoirienne',
+            'address' => $request->address,
+            'profession' => $request->profession,
+            'role' => 'citizen', // Par défaut pour les inscriptions standalone
+        ]);
+
+        event(new Registered($user));
+
+        // Envoyer une notification de bienvenue
+        $notificationService = new NotificationService();
+        $notificationService->sendWelcomeNotification($user);
+
+        Auth::login($user);
+
+        // Vérifier s'il y a une demande en attente
+        if (session('pending_form_submission')) {
+            return redirect()->route('interactive-forms.standalone.process-pending')
+                ->with('success', 'Compte créé avec succès ! Traitement de votre demande en cours...');
+        }
+
+        return redirect()->route('citizen.dashboard')
+            ->with('success', 'Compte créé avec succès ! Bienvenue sur PCT UVCI.');
+    }
+
+    /**
+     * Affiche la page de connexion standalone
+     */
+    public function loginStandalone()
+    {
+        return view('front.login_standalone');
+    }
+
+    /**
+     * Traite la connexion standalone
+     */
+    public function processLoginStandalone(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            // Vérifier s'il y a une demande en attente
+            if (session('pending_form_submission')) {
+                return redirect()->route('interactive-forms.standalone.process-pending')
+                    ->with('success', 'Connexion réussie ! Traitement de votre demande en cours...');
+            }
+
+            return redirect()->intended(route('citizen.dashboard'))
+                ->with('success', 'Connexion réussie ! Bienvenue.');
+        }
+
+        return back()->withErrors([
+            'email' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
+        ])->onlyInput('email');
     }
 }

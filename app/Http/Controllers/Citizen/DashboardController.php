@@ -338,14 +338,22 @@ class DashboardController extends Controller
 
     /**
      * Show request details.
+     */    public function showRequest($id)
+    {
+        // Rediriger vers la version standalone pour éviter les problèmes de couches
+        return redirect()->route('citizen.request.standalone.show', $id);
+    }
+
+    /**
+     * Show request details standalone version.
      */
-    public function showRequest($id)
+    public function showRequestStandalone($id)
     {
         $user = Auth::user();
         
         $request = CitizenRequest::where('id', $id)
             ->where('user_id', $user->id)
-            ->with(['document', 'assignedAgent', 'processedBy'])
+            ->with(['attachments', 'payments'])
             ->firstOrFail();
 
         // Marquer les notifications liées à cette demande comme lues
@@ -353,7 +361,7 @@ class DashboardController extends Controller
             ->where('data->request_id', $id)
             ->update(['is_read' => true]);
 
-        return view('citizen.request-detail', compact('request'));
+        return view('citizen.request-detail_standalone', compact('request'));
     }
 
     /**

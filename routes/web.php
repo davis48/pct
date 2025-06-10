@@ -7,6 +7,7 @@ use App\Http\Controllers\Front\DocumentController;
 use App\Http\Controllers\Front\RequestController;
 use App\Http\Controllers\Front\ProfileController;
 use App\Http\Controllers\Front\InteractiveFormController;
+use App\Http\Controllers\Front\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,12 +26,39 @@ Route::get('/choose-role', [HomeController::class, 'chooseRole'])->name('choose.
 Route::get('/connexion', [HomeController::class, 'login'])->name('login');
 Route::get('/inscription', [HomeController::class, 'register'])->name('register');
 
+// Routes standalone pour l'inscription et la connexion (utilisées par les formulaires interactifs)
+Route::get('/inscription-standalone', [HomeController::class, 'registerStandalone'])->name('register.standalone');
+Route::post('/inscription-standalone', [HomeController::class, 'processRegisterStandalone']);
+Route::get('/connexion-standalone', [HomeController::class, 'loginStandalone'])->name('login.standalone');
+Route::post('/connexion-standalone', [HomeController::class, 'processLoginStandalone']);
+
 // Routes des formulaires interactifs (publiques)
 Route::prefix('formulaires-interactifs')->name('interactive-forms.')->group(function () {
     Route::get('/', [InteractiveFormController::class, 'index'])->name('index');
     Route::get('/{formType}', [InteractiveFormController::class, 'show'])->name('show');
     Route::post('/{formType}/generate', [InteractiveFormController::class, 'generate'])->name('generate');
     Route::get('/{formType}/{requestId}/download', [InteractiveFormController::class, 'download'])->name('download');
+});
+
+// Routes des formulaires standalone
+Route::prefix('interactive-forms')->name('interactive-forms.standalone.')->group(function () {
+    Route::get('/extrait-naissance-standalone', [InteractiveFormController::class, 'extraitNaissanceStandalone'])->name('extrait-naissance');
+    Route::get('/attestation-domicile-standalone', [InteractiveFormController::class, 'attestationDomicileStandalone'])->name('attestation-domicile');
+    Route::get('/certificat-mariage-standalone', [InteractiveFormController::class, 'certificatMariageStandalone'])->name('certificat-mariage');
+    Route::get('/certificat-celibat-standalone', [InteractiveFormController::class, 'certificatCelibatStandalone'])->name('certificat-celibat');
+    Route::get('/certificat-deces-standalone', [InteractiveFormController::class, 'certificatDecesStandalone'])->name('certificat-deces');
+    Route::get('/legalisation-standalone', [InteractiveFormController::class, 'legalisationStandalone'])->name('legalisation');
+    Route::post('/{formType}/generate', [InteractiveFormController::class, 'generate'])->name('generate');
+    Route::post('/process-pending', [InteractiveFormController::class, 'processPendingSubmission'])->name('process-pending');
+});
+
+// Routes des paiements standalone
+Route::prefix('payments-standalone')->name('payments.standalone.')->middleware('auth')->group(function () {
+    Route::get('/{citizenRequest}', [PaymentController::class, 'showStandalone'])->name('show');
+    Route::post('/{citizenRequest}/process', [PaymentController::class, 'processStandalone'])->name('process');
+    Route::get('/{citizenRequest}/process', [PaymentController::class, 'showProcessStandalone'])->name('show-process');
+    Route::post('/{citizenRequest}/check-status', [PaymentController::class, 'checkStatusStandalone'])->name('check-status');
+    Route::post('/{citizenRequest}/validate-payment', [PaymentController::class, 'validatePaymentStandalone'])->name('validate-payment');
 });
 
 // Route de test pour accéder directement au formulaire d'extrait de naissance
@@ -141,7 +169,9 @@ Route::get('/test-pdf/{type}', [\App\Http\Controllers\TestPdfController::class, 
 
 // Routes d'authentification personnalisées
 Route::post('/connexion', [HomeController::class, 'authenticate'])->name('login.post');
-Route::post('/inscription', [HomeController::class, 'store'])->name('register.post');
+Route::post('/inscription', function() {
+    return redirect()->route('register.standalone');
+})->name('register.post');
 Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
 
 // Routes d'authentification admin
@@ -196,8 +226,10 @@ Route::get('/admin-view-test', function() {
 
 // Routes protégées par authentification
 Route::middleware(['auth'])->group(function () {
-    // Gestion du profil
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Gestion du profil - Version standalone
+    Route::get('/profile/edit', function() {
+        return response()->file(public_path('profile-edit-standalone.html'));
+    })->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
     // Gestion des documents
@@ -259,6 +291,11 @@ Route::middleware(['auth'])->group(function () {
             return response()->json(['status' => $request->status]);
         })->name('request.updates');
     });
+});
+
+// Routes standalone pour les détails de demande
+Route::prefix('citizen-request-standalone')->name('citizen.request.standalone.')->middleware('auth')->group(function () {
+    Route::get('/{id}', [\App\Http\Controllers\Citizen\DashboardController::class, 'showRequestStandalone'])->name('show');
 });
 
 // Les routes admin sont maintenant entièrement définies dans routes/admin.php

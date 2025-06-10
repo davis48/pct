@@ -11,7 +11,7 @@
         </a>
     </li>
     <li>
-        <a href="{{ route('requests.create') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('requests.create') ? 'active' : '' }}">
+        <a href="{{ route('interactive-forms.index') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
             <i class="fas fa-plus mr-3"></i>
             Nouvelle Demande
         </a>
@@ -295,9 +295,8 @@
     <!-- Quick Actions -->    <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-body p-3">
-                    <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
-                        <a href="{{ route('requests.create') }}" class="btn btn-primary action-btn">
+                <div class="card-body p-3">                    <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+                        <a href="{{ route('interactive-forms.index') }}" class="btn btn-primary action-btn">
                             <i class="fas fa-plus me-1"></i>
                             Nouvelle Demande
                         </a>
@@ -595,9 +594,8 @@
                         @empty
                         <div class="text-center py-5">
                             <i class="fas fa-file-alt text-muted" style="font-size: 3rem;"></i>
-                            <h5 class="mt-3 text-muted">Aucune demande pour le moment</h5>
-                            <p class="text-muted">Commencez par créer votre première demande</p>
-                            <a href="{{ route('requests.create') }}" class="btn btn-primary action-btn">
+                            <h5 class="mt-3 text-muted">Aucune demande pour le moment</h5>                            <p class="text-muted">Commencez par créer votre première demande</p>
+                            <a href="{{ route('interactive-forms.index') }}" class="btn btn-primary action-btn">
                                 <i class="fas fa-plus me-1"></i>
                                 Créer ma première demande
                             </a>
@@ -652,9 +650,8 @@
                         <i class="fas fa-bolt text-primary me-2"></i>
                         Actions rapides
                     </h6>
-                </div>
-                <div class="card-body">                    <div class="d-grid gap-2">
-                        <a href="{{ route('requests.create') }}" class="btn btn-primary action-btn">
+                </div>                <div class="card-body">                    <div class="d-grid gap-2">
+                        <a href="{{ route('interactive-forms.index') }}" class="btn btn-primary action-btn">
                             <i class="fas fa-plus me-2"></i>
                             Nouvelle demande
                         </a>

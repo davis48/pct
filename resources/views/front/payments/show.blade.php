@@ -18,8 +18,9 @@
         height: 50px;
         object-fit: contain;
     }
-</style>
-@endpush
+    
+    .step-icon {
+        width: 35px;
         height: 35px;
         border-radius: 50%;
         background-color: #e9ecef;

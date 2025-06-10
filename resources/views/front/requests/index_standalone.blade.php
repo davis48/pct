@@ -550,7 +550,7 @@
                                         </span>
                                     </td>
                                     <td>                                        <div class="btn-group">
-                                            <a href="{{ route('requests.show', $request) }}" class="btn btn-primary">
+                                            <a href="{{ route('citizen.request.standalone.show', $request) }}" class="btn btn-primary">
                                                 <i class="fas fa-eye"></i>
                                                 Voir
                                             </a>
@@ -623,9 +623,8 @@
                                     {{ Str::limit($request->description, 100) }}
                                 </div>
                             </div>
-                            
-                            <div class="request-actions">
-                                <a href="{{ route('requests.show', $request) }}" class="btn btn-primary">
+                              <div class="request-actions">
+                                <a href="{{ route('citizen.request.standalone.show', $request) }}" class="btn btn-primary">
                                     <i class="fas fa-eye"></i>
                                     Voir détails
                                 </a>

@@ -106,11 +106,15 @@
             <div class="flex justify-between items-center py-4">
                 <a href="{{ route('home') }}" class="navbar-brand">
                     PCT UVCI
-                </a>
-                
-                <div class="flex space-x-6">
+                </a>                <div class="flex space-x-6">
                     <a href="{{ route('home') }}" class="nav-link">Accueil</a>
                     @auth
+                        <a href="{{ route('citizen.dashboard') }}" class="nav-link">
+                            <i class="fas fa-tachometer-alt mr-1"></i> Tableau de bord
+                        </a>
+                        <a href="{{ route('requests.index') }}" class="nav-link">
+                            <i class="fas fa-file-alt mr-1"></i> Mes demandes
+                        </a>
                         <span class="text-white">{{ Auth::user()->nom ?? Auth::user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                             @csrf

@@ -105,13 +105,12 @@
                                 </span>
                                 @endif
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="flex items-center space-x-2">
-                                    <a href="{{ route('requests.show', $request->id) }}" 
+                            <td class="py-4 px-6">                                <div class="flex items-center space-x-2">
+                                    <a href="{{ route('citizen.request.standalone.show', $request->id) }}" 
                                        class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors duration-200"
                                        title="Voir les détails">
                                         <i class="fas fa-eye text-sm"></i>
-                                    </a>                                    @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
+                                    </a>@if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
                                     <a href="{{ route('documents.download', $request->id) }}" 
                                        class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors duration-200"
                                        title="Télécharger le document">
@@ -191,15 +190,13 @@
                             <i class="fas fa-file-alt mr-2 text-green-500"></i>
                             <span>{{ $request->document ? $request->document->title : 'Document général' }}</span>
                         </div>
-                    </div>
-
-                    <!-- Actions -->
+                    </div>                    <!-- Actions -->
                     <div class="flex gap-3 pt-4 border-t border-gray-200">
-                        <a href="{{ route('requests.show', $request->id) }}" 
+                        <a href="{{ route('citizen.request.standalone.show', $request->id) }}" 
                            class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-100 text-blue-700 font-medium rounded-lg hover:bg-blue-200 transition-colors duration-200">
                             <i class="fas fa-eye mr-2"></i>
                             Détails
-                        </a>                        @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
+                        </a>@if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
                         <a href="{{ route('documents.download', $request->id) }}" 
                            class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-100 text-green-700 font-medium rounded-lg hover:bg-green-200 transition-colors duration-200">
                             <i class="fas fa-download mr-2"></i>

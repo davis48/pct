@@ -6,12 +6,13 @@ use App\Models\CitizenRequest;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class DocumentPdfGeneratorService
 {    public function generateDocument(CitizenRequest $request)
     {
         $user = $request->user;
-        
+
         if (!$user) {
             throw new \Exception('Utilisateur manquant');
         }
@@ -66,7 +67,7 @@ class DocumentPdfGeneratorService
                 'attestation' => 'attestation-domicile',
                 'legalisation' => 'legalisation'
             ];
-            
+
             return $typeMapping[$request->type] ?? $request->type;
         }
 
@@ -79,7 +80,7 @@ class DocumentPdfGeneratorService
                 'Certificat de célibat' => 'certificat-celibat',
                 'Certificat de décès' => 'certificat-deces'
             ];
-            
+
             return $documentNameMapping[$request->document->name] ?? 'extrait-naissance';
         }
 
@@ -89,38 +90,25 @@ class DocumentPdfGeneratorService
     {
         // Utiliser les données du formulaire interactif si disponibles
         $formData = $additionalData['form_data'] ?? [];
-        
-        $data = [
+
+        $data = array_merge([
             'request' => $request,
             'user' => $user,
-            'form_data' => $formData,
             'document_title' => 'EXTRAIT D\'ACTE DE NAISSANCE',
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
-            // Données spécifiques du formulaire ou valeurs par défaut
-            'full_name' => $formData['name'] ?? $user->name,
-            'date_of_birth' => $formData['date_of_birth'] ?? $user->date_of_birth,
-            'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,
-            'father_name' => $formData['father_name'] ?? $user->father_name,
-            'mother_name' => $formData['mother_name'] ?? $user->mother_name,
-            'birth_time' => $formData['birth_time'] ?? '',
-            'gender' => $formData['gender'] ?? '',
-            'registry_number' => $formData['registry_number'] ?? '',
-            'registration_date' => $formData['registration_date'] ?? '',
-            'father_profession' => $formData['father_profession'] ?? '',
-            'mother_profession' => $formData['mother_profession'] ?? '',
-            'declarant_name' => $formData['declarant_name'] ?? '',
-            'registration_number' => $formData['registration_number'] ?? ''
-        ];
+        ], $formData);
+
+        // Log pour tracer les données transmises au template
+        Log::info('Données transmises au template de l\'extrait de naissance', $data);
 
         $pdf = Pdf::loadView('documents.templates.extrait-naissance', $data);
         return $pdf->download('extrait-naissance-' . $request->reference_number . '.pdf');
     }    private function generateCertificatMariage(CitizenRequest $request, User $user, array $additionalData = [])
     {
         $formData = $additionalData['form_data'] ?? [];
-        
+
         $data = [
             'request' => $request,
             'user' => $user,
@@ -129,7 +117,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
+
             // Données spécifiques du mariage
             'spouse_name' => $formData['spouse_name'] ?? '',
             'spouse_birth_date' => $formData['spouse_birth_date'] ?? '',
@@ -149,7 +137,7 @@ class DocumentPdfGeneratorService
     }    private function generateDeclarationNaissance(CitizenRequest $request, User $user, array $additionalData = [])
     {
         $formData = $additionalData['form_data'] ?? [];
-        
+
         $data = [
             'request' => $request,
             'user' => $user,
@@ -158,7 +146,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
+
             'full_name' => $formData['name'] ?? $user->name,
             'date_of_birth' => $formData['date_of_birth'] ?? $user->date_of_birth,
             'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,
@@ -171,7 +159,7 @@ class DocumentPdfGeneratorService
     }    private function generateCertificatCelibat(CitizenRequest $request, User $user, array $additionalData = [])
     {
         $formData = $additionalData['form_data'] ?? [];
-        
+
         $data = [
             'request' => $request,
             'user' => $user,
@@ -180,7 +168,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
+
             'full_name' => $formData['name'] ?? $user->name,
             'date_of_birth' => $formData['date_of_birth'] ?? $user->date_of_birth,
             'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,
@@ -194,7 +182,7 @@ class DocumentPdfGeneratorService
     }    private function generateCertificatDeces(CitizenRequest $request, User $user, array $additionalData = [])
     {
         $formData = $additionalData['form_data'] ?? [];
-        
+
         $data = [
             'request' => $request,
             'user' => $user,
@@ -203,7 +191,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
+
             'deceased_name' => $formData['deceased_name'] ?? '',
             'death_date' => $formData['death_date'] ?? '',
             'death_place' => $formData['death_place'] ?? '',
@@ -221,7 +209,7 @@ class DocumentPdfGeneratorService
     private function generateAttestationDomicile(CitizenRequest $request, User $user, array $additionalData = [])
     {
         $formData = $additionalData['form_data'] ?? [];
-        
+
         $data = [
             'request' => $request,
             'user' => $user,
@@ -230,7 +218,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
+
             'full_name' => $formData['name'] ?? $user->name,
             'date_of_birth' => $formData['date_of_birth'] ?? $user->date_of_birth,
             'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,
@@ -247,7 +235,7 @@ class DocumentPdfGeneratorService
     private function generateLegalisation(CitizenRequest $request, User $user, array $additionalData = [])
     {
         $formData = $additionalData['form_data'] ?? [];
-        
+
         $data = [
             'request' => $request,
             'user' => $user,
@@ -256,7 +244,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-            
+
             'full_name' => $formData['name'] ?? $user->name,
             'date_of_birth' => $formData['date_of_birth'] ?? $user->date_of_birth,
             'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,

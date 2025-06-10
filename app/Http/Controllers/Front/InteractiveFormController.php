@@ -73,7 +73,7 @@ class InteractiveFormController extends Controller
     public function show($formType)
     {
         $validForms = [
-            'certificat-mariage', 'certificat-celibat', 'extrait-naissance', 
+            'certificat-mariage', 'certificat-celibat', 'extrait-naissance',
             'certificat-deces', 'attestation-domicile', 'legalisation'
         ];
 
@@ -102,7 +102,7 @@ class InteractiveFormController extends Controller
         // Essayer d'abord la version standalone, sinon utiliser la version normale
         $standaloneView = "front.interactive-forms.{$formType}_standalone";
         $normalView = "front.interactive-forms.{$formType}";
-        
+
         if (view()->exists($standaloneView)) {
             return view($standaloneView, compact('userData'));
         } else {
@@ -145,7 +145,8 @@ class InteractiveFormController extends Controller
 
     /**
      * Traite et génère le document depuis le formulaire interactif
-     */    public function generate(Request $request, $formType)
+     */
+    public function generate(Request $request, $formType)
     {
         // Log de debug
         Log::info('=== DÉBUT GÉNÉRATION FORMULAIRE ===', [
@@ -157,7 +158,7 @@ class InteractiveFormController extends Controller
         ]);
 
         $validForms = [
-            'certificat-mariage', 'certificat-celibat', 'extrait-naissance', 
+            'certificat-mariage', 'certificat-celibat', 'extrait-naissance',
             'certificat-deces', 'attestation-domicile', 'legalisation'
         ];
 
@@ -168,7 +169,7 @@ class InteractiveFormController extends Controller
 
         // Validation des données selon le type de formulaire
         $validatedData = $this->validateFormData($request, $formType);
-          // Gérer les documents uploadés
+        // Gérer les documents uploadés
         $uploadedDocuments = [];
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $file) {
@@ -193,7 +194,7 @@ class InteractiveFormController extends Controller
                     'submitted_at' => now()->toISOString()
                 ]
             ]);
-            
+
             return redirect()->route('login.standalone')
                 ->with('info', 'Pour finaliser votre demande et procéder au paiement, veuillez vous connecter ou créer un compte.')
                 ->with('show_register_option', true);
@@ -203,7 +204,7 @@ class InteractiveFormController extends Controller
             // Mettre à jour les informations personnelles de l'utilisateur si disponibles
             $user = Auth::user();
             $updateData = [];
-            
+
             if (isset($validatedData['name']) && $validatedData['name'] !== $user->name) {
                 $updateData['name'] = $validatedData['name'];
             }
@@ -219,7 +220,7 @@ class InteractiveFormController extends Controller
             if (isset($validatedData['place_of_birth'])) {
                 $updateData['place_of_birth'] = $validatedData['place_of_birth'];
             }
-            
+
             if (!empty($updateData)) {
                 $user->update($updateData);
             }            // Créer la demande avec statut "draft" pour passer par le processus de paiement
@@ -244,7 +245,7 @@ class InteractiveFormController extends Controller
                     // Utiliser le fichier temporaire directement
                     $extension = pathinfo($docData['original_name'], PATHINFO_EXTENSION);
                     $filename = 'request_' . $citizenRequest->id . '_doc_' . ($index + 1) . '.' . $extension;
-                    
+
                     // Stocker le fichier dans le storage Laravel
                     $path = Storage::disk('public')->putFileAs(
                         'attachments',
@@ -265,7 +266,7 @@ class InteractiveFormController extends Controller
             // Rediriger vers la page de paiement standalone
             return redirect()->route('payments.standalone.show', $citizenRequest)
                 ->with('success', '🎉 Votre formulaire a été traité avec succès ! Référence: ' . $citizenRequest->reference_number . '. Veuillez procéder au paiement pour finaliser votre demande.');
-                
+
         } catch (\Exception $e) {
             Log::error('Erreur lors de la génération du formulaire interactif', [
                 'user_id' => Auth::id(),
@@ -273,7 +274,7 @@ class InteractiveFormController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Une erreur est survenue lors du traitement de votre formulaire. Veuillez réessayer.');
@@ -282,7 +283,8 @@ class InteractiveFormController extends Controller
 
     /**
      * Traite une soumission en attente après connexion
-     */    public function processPendingSubmission()
+     */
+    public function processPendingSubmission()
     {
         if (!Auth::check()) {
             return redirect()->route('login.standalone')->with('error', 'Vous devez être connecté pour continuer.');
@@ -300,7 +302,7 @@ class InteractiveFormController extends Controller
         // Créer une nouvelle requête avec les données sauvegardées
         $request = new Request();
         $request->merge($pendingSubmission['form_data']);
-        
+
         // Reconstituer les fichiers uploadés s'il y en a
         if (!empty($pendingSubmission['uploaded_documents'])) {
             // Note: Les fichiers ne peuvent pas être reconstitués de cette façon
@@ -338,9 +340,9 @@ class InteractiveFormController extends Controller
             "front.interactive-forms.previews.{$formType}",
             ['data' => $data['form_data']]
         );
-        
+
         $fileName = "{$formType}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
-        
+
         return $pdf->download($fileName);
     }
 
@@ -413,17 +415,15 @@ class InteractiveFormController extends Controller
                 ];
                 break;            case 'extrait-naissance':
                 $specificRules = [
-                    'first_names' => 'required|string|max:255',
-                    'father_name' => 'required|string|max:255',
-                    'mother_name' => 'required|string|max:255',
-                    'birth_time' => 'nullable|string',
                     'gender' => 'required|string|in:Masculin,Féminin',
-                    'registry_number' => 'nullable|string|max:100',
-                    'registration_date' => 'nullable|date',
+                    'birth_time' => 'nullable|string',
+                    'father_name' => 'required|string|max:255',
                     'father_profession' => 'nullable|string|max:255',
+                    'mother_name' => 'required|string|max:255',
                     'mother_profession' => 'nullable|string|max:255',
+                    'registry_number' => 'required|string|max:255',
+                    'registration_date' => 'required|date',
                     'declarant_name' => 'nullable|string|max:255',
-                    'centre_etat_civil' => 'nullable|string|max:255',
                 ];
                 break;
 

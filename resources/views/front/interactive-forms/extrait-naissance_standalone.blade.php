@@ -790,30 +790,29 @@
                                     <input type="text" name="centre_etat_civil" id="centre_etat_civil" 
                                            class="input-field" value="{{ old('centre_etat_civil', 'ABIDJAN') }}" required>
                                 </div>
-                                
-                                <div class="input-group">
-                                    <label class="input-label" for="numero_acte">
-                                        Numéro d'acte
+                                  <div class="input-group">
+                                    <label class="input-label" for="registry_number">
+                                        Numéro de registre <span class="input-required">*</span>
                                     </label>
-                                    <input type="text" name="numero_acte" id="numero_acte" 
-                                           class="input-field" value="{{ old('numero_acte') }}"
-                                           placeholder="Ex: 2024/001">
+                                    <input type="text" name="registry_number" id="registry_number" 
+                                           class="input-field" value="{{ old('registry_number') }}"
+                                           placeholder="Ex: 2025/001/123" required>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label class="input-label" for="date_declaration">
-                                        Date de déclaration
+                                    <label class="input-label" for="registration_date">
+                                        Date d'enregistrement <span class="input-required">*</span>
                                     </label>
-                                    <input type="date" name="date_declaration" id="date_declaration" 
-                                           class="input-field" value="{{ old('date_declaration') }}">
+                                    <input type="date" name="registration_date" id="registration_date" 
+                                           class="input-field" value="{{ old('registration_date') }}" required>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label class="input-label" for="declarant">
+                                    <label class="input-label" for="declarant_name">
                                         Déclarant
                                     </label>
-                                    <input type="text" name="declarant" id="declarant" 
-                                           class="input-field" value="{{ old('declarant') }}"
+                                    <input type="text" name="declarant_name" id="declarant_name" 
+                                           class="input-field" value="{{ old('declarant_name') }}"
                                            placeholder="Nom de la personne qui a déclaré la naissance">
                                 </div>
                             </div>                        </div>

@@ -79,7 +79,7 @@
 </head>
 <body>
     <div class="watermark">{{ $commune }}</div>
-    
+
     <div class="header">
         <div class="logo">RÉPUBLIQUE DE CÔTE D'IVOIRE</div>
         <div>Union - Travail - Progrès</div>
@@ -91,35 +91,19 @@
 
     <div class="content">
         <p>Nous, Maire de la {{ $commune }}, Officier de l'État Civil, certifions que sur les registres de l'État Civil de cette commune, il a été trouvé l'acte de naissance suivant :</p>        <div class="info-section">
-            <div><span class="info-label">Nom(s) :</span> {{ strtoupper($full_name ? explode(' ', $full_name)[0] : $user->nom) }}</div>
-            <div><span class="info-label">Prénom(s) :</span> {{ ucfirst($full_name ? str_replace(explode(' ', $full_name)[0], '', $full_name) : $user->prenoms) }}</div>
-            <div><span class="info-label">Né(e) le :</span> {{ $date_of_birth ? \Carbon\Carbon::parse($date_of_birth)->format('d/m/Y') : \Carbon\Carbon::parse($user->date_naissance)->format('d/m/Y') }}</div>
-            <div><span class="info-label">À :</span> {{ $place_of_birth ?? $user->place_of_birth ?? 'Non spécifié' }}</div>
-            @if($birth_time)
-            <div><span class="info-label">Heure :</span> {{ $birth_time }}</div>
-            @endif
-            <div><span class="info-label">Sexe :</span> {{ $gender ?? ($user->genre == 'M' ? 'Masculin' : ($user->genre == 'F' ? 'Féminin' : 'Autre')) }}</div>
-            @if($father_name || $user->father_name)
-            <div><span class="info-label">Père :</span> {{ $father_name ?? $user->father_name }}</div>
-            @endif
-            @if($father_profession)
-            <div><span class="info-label">Profession du père :</span> {{ $father_profession }}</div>
-            @endif
-            @if($mother_name || $user->mother_name)
-            <div><span class="info-label">Mère :</span> {{ $mother_name ?? $user->mother_name }}</div>
-            @endif
-            @if($mother_profession)
-            <div><span class="info-label">Profession de la mère :</span> {{ $mother_profession }}</div>
-            @endif
-            @if($registry_number)
-            <div><span class="info-label">Numéro de registre :</span> {{ $registry_number }}</div>
-            @endif
-            @if($registration_date)
-            <div><span class="info-label">Date d'enregistrement :</span> {{ \Carbon\Carbon::parse($registration_date)->format('d/m/Y') }}</div>
-            @endif
-            @if($declarant_name)
-            <div><span class="info-label">Déclarant :</span> {{ $declarant_name }}</div>
-            @endif
+            <div><span class="info-label">Nom et Prénoms :</span> {{ $name ?? '' }}</div>
+            <div><span class="info-label">Sexe :</span> {{ $gender ?? '' }}</div>
+            <div><span class="info-label">Date de naissance :</span> {{ !empty($date_of_birth) ? (\Carbon\Carbon::parse($date_of_birth)->format('d/m/Y')) : '' }}</div>
+            <div><span class="info-label">Heure de naissance :</span> {{ $birth_time ?? '' }}</div>
+            <div><span class="info-label">Lieu de naissance :</span> {{ $place_of_birth ?? '' }}</div>
+            <div><span class="info-label">Nationalité :</span> {{ $nationality ?? '' }}</div>
+            <div><span class="info-label">Nom du père :</span> {{ $father_name ?? '' }}</div>
+            <div><span class="info-label">Profession du père :</span> {{ $father_profession ?? '' }}</div>
+            <div><span class="info-label">Nom de la mère :</span> {{ $mother_name ?? '' }}</div>
+            <div><span class="info-label">Profession de la mère :</span> {{ $mother_profession ?? '' }}</div>
+            <div><span class="info-label">Numéro de registre :</span> {{ $registry_number ?? '' }}</div>
+            <div><span class="info-label">Date de déclaration :</span> {{ !empty($registration_date) ? (\Carbon\Carbon::parse($registration_date)->format('d/m/Y')) : '' }}</div>
+            <div><span class="info-label">Déclarant :</span> {{ $declarant_name ?? '' }}</div>
         </div>
 
         <p>Le présent extrait est délivré pour servir et valoir ce que de droit.</p>

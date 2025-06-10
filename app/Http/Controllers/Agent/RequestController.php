@@ -87,7 +87,7 @@ class RequestController extends Controller
             $errorMessage = $request->requiresPayment() && $request->payment_status !== \App\Models\CitizenRequest::PAYMENT_STATUS_PAID
                 ? 'Cette demande ne peut pas être traitée car le paiement n\'a pas été effectué.'
                 : 'Cette demande ne peut pas être traitée dans son état actuel.';
-            
+
             return redirect()->back()
                 ->with('error', $errorMessage);
         }
@@ -138,12 +138,12 @@ class RequestController extends Controller
 
         // Vérifier que la demande peut être traitée SEULEMENT si elle n'est pas encore terminée
         $isFinished = in_array($citizenRequest->status, ['approved', 'rejected']);
-        
+
         if (!$isFinished && !$citizenRequest->canBeProcessed()) {
             $errorMessage = $citizenRequest->requiresPayment() && $citizenRequest->payment_status !== \App\Models\CitizenRequest::PAYMENT_STATUS_PAID
                 ? 'Cette demande ne peut pas être traitée car le paiement n\'a pas été effectué.'
                 : 'Cette demande ne peut pas être traitée dans son état actuel.';
-            
+
             return redirect()->route('agent.requests.index')
                 ->with('error', $errorMessage);
         }
@@ -375,7 +375,7 @@ class RequestController extends Controller
         $citizenRequest = CitizenRequest::findOrFail($id);
 
         // Log pour débogage
-        \Log::info('Mise à jour de la demande', [
+        Log::info('Mise à jour de la demande', [
             'request_id' => $id,
             'status' => $validated['status'],
             'has_attachments' => $request->hasFile('attachments')
@@ -388,7 +388,7 @@ class RequestController extends Controller
                 $path = $file->storeAs('public/attachments', $filename);
 
                 // Log pour débogage
-                \Log::info('Fichier téléversé', [
+                Log::info('Fichier téléversé', [
                     'original_name' => $file->getClientOriginalName(),
                     'stored_path' => $path
                 ]);
@@ -411,6 +411,13 @@ class RequestController extends Controller
             'additional_requirements' => $validated['additional_requirements'] ?? null,
             'processed_by' => Auth::id(),
             'processed_at' => now()
+        ]);
+
+        // Log pour tracer le changement de statut
+        Log::info('Statut de la demande mis à jour', [
+            'request_id' => $id,
+            'old_status' => $citizenRequest->getOriginal('status'),
+            'new_status' => $validated['status']
         ]);
 
         $statusMessage = match($validated['status']) {
@@ -642,7 +649,7 @@ class RequestController extends Controller
     public function debugAttachments(string $id)
     {
         $citizenRequest = CitizenRequest::with(['attachments'])->findOrFail($id);
-        
+
         $debug = [
             'request_id' => $id,
             'uploaded_document' => $citizenRequest->uploaded_document,
@@ -659,7 +666,7 @@ class RequestController extends Controller
                 'public_prefix' => 'public/' . $citizenRequest->uploaded_document,
                 'public_path' => public_path('storage/' . $citizenRequest->uploaded_document)
             ];
-            
+
             foreach ($paths as $label => $path) {
                 if ($label === 'public_path') {
                     $debug['storage_paths_check']['uploaded_document'][$label] = [
@@ -682,7 +689,7 @@ class RequestController extends Controller
                 'public_prefix' => 'public/' . $attachment->file_path,
                 'public_path' => public_path('storage/' . $attachment->file_path)
             ];
-            
+
             foreach ($paths as $label => $path) {
                 if ($label === 'public_path') {
                     $debug['storage_paths_check']['attachment_' . $attachment->id][$label] = [

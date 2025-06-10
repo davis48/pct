@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Demandes | PCT UVCI</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
@@ -28,7 +28,7 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-        
+
         .navbar {
             background: white;
             border-bottom: 1px solid #e5e7eb;
@@ -38,7 +38,7 @@
             z-index: 50;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
         .navbar-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -47,7 +47,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -57,42 +57,42 @@
             font-weight: 600;
             font-size: 1.25rem;
         }
-        
+
         .navbar-icon {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
             padding: 0.5rem;
             border-radius: 8px;
         }
-        
+
         .navbar-nav {
             display: flex;
             gap: 2rem;
             align-items: center;
         }
-        
+
         .nav-link {
             text-decoration: none;
             color: #6b7280;
             font-weight: 500;
             transition: color 0.3s ease;
         }
-        
+
         .nav-link:hover {
             color: #3b82f6;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 80px);
             padding: 2rem 0;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
         }
-        
+
         .page-header {
             display: flex;
             flex-direction: column;
@@ -103,7 +103,7 @@
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        
+
         @media (min-width: 1024px) {
             .page-header {
                 flex-direction: row;
@@ -111,7 +111,7 @@
                 align-items: center;
             }
         }
-        
+
         .page-header-content h1 {
             font-size: 2rem;
             font-weight: 700;
@@ -121,30 +121,30 @@
             align-items: center;
             gap: 0.75rem;
         }
-        
+
         .page-header-icon {
             color: #3b82f6;
             font-size: 1.5rem;
         }
-        
+
         .page-header-content p {
             color: #6b7280;
             font-size: 1rem;
         }
-        
+
         .requests-container {
             background: white;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             overflow: hidden;
         }
-        
+
         .requests-header {
             background: #f8fafc;
             padding: 2rem;
             border-bottom: 1px solid #e5e7eb;
         }
-        
+
         .requests-header-content {
             display: flex;
             align-items: center;
@@ -152,36 +152,36 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-        
+
         .requests-title {
             font-size: 1.125rem;
             font-weight: 600;
             color: #1f2937;
         }
-        
+
         .requests-meta {
             font-size: 0.875rem;
             color: #6b7280;
         }
-        
+
         .requests-content {
             padding: 0;
         }
-        
+
         .request-card {
             padding: 1.5rem;
             border-bottom: 1px solid #f3f4f6;
             transition: all 0.3s ease;
         }
-        
+
         .request-card:last-child {
             border-bottom: none;
         }
-        
+
         .request-card:hover {
             background: #f8fafc;
         }
-        
+
         .request-meta {
             display: flex;
             flex-wrap: wrap;
@@ -189,18 +189,18 @@
             align-items: center;
             margin-bottom: 1rem;
         }
-        
+
         .request-ref {
             font-weight: 600;
             color: #1f2937;
             font-size: 1rem;
         }
-        
+
         .request-date {
             color: #6b7280;
             font-size: 0.875rem;
         }
-        
+
         .status-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
@@ -209,12 +209,12 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        
+
         .status-en_attente {
             background: #fef3c7;
             color: #d97706;
         }
-        
+
         .status-en_cours {
             background: #dbeafe;
             color: #2563eb;
@@ -223,41 +223,41 @@
             background: #dcfce7;
             color: #16a34a;
         }
-        
+
         .status-in_progress, .status-en_cours {
             background: #dbeafe;
             color: #2563eb;
         }
-        
+
         .status-rejected {
             background: #fee2e2;
             color: #dc2626;
         }
-        
+
         .request-details {
             margin-bottom: 1rem;
         }
-        
+
         .request-title {
             font-weight: 500;
             color: #1f2937;
             margin-bottom: 0.5rem;
             font-size: 1rem;
         }
-        
+
         .request-description {
             color: #6b7280;
             font-size: 0.875rem;
             line-height: 1.5;
         }
-        
+
         .request-actions {
             display: flex;
             flex-wrap: wrap;
             gap: 0.75rem;
             align-items: center;
         }
-        
+
         .btn {
             padding: 0.5rem 1rem;
             border-radius: 8px;
@@ -272,92 +272,92 @@
             gap: 0.5rem;
             font-family: inherit;
         }
-        
+
         .btn-primary {
             background: #3b82f6;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: #1d4ed8;
             transform: translateY(-1px);
             color: white;
         }
-        
+
         .btn-secondary {
             background: white;
             color: #6b7280;
             border: 1px solid #d1d5db;
         }
-        
+
         .btn-secondary:hover {
             background: #f9fafb;
             border-color: #9ca3af;
             color: #374151;
         }
-        
+
         .btn-success {
             background: #10b981;
             color: white;
         }
-        
+
         .btn-success:hover {
             background: #059669;
             color: white;
         }
-        
+
         .btn-danger {
             background: #ef4444;
             color: white;
         }
-        
+
         .btn-danger:hover {
             background: #dc2626;
             color: white;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
             color: #6b7280;
         }
-        
+
         .empty-state-icon {
             font-size: 4rem;
             margin-bottom: 1rem;
             color: #d1d5db;
         }
-        
+
         .empty-state h3 {
             font-size: 1.25rem;
             font-weight: 600;
             color: #1f2937;
             margin-bottom: 0.5rem;
         }
-        
+
         .empty-state p {
             color: #6b7280;
             margin-bottom: 1.5rem;
         }
-        
+
         .table-view {
             display: none;
         }
-        
+
         @media (min-width: 1024px) {
             .card-view {
                 display: none;
             }
-            
+
             .table-view {
                 display: block;
             }
-            
+
             .requests-table {
                 width: 100%;
                 border-collapse: collapse;
             }
-            
+
             .requests-table th {
                 background: #f9fafb;
                 padding: 1rem;
@@ -367,18 +367,18 @@
                 font-size: 0.875rem;
                 border-bottom: 1px solid #e5e7eb;
             }
-            
+
             .requests-table td {
                 padding: 1rem;
                 border-bottom: 1px solid #f3f4f6;
                 vertical-align: middle;
             }
-            
+
             .requests-table tr:hover {
                 background: #f8fafc;
             }
         }
-        
+
         .create-button {
             background: #3b82f6;
             color: white;
@@ -392,14 +392,14 @@
             gap: 0.5rem;
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
-        
+
         .create-button:hover {
             background: #1d4ed8;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
             color: white;
         }
-        
+
         .alert {
             padding: 1rem;
             border-radius: 8px;
@@ -408,21 +408,21 @@
             align-items: center;
             gap: 0.75rem;
         }
-        
+
         .alert-success {
             background: #f0fdf4;
             border: 1px solid #bbf7d0;
             color: #16a34a;
         }
-        
+
         .alert-icon {
             font-size: 1.25rem;
         }
-        
+
         .alert-message {
             font-weight: 500;
         }
-        
+
         .btn-group {
             display: flex;
             gap: 0.5rem;
@@ -440,7 +440,7 @@
                 </div>
                 PCT UVCI
             </a>
-            
+
             <div class="navbar-nav">
                 <a href="{{ route('citizen.dashboard') }}" class="nav-link">
                     <i class="fas fa-tachometer-alt mr-2"></i>
@@ -554,16 +554,16 @@
                                                 <i class="fas fa-eye"></i>
                                                 Voir
                                             </a>
-                                            
+
                                             @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
                                                 <a href="{{ route('documents.download', $request) }}" class="btn btn-success">
                                                     <i class="fas fa-download"></i>
                                                     Télécharger
                                                 </a>
                                             @endif
-                                            
+
                                             @if($request->status === 'en_attente')
-                                                <form action="{{ route('requests.destroy', $request) }}" method="POST" style="display: inline;" 
+                                                <form action="{{ route('requests.destroy', $request) }}" method="POST" style="display: inline;"
                                                       onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette demande ?')">
                                                     @csrf
                                                     @method('DELETE')
@@ -614,13 +614,28 @@
                                     @endswitch
                                 </span>
                             </div>
-                            
+
                             <div class="request-details">
                                 <div class="request-title">
                                     {{ $request->document->name ?? 'Document non spécifié' }} ({{ ucfirst($request->type) }})
                                 </div>
                                 <div class="request-description">
                                     {{ Str::limit($request->description, 100) }}
+                                </div>
+                                <div class="request-form-data">
+                                    <h4>Informations saisies :</h4>
+                                    <ul>
+                                        <li><strong>Nom et Prénoms :</strong> {{ $request->form_data['name'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Sexe :</strong> {{ $request->form_data['gender'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Date de naissance :</strong> {{ $request->form_data['date_of_birth'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Lieu de naissance :</strong> {{ $request->form_data['place_of_birth'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Nationalité :</strong> {{ $request->form_data['nationality'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Nom du père :</strong> {{ $request->form_data['father_name'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Nom de la mère :</strong> {{ $request->form_data['mother_name'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Numéro de registre :</strong> {{ $request->form_data['registry_number'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Date d'enregistrement :</strong> {{ $request->form_data['registration_date'] ?? 'Non spécifié' }}</li>
+                                        <li><strong>Déclarant :</strong> {{ $request->form_data['declarant_name'] ?? 'Non spécifié' }}</li>
+                                    </ul>
                                 </div>
                             </div>
                               <div class="request-actions">
@@ -634,9 +649,9 @@
                                         Télécharger
                                     </a>
                                 @endif
-                                
+
                                 @if($request->status === 'en_attente')
-                                    <form action="{{ route('requests.destroy', $request) }}" method="POST" style="display: inline;" 
+                                    <form action="{{ route('requests.destroy', $request) }}" method="POST" style="display: inline;"
                                           onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette demande ?')">
                                         @csrf
                                         @method('DELETE')
@@ -671,7 +686,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Compter les documents prêts au téléchargement
         const readyDocuments = document.querySelectorAll('[href*="documents"][href*="download"]').length;
-        
+
         if (readyDocuments > 0) {
             // Créer une notification toast
             const toast = document.createElement('div');
@@ -689,7 +704,7 @@
                 font-family: 'Inter', sans-serif;
                 animation: slideInRight 0.5s ease-out;
             `;
-            
+
             toast.innerHTML = `
                 <div style="display: flex; align-items: center;">
                     <i class="fas fa-check-circle" style="margin-right: 12px; font-size: 20px;"></i>
@@ -699,15 +714,15 @@
                             Vous avez ${readyDocuments} document${readyDocuments > 1 ? 's' : ''} prêt${readyDocuments > 1 ? 's' : ''} au téléchargement
                         </div>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" 
+                    <button onclick="this.parentElement.parentElement.remove()"
                             style="margin-left: 16px; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             `;
-            
+
             document.body.appendChild(toast);
-            
+
             // Auto-masquer après 8 secondes
             setTimeout(() => {
                 if (toast.parentElement) {

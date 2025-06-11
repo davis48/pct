@@ -305,6 +305,25 @@
             background: #059669;
             color: white;
         }
+        
+        .btn-download-approved {
+            background: #16a34a !important;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+            animation: subtle-pulse 2s infinite;
+        }
+        
+        @keyframes subtle-pulse {
+            0% {
+                box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.5);
+            }
+            100% {
+                box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+            }
+        }
 
         .btn-danger {
             background: #ef4444;
@@ -556,7 +575,7 @@
                                             </a>
 
                                             @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
-                                                <a href="{{ route('documents.download', $request) }}" class="btn btn-success">
+                                                <a href="{{ route('documents.download', $request) }}" class="btn btn-success @if($request->status == 'approved') btn-download-approved @endif">
                                                     <i class="fas fa-download"></i>
                                                     Télécharger
                                                 </a>
@@ -644,7 +663,7 @@
                                     Voir détails
                                 </a>
                                   @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
-                                    <a href="{{ route('documents.download', $request) }}" class="btn btn-success">
+                                    <a href="{{ route('documents.download', $request) }}" class="btn btn-success @if($request->status == 'approved') btn-download-approved @endif">
                                         <i class="fas fa-download"></i>
                                         Télécharger
                                     </a>
@@ -684,10 +703,16 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Compter les documents prêts au téléchargement
-        const readyDocuments = document.querySelectorAll('[href*="documents"][href*="download"]').length;
+        // Compter les documents réellement téléchargeables (même condition que pour afficher le bouton)
+        @php
+            $downloadableCount = $requests->filter(function($request) {
+                return in_array($request->status, ['approved', 'processed', 'ready', 'completed']) 
+                    || ($request->status == 'in_progress' && $request->processed_by);
+            })->count();
+        @endphp
+        const downloadableDocuments = {{ $downloadableCount }};
 
-        if (readyDocuments > 0) {
+        if (downloadableDocuments > 0) {
             // Créer une notification toast
             const toast = document.createElement('div');
             toast.style.cssText = `
@@ -711,7 +736,7 @@
                     <div>
                         <div style="font-weight: 600; margin-bottom: 4px;">Documents prêts !</div>
                         <div style="font-size: 14px; opacity: 0.9;">
-                            Vous avez ${readyDocuments} document${readyDocuments > 1 ? 's' : ''} prêt${readyDocuments > 1 ? 's' : ''} au téléchargement
+                            Vous avez ${downloadableDocuments} document${downloadableDocuments > 1 ? 's' : ''} prêt${downloadableDocuments > 1 ? 's' : ''} au téléchargement
                         </div>
                     </div>
                     <button onclick="this.parentElement.parentElement.remove()"

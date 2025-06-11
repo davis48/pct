@@ -328,8 +328,7 @@
             font-family: inherit;
             justify-content: center;
         }
-        
-        .btn-primary {
+          .btn-primary {
             background: #1976d2;
             color: white;
         }
@@ -340,7 +339,12 @@
             color: white;
         }
         
-        .btn-success {
+        .btn-primary.btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+          .btn-success {
             background: #10b981;
             color: white;
         }
@@ -348,6 +352,32 @@
         .btn-success:hover {
             background: #059669;
             color: white;
+        }
+        
+        .btn-success.btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        
+        .btn-download-highlight {
+            background: #16a34a !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
+            animation: pulse-download 2s infinite;
+        }
+        
+        @keyframes pulse-download {
+            0% {
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+            }
+            50% {
+                box-shadow: 0 6px 20px rgba(22, 163, 74, 0.5);
+                transform: translateY(-2px);
+            }
+            100% {
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+            }
         }
         
         .btn-danger {
@@ -369,11 +399,10 @@
         .btn-secondary:hover {
             background: #f9fafb;
             color: #374151;
-        }
-        
-        .actions-left, .actions-right {
+        }        .actions-left, .actions-right {
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            gap: 0.75rem;
             flex-wrap: wrap;
         }
         
@@ -694,13 +723,40 @@
                                 <i class="fas fa-arrow-left"></i>
                                 Retour à la liste
                             </a>
-                        </div>
-                        
-                        <div class="actions-right">                            @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
-                                <a href="{{ route('documents.download', $request) }}" class="btn btn-success">
+                        </div>                        <div class="actions-right">                            @if(in_array($request->status, ['approved', 'processed', 'ready', 'completed']) || ($request->status == 'in_progress' && $request->processed_by))
+                                @php
+                                    $documentName = 'le document';
+                                    if ($request->document && $request->document->name) {
+                                        $docName = strtolower($request->document->name);
+                                        if (str_contains($docName, 'extrait') && str_contains($docName, 'naissance')) {
+                                            $documentName = "l'extrait de naissance";
+                                        } elseif (str_contains($docName, 'certificat') && str_contains($docName, 'mariage')) {
+                                            $documentName = "le certificat de mariage";
+                                        } elseif (str_contains($docName, 'certificat') && str_contains($docName, 'décès')) {
+                                            $documentName = "le certificat de décès";
+                                        } elseif (str_contains($docName, 'certificat') && str_contains($docName, 'célibat')) {
+                                            $documentName = "le certificat de célibat";
+                                        } elseif (str_contains($docName, 'attestation') && str_contains($docName, 'domicile')) {
+                                            $documentName = "l'attestation de domicile";
+                                        } elseif (str_contains($docName, 'légalisation')) {
+                                            $documentName = "la légalisation";
+                                        } elseif (str_contains($docName, 'carte') && str_contains($docName, 'identité')) {
+                                            $documentName = "la carte d'identité";
+                                        } elseif (str_contains($docName, 'passeport')) {
+                                            $documentName = "le passeport";
+                                        } else {
+                                            $documentName = strtolower($request->document->name);
+                                        }
+                                    }
+                                @endphp
+                                <a href="{{ route('documents.download', $request) }}" class="btn btn-success btn-lg @if($request->status == 'approved') btn-download-highlight @endif" style="margin-right: 0.75rem;">
                                     <i class="fas fa-download"></i>
-                                    Télécharger le document
+                                    Télécharger {{ $documentName }}
                                 </a>
+                                <button onclick="window.print()" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-print"></i>
+                                    Imprimer
+                                </button>
                             @endif
                             
                             @if($request->status === 'en_attente')

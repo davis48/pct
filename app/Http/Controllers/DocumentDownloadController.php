@@ -27,9 +27,9 @@ class DocumentDownloadController extends Controller
             abort(403, 'Vous n\'êtes pas autorisé à télécharger ce document.');
         }
 
-        // Vérifier que la demande est approuvée
-        if ($request->status !== 'approved') {
-            abort(403, 'Le document ne peut être téléchargé que si la demande est approuvée.');
+        // Vérifier que la demande est dans un état téléchargeable
+        if (!in_array($request->status, ['approved', 'processed', 'ready', 'completed'])) {
+            abort(403, 'Le document ne peut être téléchargé que si la demande est approuvée ou traitée.');
         }
 
         try {

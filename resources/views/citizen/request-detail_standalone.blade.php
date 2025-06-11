@@ -229,10 +229,33 @@
             <div class="bg-white shadow rounded-lg mb-6">
                 <div class="px-4 py-5 sm:px-6">
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Actions</h3>                    <div class="flex flex-wrap gap-3">
-                        @if($request->status === 'completed' && $request->payments()->where('status', 'completed')->exists())
-                            <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        @if(in_array($request->status, ['approved', 'completed']) && $request->payments()->where('status', 'completed')->exists())
+                            @php
+                                $documentName = 'le document';
+                                if ($request->description) {
+                                    $desc = strtolower($request->description);
+                                    if (str_contains($desc, 'extrait') && str_contains($desc, 'naissance')) {
+                                        $documentName = "l'extrait de naissance";
+                                    } elseif (str_contains($desc, 'certificat') && str_contains($desc, 'mariage')) {
+                                        $documentName = "le certificat de mariage";
+                                    } elseif (str_contains($desc, 'certificat') && str_contains($desc, 'décès')) {
+                                        $documentName = "le certificat de décès";
+                                    } elseif (str_contains($desc, 'certificat') && str_contains($desc, 'célibat')) {
+                                        $documentName = "le certificat de célibat";
+                                    } elseif (str_contains($desc, 'attestation') && str_contains($desc, 'domicile')) {
+                                        $documentName = "l'attestation de domicile";
+                                    } elseif (str_contains($desc, 'légalisation')) {
+                                        $documentName = "la légalisation";
+                                    } elseif (str_contains($desc, 'carte') && str_contains($desc, 'identité')) {
+                                        $documentName = "la carte d'identité";
+                                    } elseif (str_contains($desc, 'passeport')) {
+                                        $documentName = "le passeport";
+                                    }
+                                }
+                            @endphp
+                            <a href="{{ route('documents.download', $request) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                 <i class="fas fa-download mr-2"></i>
-                                Télécharger le document
+                                Télécharger {{ $documentName }}
                             </a>
                         @endif
                         

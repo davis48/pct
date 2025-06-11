@@ -795,9 +795,6 @@ class RequestController extends Controller
             'file_name' => $attachment->file_name
         ]);
 
-        // Le file_path dans la DB est "attachments/request_XX_doc_X.ext"
-        // Les fichiers sont stockés dans storage/app/public/attachments/
-        // Donc on doit utiliser le disque 'public' et le chemin sans le préfixe 'public/'
         $filePath = $attachment->file_path;
         
         // Vérifier si le fichier existe sur le disque public
@@ -808,15 +805,54 @@ class RequestController extends Controller
                 // Obtenir le contenu du fichier depuis le disque public
                 $fileContent = Storage::disk('public')->get($filePath);
                 
-                // Obtenir le type MIME - utiliser le chemin physique pour mime_content_type
+                // Obtenir le type MIME
                 $physicalPath = storage_path('app/public/' . $filePath);
-                $mimeType = file_exists($physicalPath) ? mime_content_type($physicalPath) : 'application/octet-stream';
+                $mimeType = 'application/octet-stream';
                 
-                // Retourner le fichier avec les bons headers pour la prévisualisation
-                return response($fileContent, 200)
-                    ->header('Content-Type', $mimeType)
-                    ->header('Content-Disposition', 'inline; filename="' . $attachment->file_name . '"')
-                    ->header('Cache-Control', 'private, max-age=3600');
+                if (file_exists($physicalPath)) {
+                    $detectedMime = mime_content_type($physicalPath);
+                    if ($detectedMime) {
+                        $mimeType = $detectedMime;
+                    }
+                }
+                
+                // Pour certains types de fichiers, forcer le bon MIME type
+                $extension = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+                switch ($extension) {
+                    case 'pdf':
+                        $mimeType = 'application/pdf';
+                        break;
+                    case 'jpg':
+                    case 'jpeg':
+                        $mimeType = 'image/jpeg';
+                        break;
+                    case 'png':
+                        $mimeType = 'image/png';
+                        break;
+                    case 'gif':
+                        $mimeType = 'image/gif';
+                        break;
+                    case 'txt':
+                        $mimeType = 'text/plain';
+                        break;
+                }
+                
+                Log::info('Prévisualisation avec MIME type', [
+                    'mime_type' => $mimeType,
+                    'extension' => $extension
+                ]);
+                
+                // Retourner le fichier avec les bons headers pour la prévisualisation inline
+                return response($fileContent, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'inline; filename="' . addslashes($attachment->file_name) . '"',
+                    'Cache-Control' => 'public, max-age=3600',
+                    'X-Content-Type-Options' => 'nosniff',
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                    'Access-Control-Allow-Origin' => '*',
+                    'Access-Control-Allow-Methods' => 'GET',
+                    'Access-Control-Allow-Headers' => 'Content-Type'
+                ]);
                     
             } catch (\Exception $e) {
                 Log::error('Erreur lors de la lecture du fichier', [
@@ -828,32 +864,142 @@ class RequestController extends Controller
             }
         }
 
-        // Fallback : essayer avec le chemin physique direct
-        $physicalPath = storage_path('app/public/' . $filePath);
-        if (file_exists($physicalPath)) {
-            Log::info('Fichier trouvé physiquement pour prévisualisation', ['path' => $physicalPath]);
-            
-            try {
-                $mimeType = mime_content_type($physicalPath);
-                
-                return response()->file($physicalPath, [
-                    'Content-Type' => $mimeType,
-                    'Content-Disposition' => 'inline; filename="' . $attachment->file_name . '"',
-                    'Cache-Control' => 'private, max-age=3600'
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Erreur lors de la lecture physique', ['path' => $physicalPath, 'error' => $e->getMessage()]);
-            }
-        }
-
         Log::error('Fichier attachment non trouvé pour prévisualisation', [
             'attachment_id' => $id,
             'file_path' => $filePath,
             'public_disk_exists' => Storage::disk('public')->exists($filePath),
-            'physical_path' => $physicalPath,
-            'physical_exists' => file_exists($physicalPath ?? '')
+            'physical_path' => storage_path('app/public/' . $filePath),
+            'physical_exists' => file_exists(storage_path('app/public/' . $filePath))
         ]);
 
         abort(404, 'Fichier non trouvé : ' . $attachment->file_name);
+    }
+
+    /**
+     * Afficher un fichier dans le navigateur (inline, sans téléchargement)
+     */
+    public function viewAttachment(string $id)
+    {
+        $attachment = Attachment::findOrFail($id);
+
+        Log::info('Tentative d\'affichage inline d\'attachment', [
+            'attachment_id' => $id,
+            'file_path' => $attachment->file_path,
+            'file_name' => $attachment->file_name
+        ]);
+
+        $filePath = $attachment->file_path;
+        
+        // Vérifier si le fichier existe sur le disque public
+        if (Storage::disk('public')->exists($filePath)) {
+            try {
+                // Obtenir le chemin physique du fichier
+                $physicalPath = storage_path('app/public/' . $filePath);
+                
+                // Obtenir le type MIME
+                $extension = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+                $mimeType = 'application/octet-stream';
+                
+                switch ($extension) {
+                    case 'pdf':
+                        $mimeType = 'application/pdf';
+                        break;
+                    case 'jpg':
+                    case 'jpeg':
+                        $mimeType = 'image/jpeg';
+                        break;
+                    case 'png':
+                        $mimeType = 'image/png';
+                        break;
+                    case 'gif':
+                        $mimeType = 'image/gif';
+                        break;
+                    case 'txt':
+                        $mimeType = 'text/plain; charset=utf-8';
+                        break;
+                }
+                
+                // Retourner le fichier en utilisant la méthode file() de Laravel
+                // qui gère mieux l'affichage inline
+                return response()->file($physicalPath, [
+                    'Content-Type' => $mimeType,
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                    'X-Content-Type-Options' => 'nosniff'
+                ]);
+                    
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de l\'affichage du fichier', [
+                    'attachment_id' => $id,
+                    'path' => $filePath,
+                    'error' => $e->getMessage()
+                ]);
+                abort(500, 'Erreur lors de l\'affichage du fichier');
+            }
+        }
+
+        abort(404, 'Fichier non trouvé : ' . $attachment->file_name);
+    }
+
+    /**
+     * Retourner les données d'un fichier en base64 pour la prévisualisation
+     */
+    public function getAttachmentData(string $id)
+    {
+        $attachment = Attachment::findOrFail($id);
+
+        $filePath = $attachment->file_path;
+        
+        if (Storage::disk('public')->exists($filePath)) {
+            try {
+                $fileContent = Storage::disk('public')->get($filePath);
+                $base64Content = base64_encode($fileContent);
+                
+                $extension = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+                $mimeType = 'application/octet-stream';
+                
+                switch ($extension) {
+                    case 'pdf':
+                        $mimeType = 'application/pdf';
+                        break;
+                    case 'jpg':
+                    case 'jpeg':
+                        $mimeType = 'image/jpeg';
+                        break;
+                    case 'png':
+                        $mimeType = 'image/png';
+                        break;
+                    case 'gif':
+                        $mimeType = 'image/gif';
+                        break;
+                    case 'txt':
+                        $mimeType = 'text/plain';
+                        break;
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'fileName' => $attachment->file_name,
+                    'mimeType' => $mimeType,
+                    'size' => strlen($fileContent),
+                    'data' => $base64Content
+                ]);
+                
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de la récupération des données du fichier', [
+                    'attachment_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Erreur lors de la lecture du fichier'
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => 'Fichier non trouvé'
+        ], 404);
     }
 }

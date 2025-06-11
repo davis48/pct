@@ -93,33 +93,33 @@
         <p>Nous, Maire de la {{ $municipality ?? 'Mairie' }}, Officier de l'État Civil, certifions que sur les registres de l'État Civil de cette commune, il a été trouvé l'acte de naissance suivant :</p>
 
         <div class="info-section">
-            <div><span class="info-label">Nom et Prénoms :</span> {{ ($form_data['name'] ?? '') . ' ' . ($form_data['first_names'] ?? '') }}</div>
-            <div><span class="info-label">Sexe :</span> {{ $form_data['gender'] ?? '' }}</div>
-            <div><span class="info-label">Date de naissance :</span> {{ isset($form_data['date_of_birth']) ? \Carbon\Carbon::parse($form_data['date_of_birth'])->format('d/m/Y') : '' }}</div>
-            <div><span class="info-label">Heure de naissance :</span> {{ $form_data['birth_time'] ?? '' }}</div>
-            <div><span class="info-label">Lieu de naissance :</span> {{ $form_data['place_of_birth'] ?? '' }}</div>
-            <div><span class="info-label">Nationalité :</span> {{ $form_data['nationality'] ?? '' }}</div>
+            <div><span class="info-label">Nom et Prénoms :</span> {{ ($form_data['name'] ?? $name ?? '') . ' ' . ($form_data['first_names'] ?? $first_names ?? '') }}</div>
+            <div><span class="info-label">Sexe :</span> {{ $form_data['gender'] ?? $gender ?? '' }}</div>
+            <div><span class="info-label">Date de naissance :</span> {{ isset($form_data['date_of_birth']) ? \Carbon\Carbon::parse($form_data['date_of_birth'])->format('d/m/Y') : (isset($date_of_birth) ? \Carbon\Carbon::parse($date_of_birth)->format('d/m/Y') : '') }}</div>
+            <div><span class="info-label">Heure de naissance :</span> {{ $form_data['birth_time'] ?? $birth_time ?? '' }}</div>
+            <div><span class="info-label">Lieu de naissance :</span> {{ $form_data['place_of_birth'] ?? $place_of_birth ?? '' }}</div>
+            <div><span class="info-label">Nationalité :</span> {{ $form_data['nationality'] ?? $nationality ?? '' }}</div>
             
             <div style="margin-top: 15px;"><strong>FILIATION PATERNELLE :</strong></div>
-            <div><span class="info-label">Nom du père :</span> {{ ($form_data['father_name'] ?? '') . ' ' . ($form_data['prenoms_pere'] ?? '') }}</div>
-            <div><span class="info-label">Âge du père :</span> {{ $form_data['age_pere'] ?? '' }}{{ $form_data['age_pere'] ? ' ans' : '' }}</div>
-            <div><span class="info-label">Profession du père :</span> {{ $form_data['profession_pere'] ?? $form_data['father_profession'] ?? '' }}</div>
-            <div><span class="info-label">Domicile du père :</span> {{ $form_data['domicile_pere'] ?? '' }}</div>
-            <div><span class="info-label">Lieu de naissance du père :</span> {{ $form_data['lieu_naissance_pere'] ?? '' }}</div>
+            <div><span class="info-label">Nom du père :</span> {{ ($form_data['father_name'] ?? $father_name ?? '') . ' ' . ($form_data['prenoms_pere'] ?? $prenoms_pere ?? '') }}</div>
+            <div><span class="info-label">Âge du père :</span> {{ $form_data['age_pere'] ?? $age_pere ?? '' }}{{ ($form_data['age_pere'] ?? $age_pere ?? '') ? ' ans' : '' }}</div>
+            <div><span class="info-label">Profession du père :</span> {{ $form_data['profession_pere'] ?? $form_data['father_profession'] ?? $profession_pere ?? $father_profession ?? '' }}</div>
+            <div><span class="info-label">Domicile du père :</span> {{ $form_data['domicile_pere'] ?? $domicile_pere ?? '' }}</div>
+            <div><span class="info-label">Lieu de naissance du père :</span> {{ $form_data['lieu_naissance_pere'] ?? $lieu_naissance_pere ?? '' }}</div>
             
             <div style="margin-top: 15px;"><strong>FILIATION MATERNELLE :</strong></div>
-            <div><span class="info-label">Nom de la mère :</span> {{ ($form_data['mother_name'] ?? '') . ' ' . ($form_data['prenoms_mere'] ?? '') }}</div>
-            <div><span class="info-label">Âge de la mère :</span> {{ $form_data['age_mere'] ?? '' }}{{ $form_data['age_mere'] ? ' ans' : '' }}</div>
-            <div><span class="info-label">Profession de la mère :</span> {{ $form_data['profession_mere'] ?? $form_data['mother_profession'] ?? '' }}</div>
-            <div><span class="info-label">Domicile de la mère :</span> {{ $form_data['domicile_mere'] ?? '' }}</div>
-            <div><span class="info-label">Lieu de naissance de la mère :</span> {{ $form_data['lieu_naissance_mere'] ?? '' }}</div>
+            <div><span class="info-label">Nom de la mère :</span> {{ ($form_data['mother_name'] ?? $mother_name ?? '') . ' ' . ($form_data['prenoms_mere'] ?? $prenoms_mere ?? '') }}</div>
+            <div><span class="info-label">Âge de la mère :</span> {{ $form_data['age_mere'] ?? $age_mere ?? '' }}{{ ($form_data['age_mere'] ?? $age_mere ?? '') ? ' ans' : '' }}</div>
+            <div><span class="info-label">Profession de la mère :</span> {{ $form_data['profession_mere'] ?? $form_data['mother_profession'] ?? $profession_mere ?? $mother_profession ?? '' }}</div>
+            <div><span class="info-label">Domicile de la mère :</span> {{ $form_data['domicile_mere'] ?? $domicile_mere ?? '' }}</div>
+            <div><span class="info-label">Lieu de naissance de la mère :</span> {{ $form_data['lieu_naissance_mere'] ?? $lieu_naissance_mere ?? '' }}</div>
             
             <div style="margin-top: 15px;"><strong>INFORMATIONS D'ENREGISTREMENT :</strong></div>
-            <div><span class="info-label">Centre d'état civil :</span> {{ $form_data['centre_etat_civil'] ?? '' }}</div>
-            <div><span class="info-label">Numéro d'acte :</span> {{ $form_data['numero_acte'] ?? $form_data['registry_number'] ?? '' }}</div>
-            <div><span class="info-label">Date de déclaration :</span> {{ isset($form_data['date_declaration']) ? \Carbon\Carbon::parse($form_data['date_declaration'])->format('d/m/Y') : (isset($form_data['registration_date']) ? \Carbon\Carbon::parse($form_data['registration_date'])->format('d/m/Y') : $request->created_at->format('d/m/Y')) }}</div>
-            <div><span class="info-label">Année de registre :</span> {{ $form_data['annee_registre'] ?? '' }}</div>
-            <div><span class="info-label">Déclarant :</span> {{ $form_data['declarant_name'] ?? '' }}</div>
+            <div><span class="info-label">Centre d'état civil :</span> {{ $form_data['centre_etat_civil'] ?? $centre_etat_civil ?? '' }}</div>
+            <div><span class="info-label">Numéro d'acte :</span> {{ $form_data['numero_acte'] ?? $form_data['registry_number'] ?? $numero_acte ?? $registry_number ?? '' }}</div>
+            <div><span class="info-label">Date de déclaration :</span> {{ isset($form_data['date_declaration']) ? \Carbon\Carbon::parse($form_data['date_declaration'])->format('d/m/Y') : (isset($form_data['registration_date']) ? \Carbon\Carbon::parse($form_data['registration_date'])->format('d/m/Y') : (isset($date_declaration) ? \Carbon\Carbon::parse($date_declaration)->format('d/m/Y') : (isset($registration_date) ? \Carbon\Carbon::parse($registration_date)->format('d/m/Y') : $date_generation->format('d/m/Y')))) }}</div>
+            <div><span class="info-label">Année de registre :</span> {{ $form_data['annee_registre'] ?? $annee_registre ?? '' }}</div>
+            <div><span class="info-label">Déclarant :</span> {{ $form_data['declarant_name'] ?? $declarant_name ?? '' }}</div>
         </div>
 
         <p>Le présent extrait est délivré pour servir et valoir ce que de droit.</p>

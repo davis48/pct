@@ -853,6 +853,15 @@
     });
 
     function previewAttachment(attachmentId, fileName) {
+        // Debug : vérifier que l'attachmentId est bien récupéré
+        console.log('Preview attachment called with:', { attachmentId, fileName });
+        
+        if (!attachmentId) {
+            console.error('Attachment ID is empty!');
+            alert('Erreur : ID de fichier manquant');
+            return;
+        }
+
         const modal = document.getElementById('previewModal');
         const title = document.getElementById('previewTitle');
         const fileNameSpan = document.getElementById('previewFileName');
@@ -874,8 +883,20 @@
         frame.classList.add('hidden');
         image.classList.add('hidden');
 
-        // URL de prévisualisation
-        const previewUrl = `{{ route('agent.requests.attachment.preview', '') }}/${attachmentId}`;
+        // URL de prévisualisation - utiliser la route Laravel avec un placeholder
+        const baseUrl = `{{ route('agent.requests.attachment.preview', 'PLACEHOLDER') }}`;
+        const previewUrl = baseUrl.replace('PLACEHOLDER', attachmentId);
+        
+        // URL pour l'affichage direct (nouvelle route)
+        const baseViewUrl = `{{ route('agent.requests.attachment.view', 'PLACEHOLDER') }}`;
+        const viewUrl = baseViewUrl.replace('PLACEHOLDER', attachmentId);
+        
+        // URL pour les données base64
+        const baseDataUrl = `{{ route('agent.requests.attachment.data', 'PLACEHOLDER') }}`;
+        const dataUrl = baseDataUrl.replace('PLACEHOLDER', attachmentId);
+        
+        console.log('Preview URL generated:', previewUrl);
+        console.log('View URL generated:', viewUrl);
 
         // Détecter le type de fichier
         const fileExtension = fileName.split('.').pop().toLowerCase();
@@ -889,23 +910,69 @@
 
             if (isImage) {
                 // Afficher l'image
+                console.log('Loading image:', previewUrl);
                 img.src = previewUrl;
                 img.onload = function() {
+                    console.log('Image loaded successfully');
                     image.classList.remove('hidden');
                 };
                 img.onerror = function() {
+                    console.error('Error loading image');
                     error.classList.remove('hidden');
                 };
-            } else if (isPdf || isText) {
-                // Afficher dans l'iframe
-                iframe.src = previewUrl;
-                iframe.onload = function() {
-                    frame.classList.remove('hidden');
-                };
-                iframe.onerror = function() {
-                    error.classList.remove('hidden');
-                };
+            } else if (isPdf) {
+                // Pour les PDFs, utiliser PDF.js via une URL de données encodée
+                console.log('Loading PDF using alternative method');
+                
+                // Essayer d'abord d'afficher avec PDF.js intégré du navigateur
+                const pdfJsUrl = `/web/viewer.html?file=${encodeURIComponent(viewUrl)}`;
+                
+                // Si PDF.js n'est pas disponible, utiliser Google Docs Viewer comme fallback
+                const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(window.location.origin + viewUrl)}&embedded=true`;
+                
+                // Créer un bouton pour voir le PDF dans un nouvel onglet
+                frame.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="mb-4">
+                            <i class="fas fa-file-pdf text-red-500 text-6xl mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Document PDF</h3>
+                            <p class="text-gray-600 mb-4">Ce document PDF ne peut pas être affiché directement dans cette fenêtre.</p>
+                        </div>
+                        <div class="space-y-3">
+                            <button onclick="window.open('${viewUrl}', '_blank')" 
+                                    class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors mr-3">
+                                <i class="fas fa-external-link-alt mr-2"></i>
+                                Ouvrir dans un nouvel onglet
+                            </button>
+                            <button onclick="window.open('${googleDocsUrl}', '_blank')" 
+                                    class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-eye mr-2"></i>
+                                Voir avec Google Docs
+                            </button>
+                            <div class="mt-4">
+                                <a href="${previewUrl}" download="${fileName}" 
+                                   class="text-gray-600 hover:text-gray-800 underline">
+                                    <i class="fas fa-download mr-1"></i>
+                                    Télécharger le document
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
                 frame.classList.remove('hidden');
+                console.log('PDF preview options displayed');
+                
+            } else if (isText) {
+                // Pour les fichiers texte, utiliser l'iframe directement
+                console.log('Loading text file in iframe:', previewUrl);
+                iframe.src = previewUrl;
+                frame.classList.remove('hidden');
+                
+                iframe.onerror = function() {
+                    console.error('Error loading text file');
+                    error.classList.remove('hidden');
+                };
             } else {
                 // Type de fichier non supporté pour la prévisualisation
                 error.classList.remove('hidden');
@@ -919,12 +986,25 @@
         const modal = document.getElementById('previewModal');
         const iframe = document.getElementById('previewIframe');
         const img = document.getElementById('previewImg');
+        const frame = document.getElementById('previewFrame');
         
-        // Nettoyer les sources pour éviter les fuites mémoire
-        iframe.src = 'about:blank';
-        img.src = '';
+        // Nettoyer les sources pour éviter les fuites mémoire (seulement si les éléments existent)
+        if (iframe) {
+            iframe.src = 'about:blank';
+        }
+        if (img) {
+            img.src = '';
+        }
         
-        modal.classList.add('hidden');
+        // Réinitialiser le contenu du frame s'il a été modifié
+        if (frame) {
+            frame.innerHTML = '<iframe id="previewIframe" class="w-full h-full border-0 rounded"></iframe>';
+        }
+        
+        // Cacher le modal
+        if (modal) {
+            modal.classList.add('hidden');
+        }
     }
 
     // Fermer le modal en cliquant en dehors

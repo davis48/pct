@@ -326,24 +326,96 @@ class InteractiveFormController extends Controller
         if (Auth::check() && is_numeric($requestId)) {
             $citizenRequest = CitizenRequest::findOrFail($requestId);
             $data = json_decode($citizenRequest->additional_data, true);
+            
+            // Vérifier que l'utilisateur connecté est le propriétaire de la demande
+            if ($citizenRequest->user_id !== Auth::id()) {
+                abort(403, 'Accès non autorisé à ce document');
+            }
         } else {
             // Pour les téléchargements temporaires, on ne peut pas récupérer les données
             return abort(404, 'Document non trouvé ou expiré');
         }
 
         if (!$data || !isset($data['form_data'])) {
+            Log::error('Données manquantes pour la génération du PDF', [
+                'data' => $data,
+                'citizen_request_id' => $citizenRequest->id,
+                'additional_data' => $citizenRequest->additional_data
+            ]);
             return abort(404, 'Données du document non trouvées');
         }
 
-        // Générer le PDF
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
-            "front.interactive-forms.previews.{$formType}",
-            ['data' => $data['form_data']]
-        );
+        try {
+            // Log des données avant génération
+            Log::info('Génération PDF - Données disponibles', [
+                'form_type' => $formType,
+                'form_data_keys' => array_keys($data['form_data']),
+                'form_data' => $data['form_data']
+            ]);
 
-        $fileName = "{$formType}-" . now()->format('Y-m-d-H-i-s') . ".pdf";
+            // Préparer les variables pour le template (cohérent avec DocumentGeneratorService)
+            $templateData = [
+                'request' => $citizenRequest,
+                'user' => $citizenRequest->user,
+                'form_data' => $data['form_data'],
+                'generated_at' => now(),
+                'date_generation' => now(),
+                'reference_number' => $citizenRequest->reference_number,
+                'municipality' => config('app.municipality', 'Commune de Cocody'),
+                'mayor_name' => config('app.mayor_name', 'M. le Maire de Cocody'),
+                'document_number' => $this->generateDocumentNumber($citizenRequest)
+            ];
 
-        return $pdf->download($fileName);
+            // Choisir le bon template selon le type de formulaire
+            $templatePath = $this->getTemplatePath($formType);
+            
+            // Générer le PDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($templatePath, $templateData);
+            
+            $fileName = "{$formType}-{$citizenRequest->reference_number}.pdf";
+
+            return $pdf->download($fileName);
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la génération du PDF', [
+                'form_type' => $formType,
+                'request_id' => $requestId,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return abort(500, 'Erreur lors de la génération du document : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Générer un numéro de document unique
+     */
+    private function generateDocumentNumber($citizenRequest)
+    {
+        $year = now()->year;
+        $month = now()->format('m');
+        $typeCode = $this->getDocumentTypeCode($citizenRequest->type);
+        
+        return sprintf('%s/%s/%s/%04d', $typeCode, $month, $year, $citizenRequest->id);
+    }
+
+    /**
+     * Obtenir le code du type de document
+     */
+    private function getDocumentTypeCode($type)
+    {
+        $codes = [
+            'extrait-acte' => 'EXT',
+            'attestation' => 'ATT',
+            'legalisation' => 'LEG',
+            'mariage' => 'MAR',
+            'certificat' => 'CER',
+            'deces' => 'DEC'
+        ];
+        
+        return $codes[$type] ?? 'DOC';
     }
 
     /**
@@ -378,6 +450,23 @@ class InteractiveFormController extends Controller
         ];
 
         return $titles[$formType] ?? ucfirst(str_replace('-', ' ', $formType));
+    }
+
+    /**
+     * Obtenir le chemin du template selon le type de formulaire
+     */
+    private function getTemplatePath($formType)
+    {
+        $templatePaths = [
+            'certificat-mariage' => 'documents.templates.certificat-mariage',
+            'certificat-celibat' => 'documents.templates.certificat-celibat',
+            'extrait-naissance' => 'documents.templates.extrait-naissance',
+            'certificat-deces' => 'documents.templates.certificat-deces',
+            'attestation-domicile' => 'documents.templates.attestation-domicile',
+            'legalisation' => 'documents.templates.legalisation'
+        ];
+
+        return $templatePaths[$formType] ?? "documents.templates.{$formType}";
     }
 
     /**

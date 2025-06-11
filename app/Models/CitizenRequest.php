@@ -61,6 +61,7 @@ class CitizenRequest extends Model
      */
     protected $casts = [
         'attachments' => 'array',
+        'additional_data' => 'array',
         'processed_at' => 'datetime',
     ];
 

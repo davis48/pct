@@ -256,10 +256,9 @@
                                 <div class="flex justify-between">
                                     <span class="text-blue-700">Référence :</span>
                                     <span class="font-medium text-blue-900">{{ $citizenRequest->reference_number }}</span>
-                                </div>
-                                <div class="flex justify-between">
+                                </div>                                <div class="flex justify-between">
                                     <span class="text-blue-700">Montant :</span>
-                                    <span class="font-medium text-blue-900">{{ number_format(5000, 0, ',', ' ') }} FCFA</span>
+                                    <span class="font-medium text-blue-900">{{ number_format($payment->amount ?? 500, 0, ',', ' ') }} FCFA</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-blue-700">Méthode :</span>
@@ -320,9 +319,8 @@
                                 <div class="flex items-start space-x-3">
                                     <i class="fas fa-credit-card text-lg mt-1"></i>
                                     <div class="flex-1">
-                                        <p class="font-medium text-sm">Demande de paiement</p>
-                                        <p class="text-xs opacity-90 mt-1">
-                                            PCT UVCI - {{ number_format(5000, 0, ',', ' ') }} FCFA
+                                        <p class="font-medium text-sm">Demande de paiement</p>                                        <p class="text-xs opacity-90 mt-1">
+                                            PCT UVCI - {{ number_format($payment->amount ?? 500, 0, ',', ' ') }} FCFA
                                         </p>
                                         <p class="text-xs opacity-90">
                                             Ref: {{ $citizenRequest->reference_number }}

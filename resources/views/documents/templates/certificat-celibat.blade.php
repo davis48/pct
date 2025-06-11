@@ -119,11 +119,10 @@
         <div class="subtitle">Union - Travail - Progrès</div>
         <div class="subtitle">MAIRIE D'ABIDJAN</div>
         <div class="subtitle">SERVICE D'ÉTAT CIVIL</div>
-    </div>
-
-    <div class="document-info">
-        <strong>Référence :</strong> {{ $reference_number }}<br>        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
+    </div>    <div class="document-info">
+        <strong>Référence :</strong> {{ $reference_number }}<br>
+        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
@@ -135,29 +134,44 @@
 
         <div class="citizen-info">
             <h3 style="margin-top: 0; color: #0066cc;">IDENTITÉ DU DEMANDEUR</h3>
-            <strong>Nom et Prénoms :</strong> {{ $user->name }}<br>
-            <strong>Date de naissance :</strong> {{ $user->date_of_birth ?? 'Non renseignée' }}<br>
-            <strong>Lieu de naissance :</strong> {{ $user->place_of_birth ?? 'Non renseigné' }}<br>
-            <strong>Profession :</strong> {{ $user->profession ?? 'Non renseignée' }}<br>
-            <strong>Domicile :</strong> {{ $user->address ?? 'Non renseigné' }}<br>
-            <strong>Nationalité :</strong> {{ $user->nationality ?? 'Ivoirienne' }}<br>
-            <strong>Numéro CNI :</strong> {{ $user->cin_number ?? 'Non renseigné' }}
+            <strong>Nom et Prénoms :</strong> {{ ($form_data['nom'] ?? '') . ' ' . ($form_data['prenoms'] ?? '') }}<br>
+            <strong>Date de naissance :</strong> {{ isset($form_data['date_naissance']) ? \Carbon\Carbon::parse($form_data['date_naissance'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Lieu de naissance :</strong> {{ $form_data['lieu_naissance'] ?? 'Non renseigné' }}<br>
+            <strong>Nationalité :</strong> {{ $form_data['nationalite'] ?? 'Ivoirienne' }}<br>
+            <strong>Profession :</strong> {{ $form_data['profession'] ?? 'Non renseignée' }}<br>
+            <strong>Domicile :</strong> {{ $form_data['domicile'] ?? 'Non renseigné' }}<br>
         </div>
+
+        @if(isset($form_data['nom_pere']) && $form_data['nom_pere'])
+        <div class="citizen-info">
+            <h3 style="margin-top: 0; color: #0066cc;">FILIATION PATERNELLE</h3>
+            <strong>Nom du père :</strong> {{ $form_data['nom_pere'] }}<br>
+            <strong>Profession du père :</strong> {{ $form_data['profession_pere'] ?? 'Non renseignée' }}<br>
+            <strong>Domicile du père :</strong> {{ $form_data['domicile_pere'] ?? 'Non renseigné' }}<br>
+        </div>
+        @endif
+
+        @if(isset($form_data['nom_mere']) && $form_data['nom_mere'])
+        <div class="citizen-info">
+            <h3 style="margin-top: 0; color: #0066cc;">FILIATION MATERNELLE</h3>
+            <strong>Nom de la mère :</strong> {{ $form_data['nom_mere'] }}<br>
+            <strong>Profession de la mère :</strong> {{ $form_data['profession_mere'] ?? 'Non renseignée' }}<br>
+            <strong>Domicile de la mère :</strong> {{ $form_data['domicile_mere'] ?? 'Non renseigné' }}<br>
+        </div>
+        @endif
 
         <div class="certificate-content">
             <p><strong>CERTIFIE QUE</strong></p>
-            <p>Monsieur/Madame <strong>{{ $user->name }}</strong></p>
+            <p>Monsieur/Madame <strong>{{ ($form_data['nom'] ?? '') . ' ' . ($form_data['prenoms'] ?? '') }}</strong></p>
             <p><strong>N'EST ACTUELLEMENT ENGAGÉ(E) PAR AUCUN LIEN DE MARIAGE</strong></p>
             <p>selon les registres d'état civil tenus dans cette commune.</p>
-        </div>
-
-        <div class="legal-notice">
+        </div>        <div class="legal-notice">
             <h4 style="margin-top: 0; color: #17a2b8;">CONDITIONS DE VÉRIFICATION</h4>
-            <p>Cette certification a été établie après vérification des registres d'état civil de la commune d'Abidjan pour la période de {{ is_string($date_generation) ? (date('Y') - 10) : $date_generation->copy()->subYears(10)->format('Y') }} à {{ is_string($date_generation) ? date('Y') : $date_generation->format('Y') }}.</p>
+            <p>Cette certification a été établie après vérification des registres d'état civil de la commune d'Abidjan pour la période de {{ $date_generation->copy()->subYears(10)->format('Y') }} à {{ $date_generation->format('Y') }}.</p>
             <p>Cette vérification ne couvre que les actes de mariage enregistrés dans cette commune.</p>
         </div>
 
-        <p><strong>Motif de la demande :</strong> {{ $request->reason ?? 'Usage administratif' }}</p>
+        <p><strong>Motif de la demande :</strong> {{ $form_data['motif'] ?? $request->reason ?? 'Usage administratif' }}</p>
 
         <p>Le présent certificat est délivré pour servir et valoir ce que de droit.</p>
 

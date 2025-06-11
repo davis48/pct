@@ -396,7 +396,9 @@ class PaymentController extends Controller
             ]);
         }
 
-        return view('front.payments.show_standalone', compact('citizenRequest'));
+        $amount = \App\Services\PaymentService::getPriceForDocumentType($citizenRequest->document_type ?? 'default');
+        
+        return view('front.payments.show_standalone', compact('citizenRequest', 'amount'));
     }
 
     /**
@@ -450,10 +452,11 @@ class PaymentController extends Controller
             }
 
             // Créer l'enregistrement de paiement
+            $amount = \App\Services\PaymentService::getPriceForDocumentType($citizenRequest->document_type ?? 'default');
             $payment = Payment::create([
                 'citizen_request_id' => $citizenRequest->id,
                 'user_id' => Auth::id(),
-                'amount' => 5000, // Montant fixe pour les extraits
+                'amount' => $amount,
                 'currency' => 'XOF',
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
@@ -571,10 +574,11 @@ class PaymentController extends Controller
 
             if (!$payment) {
                 // Créer un paiement si aucun n'existe
+                $amount = \App\Services\PaymentService::getPriceForDocumentType($citizenRequest->document_type ?? 'default');
                 $payment = Payment::create([
                     'citizen_request_id' => $citizenRequest->id,
                     'user_id' => Auth::id(),
-                    'amount' => 5000,
+                    'amount' => $amount,
                     'currency' => 'XOF',
                     'status' => 'pending',
                     'payment_method' => 'demo_payment',

@@ -77,27 +77,45 @@
         }
     </style>
 </head>
-<body>
-    <div class="watermark">{{ $commune }}</div>
+<body>    <div class="watermark">{{ $municipality ?? 'MAIRIE' }}</div>
     
     <div class="header">
         <div class="logo">RÉPUBLIQUE DE CÔTE D'IVOIRE</div>
         <div>Union - Travail - Progrès</div>
-        <div class="commune">{{ $commune }}</div>
+        <div class="commune">{{ $municipality ?? 'Mairie d\'Abidjan' }}</div>
         <div>ÉTAT CIVIL</div>
     </div>
 
-    <div class="document-title">{{ $document_title }}</div>    <div class="content">
-        <p>Nous, Maire de la {{ $commune }}, Officier de l'État Civil, certifions que sur les registres de l'État Civil de cette commune, il a été trouvé l'acte de décès suivant :</p>
+    <div class="document-title">CERTIFICAT DE DÉCÈS</div>
+
+    <div class="content">
+        <p>Nous, Maire de la {{ $municipality ?? 'Mairie' }}, Officier de l'État Civil, certifions que sur les registres de l'État Civil de cette commune, il a été trouvé l'acte de décès suivant :</p>
 
         <div class="info-section">
             <div><span class="info-label">DÉFUNT(E) :</span></div>
-            <div><span class="info-label">Nom(s) :</span> {{ $form_data['deceased_last_name'] ?? '[À remplir selon l\'acte de décès]' }}</div>
-            <div><span class="info-label">Prénom(s) :</span> {{ $form_data['deceased_first_name'] ?? '[À remplir selon l\'acte de décès]' }}</div>
-            <div><span class="info-label">Né(e) le :</span> {{ isset($form_data['deceased_birth_date']) ? \Carbon\Carbon::parse($form_data['deceased_birth_date'])->format('d/m/Y') : '[À remplir selon l\'acte de décès]' }}</div>
-            <div><span class="info-label">À :</span> {{ $form_data['deceased_birth_place'] ?? '[À remplir selon l\'acte de décès]' }}</div>
-            <div><span class="info-label">Décédé(e) le :</span> {{ isset($form_data['death_date']) ? \Carbon\Carbon::parse($form_data['death_date'])->format('d/m/Y') : '[Date du décès]' }}</div>
-            <div><span class="info-label">À :</span> {{ $form_data['death_place'] ?? '[Lieu du décès]' }}</div>
+            <div><span class="info-label">Nom(s) :</span> {{ $form_data['deceased_last_name'] ?? 'Non renseigné' }}</div>
+            <div><span class="info-label">Prénom(s) :</span> {{ $form_data['deceased_first_name'] ?? 'Non renseigné' }}</div>
+            <div><span class="info-label">Né(e) le :</span> {{ isset($form_data['deceased_birth_date']) ? \Carbon\Carbon::parse($form_data['deceased_birth_date'])->format('d/m/Y') : 'Non renseigné' }}</div>
+            <div><span class="info-label">À :</span> {{ $form_data['deceased_birth_place'] ?? 'Non renseigné' }}</div>
+            <div><span class="info-label">Décédé(e) le :</span> {{ isset($form_data['death_date']) ? \Carbon\Carbon::parse($form_data['death_date'])->format('d/m/Y') : 'Non renseigné' }}</div>
+            <div><span class="info-label">À :</span> {{ $form_data['death_place'] ?? 'Non renseigné' }}</div>
+        </div>
+
+        <div class="info-section">
+            <div><span class="info-label">DÉCLARANT :</span></div>
+            <div><span class="info-label">Nom et prénoms :</span> {{ $form_data['declarant_name'] ?? 'Non renseigné' }}</div>
+            <div><span class="info-label">Date de naissance :</span> {{ isset($form_data['declarant_birth_date']) ? \Carbon\Carbon::parse($form_data['declarant_birth_date'])->format('d/m/Y') : 'Non renseigné' }}</div>
+            <div><span class="info-label">Profession :</span> {{ $form_data['declarant_profession'] ?? 'Non renseignée' }}</div>
+            <div><span class="info-label">Adresse :</span> {{ $form_data['declarant_address'] ?? 'Non renseignée' }}</div>
+            <div><span class="info-label">Lien avec le défunt :</span> {{ $form_data['relationship_to_deceased'] ?? 'Non renseigné' }}</div>
+        </div>
+
+        <div class="info-section">
+            <div><span class="info-label">MOTIF DE LA DEMANDE :</span> {{ $form_data['purpose'] ?? 'Usage administratif' }}</div>
+            @if(!empty($form_data['notes']))
+            <div><span class="info-label">Notes :</span> {{ $form_data['notes'] }}</div>
+            @endif
+        </div>
         </div>
 
         <div class="info-section">

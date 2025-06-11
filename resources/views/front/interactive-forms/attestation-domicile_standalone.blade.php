@@ -26,7 +26,10 @@
             background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             color: #1f2937;
             line-height: 1.6;
-            overflow-x: hidden;
+            overflow-x: hidden;        }
+        
+        .hidden {
+            display: none !important;
         }
         
         .navbar {
@@ -792,15 +795,14 @@
                             <div class="upload-text">Cliquez ici pour sélectionner vos documents</div>
                             <div class="upload-hint">ou glissez-déposez vos fichiers ici</div>
                         </div>
-                        
-                        <input type="file" id="documents" name="documents[]" multiple 
-                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
+                          <input type="file" id="documents" name="documents[]" multiple 
+                               accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect(event)">
                         
                         <div class="file-list" id="fileList"></div>
                         <div class="file-counter" id="fileCounter">0/8 documents sélectionnés</div>
                         
-                        <div class="error-message" id="errorMessage"></div>
-                        <div class="success-message" id="successMessage"></div>
+                        <div class="error-message hidden" id="errorMessage"></div>
+                        <div class="success-message hidden" id="successMessage"></div>
                     </div>
 
                     <div class="form-actions">
@@ -887,13 +889,12 @@
                 const files = Array.from(event.target.files);
                 processFiles(files);
             };
-            
-            function processFiles(files) {
+              function processFiles(files) {
                 const errorMessage = document.getElementById('errorMessage');
                 const successMessage = document.getElementById('successMessage');
                 
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
+                errorMessage.classList.add('hidden');
+                successMessage.classList.add('hidden');
                 
                 for (let file of files) {
                     if (selectedFiles.length >= maxFiles) {
@@ -947,8 +948,7 @@
                     fileList.appendChild(fileItem);
                 });
             }
-            
-            function updateDocumentFileCounter() {
+              function updateDocumentFileCounter() {
                 const counter = document.getElementById('fileCounter');
                 counter.textContent = `${selectedFiles.length}/${maxFiles} documents sélectionnés`;
             }
@@ -958,16 +958,21 @@
                 updateDocumentFileList();
                 updateDocumentFileCounter();
                 updateDocumentFileInput();
+                
+                if (selectedFiles.length === 0) {
+                    showSuccess('Tous les documents ont été supprimés.');
+                } else {
+                    showSuccess(`Document supprimé. ${selectedFiles.length} document(s) restant(s).`);
+                }
             };
-            
+
             function updateDocumentFileInput() {
                 const input = document.getElementById('documents');
                 const dt = new DataTransfer();
                 selectedFiles.forEach(file => dt.items.add(file));
                 input.files = dt.files;
             }
-            
-            function getFileIcon(type) {
+              function getFileIcon(type) {
                 if (type === 'application/pdf') return 'pdf';
                 if (type.startsWith('image/')) return 'image';
                 return 'alt';
@@ -980,22 +985,21 @@
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
-            
-            function showError(message) {
+              function showError(message) {
                 const errorMessage = document.getElementById('errorMessage');
                 errorMessage.textContent = message;
-                errorMessage.style.display = 'block';
+                errorMessage.classList.remove('hidden');
                 setTimeout(() => {
-                    errorMessage.style.display = 'none';
+                    errorMessage.classList.add('hidden');
                 }, 5000);
             }
             
             function showSuccess(message) {
                 const successMessage = document.getElementById('successMessage');
                 successMessage.textContent = message;
-                successMessage.style.display = 'block';
+                successMessage.classList.remove('hidden');
                 setTimeout(() => {
-                    successMessage.style.display = 'none';
+                    successMessage.classList.add('hidden');
                 }, 3000);
             }
             

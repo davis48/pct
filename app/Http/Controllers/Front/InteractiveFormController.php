@@ -398,32 +398,90 @@ class InteractiveFormController extends Controller
         switch ($formType) {
             case 'certificat-mariage':
                 $specificRules = [
-                    'spouse_name' => 'required|string|max:255',
-                    'spouse_birth_date' => 'required|date',
-                    'spouse_birth_place' => 'required|string|max:255',
-                    'marriage_date' => 'required|date',
-                    'marriage_time' => 'required|string',
-                    'witness1_name' => 'required|string|max:255',
-                    'witness2_name' => 'required|string|max:255',
+                    'nom_epoux' => 'required|string|max:255',
+                    'prenoms_epoux' => 'required|string|max:255',
+                    'date_naissance_epoux' => 'required|date',
+                    'lieu_naissance_epoux' => 'required|string|max:255',
+                    'profession_epoux' => 'required|string|max:255',
+                    'domicile_epoux' => 'required|string|max:500',
+                    'nom_epouse' => 'required|string|max:255',
+                    'prenoms_epouse' => 'required|string|max:255',
+                    'date_naissance_epouse' => 'required|date',
+                    'lieu_naissance_epouse' => 'required|string|max:255',
+                    'profession_epouse' => 'required|string|max:255',
+                    'domicile_epouse' => 'required|string|max:500',
+                    'date_mariage' => 'required|date',
+                    'heure_mariage' => 'required|string',
+                    'lieu_mariage' => 'required|string|max:255',
+                    'temoin1_nom' => 'required|string|max:255',
+                    'temoin1_prenoms' => 'nullable|string|max:255',
+                    'temoin1_profession' => 'nullable|string|max:255',
+                    'temoin1_domicile' => 'nullable|string|max:500',
+                    'temoin2_nom' => 'required|string|max:255',
+                    'temoin2_prenoms' => 'nullable|string|max:255',
+                    'temoin2_profession' => 'nullable|string|max:255',
+                    'temoin2_domicile' => 'nullable|string|max:500',
+                    'regime_matrimonial' => 'nullable|string|max:255',
+                    'spouse_name' => 'nullable|string|max:255',
+                    'spouse_birth_date' => 'nullable|date',
+                    'spouse_birth_place' => 'nullable|string|max:255',
+                    'marriage_date' => 'nullable|date',
+                    'marriage_time' => 'nullable|string',
+                    'witness1_name' => 'nullable|string|max:255',
+                    'witness2_name' => 'nullable|string|max:255',
+                ];
+                // Remove common rules as we have specific ones for certificat-mariage
+                $commonRules = [
+                    'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ];
                 break;
 
             case 'certificat-celibat':
                 $specificRules = [
+                    'nom' => 'required|string|max:255',
+                    'prenoms' => 'required|string|max:255',
+                    'date_naissance' => 'required|date',
+                    'lieu_naissance' => 'required|string|max:255',
+                    'nationalite' => 'required|string|max:100',
                     'profession' => 'required|string|max:255',
-                    'address' => 'required|string|max:500',
+                    'domicile' => 'required|string|max:500',
+                    'nom_pere' => 'nullable|string|max:255',
+                    'prenoms_pere' => 'nullable|string|max:255',
+                    'nom_mere' => 'nullable|string|max:255',
+                    'prenoms_mere' => 'nullable|string|max:255',
+                    'motif_demande' => 'nullable|string|max:255',
+                    'address' => 'nullable|string|max:500',
+                ];
+                // Remove common rules as we have specific ones for certificat-celibat
+                $commonRules = [
+                    'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ];
                 break;            case 'extrait-naissance':
                 $specificRules = [
+                    'name' => 'required|string|max:255',
+                    'first_names' => 'required|string|max:255',
                     'gender' => 'required|string|in:Masculin,Féminin',
                     'birth_time' => 'nullable|string',
                     'father_name' => 'required|string|max:255',
-                    'father_profession' => 'nullable|string|max:255',
+                    'prenoms_pere' => 'nullable|string|max:255',
+                    'age_pere' => 'nullable|integer|min:15|max:100',
+                    'profession_pere' => 'nullable|string|max:255',
+                    'domicile_pere' => 'nullable|string|max:500',
                     'mother_name' => 'required|string|max:255',
-                    'mother_profession' => 'nullable|string|max:255',
+                    'prenoms_mere' => 'nullable|string|max:255',
+                    'age_mere' => 'nullable|integer|min:15|max:100',
+                    'profession_mere' => 'nullable|string|max:255',
+                    'domicile_mere' => 'nullable|string|max:500',
+                    'centre_etat_civil' => 'required|string|max:255',
                     'registry_number' => 'required|string|max:255',
                     'registration_date' => 'required|date',
                     'declarant_name' => 'nullable|string|max:255',
+                    // Champs optionnels pour compatibilité avec d'autres versions
+                    'numero_acte' => 'nullable|string|max:255',
+                    'date_declaration' => 'nullable|date',
+                    'annee_registre' => 'nullable|integer|min:1900|max:2100',
+                    'father_profession' => 'nullable|string|max:255',
+                    'mother_profession' => 'nullable|string|max:255',
                 ];
                 break;
 
@@ -452,9 +510,32 @@ class InteractiveFormController extends Controller
 
             case 'attestation-domicile':
                 $specificRules = [
-                    'address' => 'required|string|max:500',
-                    'district' => 'required|string|max:255',
-                    'residence_duration' => 'required|string|max:100',
+                    'nom' => 'required|string|max:255',
+                    'prenoms' => 'required|string|max:255',
+                    'date_naissance' => 'required|date',
+                    'lieu_naissance' => 'required|string|max:255',
+                    'nationalite' => 'required|string|max:100',
+                    'profession' => 'required|string|max:255',
+                    'cin_number' => 'nullable|string|max:50',
+                    'telephone' => 'nullable|string|max:50',
+                    'adresse_complete' => 'required|string|max:500',
+                    'commune' => 'required|string|max:255',
+                    'quartier' => 'required|string|max:255',
+                    'date_installation' => 'required|date',
+                    'statut_logement' => 'required|string|max:100',
+                    'nom_temoin' => 'nullable|string|max:255',
+                    'prenoms_temoin' => 'nullable|string|max:255',
+                    'profession_temoin' => 'nullable|string|max:255',
+                    'telephone_temoin' => 'nullable|string|max:50',
+                    'motif' => 'nullable|string|max:255',
+                    'lieu_delivrance' => 'nullable|string|max:255',
+                    'address' => 'nullable|string|max:500',
+                    'district' => 'nullable|string|max:255',
+                    'residence_duration' => 'nullable|string|max:100',
+                ];
+                // Remove common rules as we have specific ones for attestation-domicile
+                $commonRules = [
+                    'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ];
                 break;
 

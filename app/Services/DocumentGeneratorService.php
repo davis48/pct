@@ -49,28 +49,40 @@ class DocumentGeneratorService
     protected function getTemplateForDocumentType($type)
     {        $templates = [
             'attestation' => 'documents.templates.attestation-domicile',
+            'attestation-domicile' => 'documents.templates.attestation-domicile',
             'legalisation' => 'documents.templates.legalisation',
             'mariage' => 'documents.templates.certificat-mariage',
-            'extrait-acte' => 'documents.templates.extrait-acte-naissance',
+            'certificat-mariage' => 'documents.templates.certificat-mariage',
+            'extrait-acte' => 'documents.templates.extrait-naissance',
+            'extrait-naissance' => 'documents.templates.extrait-naissance',
             'declaration-naissance' => 'documents.templates.declaration-naissance',
             'certificat' => 'documents.templates.certificat-celibat',
+            'certificat-celibat' => 'documents.templates.certificat-celibat',
+            'certificat-deces' => 'documents.templates.certificat-deces',
+            'deces' => 'documents.templates.certificat-deces',
             'information' => 'documents.templates.document-information',
             'autre' => 'documents.templates.document-general',
         ];
 
         return $templates[$type] ?? 'documents.templates.document-general';
-    }
-
-    /**
+    }    /**
      * Préparer les données pour le template
-     */
-    protected function prepareTemplateData(CitizenRequest $request)
+     */    protected function prepareTemplateData(CitizenRequest $request)
     {
+        // Décoder les données additionnelles
+        $additionalData = [];
+        if ($request->additional_data) {
+            $decodedData = json_decode($request->additional_data, true);
+            $additionalData = $decodedData['form_data'] ?? [];
+        }
+
         return [
             'request' => $request,
             'user' => $request->user,
             'document' => $request->document,
+            'form_data' => $additionalData,
             'generated_at' => now(),
+            'date_generation' => now(),
             'reference_number' => $request->reference_number,
             'qr_code_data' => $this->generateQRCodeData($request),
             'municipality' => config('app.municipality', 'Mairie de Yamoussoukro'),

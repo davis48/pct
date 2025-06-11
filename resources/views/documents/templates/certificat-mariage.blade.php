@@ -128,16 +128,17 @@
         <div class="subtitle">SERVICE D'ÉTAT CIVIL</div>
     </div>    <div class="document-info">
         <strong>Référence :</strong> {{ $reference_number }}<br>
-        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
+        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
         CERTIFICAT DE MARIAGE
     </div>
 
-    <div class="content">        <div class="registry-info">
-            <strong>Registre de Mariage :</strong> Année {{ is_string($date_generation) ? date('Y') : $date_generation->year }}<br>
+    <div class="content">
+        <div class="registry-info">
+            <strong>Registre de Mariage :</strong> Année {{ $date_generation->year }}<br>
             <strong>Acte N° :</strong> {{ $reference_number }}<br>
             <strong>Centre d'État Civil :</strong> Mairie d'Abidjan
         </div>
@@ -147,7 +148,30 @@
         <div class="spouses-info">
             <div class="spouse-box">
                 <h4 style="margin-top: 0; color: #dc3545;">L'ÉPOUX</h4>
-                <strong>Nom et Prénoms :</strong> {{ $user->spouse_name ?? $user->name }}<br>
+                <strong>Nom et Prénoms :</strong> {{ ($form_data['nom_epoux'] ?? '') . ' ' . ($form_data['prenoms_epoux'] ?? '') }}<br>
+                <strong>Date de naissance :</strong> {{ isset($form_data['date_naissance_epoux']) ? \Carbon\Carbon::parse($form_data['date_naissance_epoux'])->format('d/m/Y') : 'Non renseignée' }}<br>
+                <strong>Lieu de naissance :</strong> {{ $form_data['lieu_naissance_epoux'] ?? 'Non renseigné' }}<br>
+                <strong>Profession :</strong> {{ $form_data['profession_epoux'] ?? 'Non renseignée' }}<br>
+                <strong>Domicile :</strong> {{ $form_data['domicile_epoux'] ?? 'Non renseigné' }}
+            </div>
+            
+            <div class="spouse-box">
+                <h4 style="margin-top: 0; color: #dc3545;">L'ÉPOUSE</h4>
+                <strong>Nom et Prénoms :</strong> {{ ($form_data['nom_epouse'] ?? '') . ' ' . ($form_data['prenoms_epouse'] ?? '') }}<br>
+                <strong>Date de naissance :</strong> {{ isset($form_data['date_naissance_epouse']) ? \Carbon\Carbon::parse($form_data['date_naissance_epouse'])->format('d/m/Y') : 'Non renseignée' }}<br>
+                <strong>Lieu de naissance :</strong> {{ $form_data['lieu_naissance_epouse'] ?? 'Non renseigné' }}<br>
+                <strong>Profession :</strong> {{ $form_data['profession_epouse'] ?? 'Non renseignée' }}<br>
+                <strong>Domicile :</strong> {{ $form_data['domicile_epouse'] ?? 'Non renseigné' }}
+            </div>
+        </div>
+
+        <div class="ceremony-details">
+            <h4 style="margin-top: 0; color: #ffc107;">DÉTAILS DE LA CÉRÉMONIE</h4>
+            <strong>Date du mariage :</strong> {{ isset($form_data['date_mariage']) ? \Carbon\Carbon::parse($form_data['date_mariage'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Lieu du mariage :</strong> {{ $form_data['lieu_mariage'] ?? 'Non renseigné' }}<br>
+            <strong>Régime matrimonial :</strong> {{ $form_data['regime_matrimonial'] ?? 'Non renseigné' }}<br>
+            <strong>Officiant :</strong> {{ $form_data['officiant'] ?? $request->processed_by ?? 'Maire d\'Abidjan' }}
+        </div>
                 <strong>Date de naissance :</strong> {{ $user->date_of_birth ?? 'Non renseignée' }}<br>
                 <strong>Lieu de naissance :</strong> {{ $user->place_of_birth ?? 'Non renseigné' }}<br>
                 <strong>Profession :</strong> {{ $user->profession ?? 'Non renseignée' }}<br>

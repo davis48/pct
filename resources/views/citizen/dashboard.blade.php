@@ -6,36 +6,36 @@
 @section('sidebar-menu')
     <li>
         <a href="{{ route('citizen.dashboard') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('citizen.dashboard') ? 'active' : '' }}">
-            <i class="fas fa-tachometer-alt mr-3"></i>
+            <i class="fas fa-city mr-3"></i>
             Tableau de bord
         </a>
     </li>
     <li>
         <a href="{{ route('interactive-forms.index') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
-            <i class="fas fa-plus mr-3"></i>
+            <i class="fas fa-file-signature mr-3"></i>
             Nouvelle Demande
         </a>
     </li>
     <li>
         <a href="{{ route('requests.index') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('requests.index') ? 'active' : '' }}">
-            <i class="fas fa-file-alt mr-3"></i>
+            <i class="fas fa-folder-open mr-3"></i>
             Mes Demandes
         </a>
     </li>
     <li>
         <a href="{{ route('interactive-forms.index') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
-            <i class="fas fa-edit mr-3"></i>
+            <i class="fas fa-stamp mr-3"></i>
             Formulaires Interactifs
         </a>
     </li>
     <li>
         <a href="{{ route('profile.edit') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-            <i class="fas fa-user mr-3"></i>
+            <i class="fas fa-id-card mr-3"></i>
             Mon Profil
         </a>
     </li>    <li>
         <a href="{{ route('citizen.notifications.center') }}" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white {{ request()->routeIs('citizen.notifications.*') ? 'active' : '' }}">
-            <i class="fas fa-bell mr-3"></i>
+            <i class="fas fa-clipboard-check mr-3"></i>
             Notifications
             @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
                 <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $unreadNotificationsCount }}</span>
@@ -44,7 +44,7 @@
     </li>
     <li class="mt-8 pt-4 border-t border-blue-700">
         <a href="#" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white">
-            <i class="fas fa-question-circle mr-3"></i>
+            <i class="fas fa-info-circle mr-3"></i>
             Aide & Support
         </a>
     </li>
@@ -85,9 +85,8 @@
 <!-- Header -->
 <div class="gradient-bg text-white rounded-2xl p-6 mb-8">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center">
-        <div>
-            <h1 class="text-3xl font-bold mb-2">
-                <i class="fas fa-user-circle mr-3"></i>
+        <div>            <h1 class="text-3xl font-bold mb-2">
+                <i class="fas fa-city mr-3"></i>
                 Bienvenue{{ Auth::check() && Auth::user()->name ? ', ' . Auth::user()->name : '' }}
             </h1>
             <p class="text-blue-100">Gérez vos demandes administratives facilement</p>
@@ -106,38 +105,37 @@
 
 <!-- Quick Actions -->
 <div class="content-card p-6 mb-8">
-    <h3 class="text-lg font-semibold mb-4 text-gray-800">Actions Rapides</h3>    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <a href="{{ route('interactive-forms.index') }}" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:scale-105">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800">Actions Rapides</h3>    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">        <a href="{{ route('interactive-forms.index') }}" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200 hover:scale-105">
             <div class="bg-blue-600 text-white p-3 rounded-full mb-2">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-file-signature"></i>
             </div>
             <span class="text-sm font-medium text-gray-700">Nouvelle Demande</span>
         </a>
         
         <a href="{{ route('interactive-forms.index') }}" class="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-all duration-200 hover:scale-105">
             <div class="bg-green-600 text-white p-3 rounded-full mb-2">
-                <i class="fas fa-edit"></i>
+                <i class="fas fa-stamp"></i>
             </div>
             <span class="text-sm font-medium text-gray-700">Formulaires</span>
         </a>
         
         <a href="{{ route('requests.index') }}" class="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105">
             <div class="bg-purple-600 text-white p-3 rounded-full mb-2">
-                <i class="fas fa-list"></i>
+                <i class="fas fa-folder-open"></i>
             </div>
             <span class="text-sm font-medium text-gray-700">Mes Demandes</span>
         </a>
         
         <a href="{{ route('profile.edit') }}" class="flex flex-col items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-xl transition-all duration-200 hover:scale-105">
             <div class="bg-orange-600 text-white p-3 rounded-full mb-2">
-                <i class="fas fa-user"></i>
+                <i class="fas fa-id-card"></i>
             </div>
             <span class="text-sm font-medium text-gray-700">Mon Profil</span>
         </a>
         
         <button onclick="openHelpModal()" class="flex flex-col items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-105">
             <div class="bg-gray-600 text-white p-3 rounded-full mb-2">
-                <i class="fas fa-question-circle"></i>
+                <i class="fas fa-info-circle"></i>
             </div>
             <span class="text-sm font-medium text-gray-700">Aide</span>
         </button>

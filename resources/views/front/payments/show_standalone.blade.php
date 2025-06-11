@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paiement | PCT UVCI</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Paiement | PCT UVCI</title>    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -204,10 +203,9 @@
                                             </div>
                                         </div>
                                         <form action="{{ route('payments.standalone.process', $citizenRequest) }}" method="POST" class="inline">
-                                            @csrf
-                                            <input type="hidden" name="payment_method" value="orange_money">
+                                            @csrf                                            <input type="hidden" name="payment_method" value="orange_money">
                                             <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                                Payer {{ number_format(5000, 0, ',', ' ') }} FCFA
+                                                Payer {{ number_format($amount ?? 500, 0, ',', ' ') }} FCFA
                                             </button>
                                         </form>
                                     </div>
@@ -226,9 +224,8 @@
                                         </div>
                                         <form action="{{ route('payments.standalone.process', $citizenRequest) }}" method="POST" class="inline">
                                             @csrf
-                                            <input type="hidden" name="payment_method" value="mtn_money">
-                                            <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                                Payer {{ number_format(5000, 0, ',', ' ') }} FCFA
+                                            <input type="hidden" name="payment_method" value="mtn_money">                                            <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                                Payer {{ number_format($amount ?? 500, 0, ',', ' ') }} FCFA
                                             </button>
                                         </form>
                                     </div>
@@ -246,10 +243,9 @@
                                             </div>
                                         </div>
                                         <form action="{{ route('payments.standalone.process', $citizenRequest) }}" method="POST" class="inline">
-                                            @csrf
-                                            <input type="hidden" name="payment_method" value="moov_money">
+                                            @csrf                                            <input type="hidden" name="payment_method" value="moov_money">
                                             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                                Payer {{ number_format(5000, 0, ',', ' ') }} FCFA
+                                                Payer {{ number_format($amount ?? 500, 0, ',', ' ') }} FCFA
                                             </button>
                                         </form>
                                     </div>
@@ -268,9 +264,8 @@
                                         </div>
                                         <form action="{{ route('payments.standalone.process', $citizenRequest) }}" method="POST" class="inline">
                                             @csrf
-                                            <input type="hidden" name="payment_method" value="wave">
-                                            <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                                Payer {{ number_format(5000, 0, ',', ' ') }} FCFA
+                                            <input type="hidden" name="payment_method" value="wave">                                            <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                                Payer {{ number_format($amount ?? 500, 0, ',', ' ') }} FCFA
                                             </button>
                                         </form>
                                     </div>
@@ -306,15 +301,14 @@
                                 </div>
                                 
                                 <hr class="my-4">
-                                
-                                <div class="flex justify-between">
+                                  <div class="flex justify-between">
                                     <span class="text-gray-600">Frais de traitement :</span>
-                                    <span class="font-medium">{{ number_format(5000, 0, ',', ' ') }} FCFA</span>
+                                    <span class="font-medium">{{ number_format($amount ?? 500, 0, ',', ' ') }} FCFA</span>
                                 </div>
                                 
                                 <div class="flex justify-between text-lg font-bold border-t pt-4">
                                     <span>Total à payer :</span>
-                                    <span class="text-primary-600">{{ number_format(5000, 0, ',', ' ') }} FCFA</span>
+                                    <span class="text-primary-600">{{ number_format($amount ?? 500, 0, ',', ' ') }} FCFA</span>
                                 </div>
                             </div>
                             

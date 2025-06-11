@@ -233,7 +233,12 @@
                 </div>
                 <div class="border-t border-gray-200">
                     <dl>
-                        @if(isset($formData['name']) && $formData['name'])
+                        @if(isset($formData['nom']) && isset($formData['prenoms']))
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Nom et Prénoms</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['nom'] . ' ' . $formData['prenoms'] }}</dd>
+                            </div>
+                        @elseif(isset($formData['name']) && $formData['name'])
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Nom et Prénoms</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['name'] }}</dd>
@@ -247,7 +252,14 @@
                             </div>
                         @endif
                         
-                        @if(isset($formData['date_of_birth']) && $formData['date_of_birth'])
+                        @if(isset($formData['date_naissance']) && $formData['date_naissance'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Date de naissance</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ \Carbon\Carbon::parse($formData['date_naissance'])->format('d/m/Y') }}
+                                </dd>
+                            </div>
+                        @elseif(isset($formData['date_of_birth']) && $formData['date_of_birth'])
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Date de naissance</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
@@ -263,14 +275,24 @@
                             </div>
                         @endif
                         
-                        @if(isset($formData['place_of_birth']) && $formData['place_of_birth'])
+                        @if(isset($formData['lieu_naissance']) && $formData['lieu_naissance'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Lieu de naissance</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['lieu_naissance'] }}</dd>
+                            </div>
+                        @elseif(isset($formData['place_of_birth']) && $formData['place_of_birth'])
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Lieu de naissance</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['place_of_birth'] }}</dd>
                             </div>
                         @endif
                         
-                        @if(isset($formData['nationality']) && $formData['nationality'])
+                        @if(isset($formData['nationalite']) && $formData['nationalite'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Nationalité</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['nationalite'] }}</dd>
+                            </div>
+                        @elseif(isset($formData['nationality']) && $formData['nationality'])
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Nationalité</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['nationality'] }}</dd>
@@ -284,17 +306,94 @@
                             </div>
                         @endif
                         
-                        @if(isset($formData['address']) && $formData['address'])
+                        @if(isset($formData['cin_number']) && $formData['cin_number'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Numéro CNI</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['cin_number'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['telephone']) && $formData['telephone'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['telephone'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['adresse_complete']) && $formData['adresse_complete'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Adresse complète</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['adresse_complete'] }}</dd>
+                            </div>
+                        @elseif(isset($formData['address']) && $formData['address'])
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Adresse</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['address'] }}</dd>
                             </div>
                         @endif
                         
-                        @if(isset($formData['cin_number']) && $formData['cin_number'])
+                        @if(isset($formData['commune']) && $formData['commune'])
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Numéro CNI</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['cin_number'] }}</dd>
+                                <dt class="text-sm font-medium text-gray-500">Commune</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['commune'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['quartier']) && $formData['quartier'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Quartier</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['quartier'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['date_installation']) && $formData['date_installation'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Date d'installation</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ \Carbon\Carbon::parse($formData['date_installation'])->format('d/m/Y') }}
+                                </dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['statut_logement']) && $formData['statut_logement'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Statut du logement</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['statut_logement'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['nom_temoin']) && $formData['nom_temoin'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Nom du témoin</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['nom_temoin'] . ' ' . ($formData['prenoms_temoin'] ?? '') }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['profession_temoin']) && $formData['profession_temoin'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Profession du témoin</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['profession_temoin'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['telephone_temoin']) && $formData['telephone_temoin'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Téléphone du témoin</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['telephone_temoin'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['motif']) && $formData['motif'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Motif de la demande</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['motif'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['lieu_delivrance']) && $formData['lieu_delivrance'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Lieu de délivrance</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['lieu_delivrance'] }}</dd>
                             </div>
                         @endif
                         
@@ -406,192 +505,97 @@
                             </div>
                         @endif
                         
-                        <!-- Informations détaillées des parents -->
                         @if(isset($formData['prenoms_pere']) && $formData['prenoms_pere'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Prénoms du père</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['prenoms_pere'] }}</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['age_pere']) && $formData['age_pere'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Âge du père à la naissance</dt>
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Âge du père</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['age_pere'] }} ans</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['lieu_naissance_pere']) && $formData['lieu_naissance_pere'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Lieu de naissance du père</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['lieu_naissance_pere'] }}</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['domicile_pere']) && $formData['domicile_pere'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Domicile du père</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['domicile_pere'] }}</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['prenoms_mere']) && $formData['prenoms_mere'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Prénoms de la mère</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['prenoms_mere'] }}</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['age_mere']) && $formData['age_mere'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Âge de la mère à la naissance</dt>
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Âge de la mère</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['age_mere'] }} ans</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['lieu_naissance_mere']) && $formData['lieu_naissance_mere'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Lieu de naissance de la mère</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['lieu_naissance_mere'] }}</dd>
                             </div>
                         @endif
                         
                         @if(isset($formData['domicile_mere']) && $formData['domicile_mere'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Domicile de la mère</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['domicile_mere'] }}</dd>
                             </div>
                         @endif
-
-                        <!-- Informations spécifiques au certificat de mariage -->
-                        @if(isset($formData['spouse_name']) && $formData['spouse_name'])
-                            <div class="bg-pink-50 px-4 py-3">
-                                <h4 class="text-md font-medium text-pink-900 flex items-center">
-                                    <i class="fas fa-heart mr-2"></i>
-                                    Informations du conjoint
-                                </h4>
-                            </div>
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Nom du conjoint</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['spouse_name'] }}</dd>
+                        
+                        @if(isset($formData['centre_etat_civil']) && $formData['centre_etat_civil'])
+                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Centre d'état civil</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['centre_etat_civil'] }}</dd>
                             </div>
                         @endif
                         
-                        @if(isset($formData['marriage_date']) && $formData['marriage_date'])
+                        @if(isset($formData['numero_acte']) && $formData['numero_acte'])
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Numéro d'acte</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['numero_acte'] }}</dd>
+                            </div>
+                        @endif
+                        
+                        @if(isset($formData['date_declaration']) && $formData['date_declaration'])
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Date de mariage</dt>
+                                <dt class="text-sm font-medium text-gray-500">Date de déclaration</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ \Carbon\Carbon::parse($formData['marriage_date'])->format('d/m/Y') }}
+                                    {{ \Carbon\Carbon::parse($formData['date_declaration'])->format('d/m/Y') }}
                                 </dd>
                             </div>
                         @endif
                         
-                        @if(isset($formData['marriage_place']) && $formData['marriage_place'])
+                        @if(isset($formData['annee_registre']) && $formData['annee_registre'])
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Lieu de mariage</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['marriage_place'] }}</dd>
-                            </div>
-                        @endif
-
-                        <!-- Informations spécifiques à l'époux/épouse pour les certificats de mariage -->
-                        @if(isset($formData['husband_name']) && $formData['husband_name'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Nom de l'époux</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['husband_name'] }}</dd>
+                                <dt class="text-sm font-medium text-gray-500">Année de registre</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['annee_registre'] }}</dd>
                             </div>
                         @endif
                         
-                        @if(isset($formData['husband_birth_date']) && $formData['husband_birth_date'])
+                        @if(isset($formData['first_names']) && $formData['first_names'])
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Date de naissance de l'époux</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ \Carbon\Carbon::parse($formData['husband_birth_date'])->format('d/m/Y') }}
-                                </dd>
+                                <dt class="text-sm font-medium text-gray-500">Prénoms</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['first_names'] }}</dd>
                             </div>
-                        @endif
-                        
-                        @if(isset($formData['husband_birth_place']) && $formData['husband_birth_place'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Lieu de naissance de l'époux</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['husband_birth_place'] }}</dd>
-                            </div>
-                        @endif
-                        
-                        @if(isset($formData['husband_profession']) && $formData['husband_profession'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Profession de l'époux</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['husband_profession'] }}</dd>
-                            </div>
-                        @endif
-                        
-                        @if(isset($formData['wife_name']) && $formData['wife_name'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Nom de l'épouse</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['wife_name'] }}</dd>
-                            </div>
-                        @endif
-                        
-                        @if(isset($formData['wife_birth_date']) && $formData['wife_birth_date'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Date de naissance de l'épouse</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ \Carbon\Carbon::parse($formData['wife_birth_date'])->format('d/m/Y') }}
-                                </dd>
-                            </div>
-                        @endif
-                        
-                        @if(isset($formData['wife_birth_place']) && $formData['wife_birth_place'])
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Lieu de naissance de l'épouse</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['wife_birth_place'] }}</dd>
-                            </div>
-                        @endif
-                        
-                        @if(isset($formData['wife_profession']) && $formData['wife_profession'])
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Profession de l'épouse</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ $formData['wife_profession'] }}</dd>
-                            </div>
-                        @endif
-                        
-                        <!-- Section pour afficher TOUS les autres champs qui pourraient exister -->
-                        @php
-                            $displayedKeys = [
-                                'name', 'gender', 'date_of_birth', 'birth_time', 'place_of_birth', 'nationality', 
-                                'profession', 'address', 'cin_number', 'father_name', 'father_profession', 
-                                'mother_name', 'mother_profession', 'registry_number', 'registration_date', 
-                                'declarant_name', 'registration_number', 'centre_etat_civil', 'numero_acte', 
-                                'date_declaration', 'annee_registre', 'prenoms_pere', 'age_pere', 
-                                'lieu_naissance_pere', 'domicile_pere', 'prenoms_mere', 'age_mere', 
-                                'lieu_naissance_mere', 'domicile_mere', 'spouse_name', 'marriage_date', 
-                                'marriage_place', 'husband_name', 'husband_birth_date', 'husband_birth_place', 
-                                'husband_profession', 'wife_name', 'wife_birth_date', 'wife_birth_place', 
-                                'wife_profession', 'purpose', 'document_to_legalize', 'additional_info'
-                            ];
-                            $otherFields = array_diff_key($formData, array_flip($displayedKeys));
-                        @endphp
-                        
-                        @if(!empty($otherFields))
-                            <div class="bg-gray-50 px-4 py-3">
-                                <h4 class="text-md font-medium text-gray-900 flex items-center">
-                                    <i class="fas fa-list mr-2"></i>
-                                    Autres informations saisies
-                                </h4>
-                            </div>
-                            @foreach($otherFields as $key => $value)
-                                @if($value && !is_array($value))
-                                    <div class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                        <dt class="text-sm font-medium text-gray-500">{{ ucfirst(str_replace('_', ' ', $key)) }}</dt>
-                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                            @if(in_array($key, ['date', 'birth_date', 'naissance']) && \Carbon\Carbon::hasFormat($value, 'Y-m-d'))
-                                                {{ \Carbon\Carbon::parse($value)->format('d/m/Y') }}
-                                            @else
-                                                {{ $value }}
-                                            @endif
-                                        </dd>
-                                    </div>
-                                @endif
-                            @endforeach
                         @endif
                     </dl>
                 </div>

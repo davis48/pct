@@ -104,11 +104,10 @@
         <div class="subtitle">Union - Travail - Progrès</div>
         <div class="subtitle">MAIRIE D'ABIDJAN</div>
         <div class="subtitle">SERVICE DES AFFAIRES CIVILES</div>
-    </div>
-
-    <div class="document-info">
-        <strong>Référence :</strong> {{ $reference_number }}<br>        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
+    </div>    <div class="document-info">
+        <strong>Référence :</strong> {{ $reference_number }}<br>
+        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
@@ -119,31 +118,44 @@
         <p>Je soussigné(e), <strong>{{ $request->processed_by ?? 'Maire d\'Abidjan' }}</strong>, certifie que :</p>
 
         <div class="citizen-info">
-            <strong>Nom et Prénoms :</strong> {{ $user->name }}<br>
-            <strong>Date de naissance :</strong> {{ $user->date_of_birth ?? 'Non renseignée' }}<br>
-            <strong>Lieu de naissance :</strong> {{ $user->place_of_birth ?? 'Non renseigné' }}<br>
-            <strong>Profession :</strong> {{ $user->profession ?? 'Non renseignée' }}<br>
-            <strong>Numéro CNI :</strong> {{ $user->cin_number ?? 'Non renseigné' }}<br>
+            <strong>Nom et Prénoms :</strong> {{ ($form_data['nom'] ?? '') . ' ' . ($form_data['prenoms'] ?? '') }}<br>
+            <strong>Date de naissance :</strong> {{ isset($form_data['date_naissance']) ? \Carbon\Carbon::parse($form_data['date_naissance'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Lieu de naissance :</strong> {{ $form_data['lieu_naissance'] ?? 'Non renseigné' }}<br>
+            <strong>Nationalité :</strong> {{ $form_data['nationalite'] ?? 'Non renseignée' }}<br>
+            <strong>Profession :</strong> {{ $form_data['profession'] ?? 'Non renseignée' }}<br>
+            <strong>Numéro CNI :</strong> {{ $form_data['cin_number'] ?? 'Non renseigné' }}<br>
+            <strong>Téléphone :</strong> {{ $form_data['telephone'] ?? 'Non renseigné' }}<br>
         </div>
 
         <p>Demeure effectivement à l'adresse suivante :</p>
         
         <div class="citizen-info">
-            <strong>Adresse complète :</strong> {{ $user->address ?? 'Adresse non renseignée' }}<br>
-            <strong>Commune/Ville :</strong> {{ $user->city ?? 'Abidjan' }}<br>
-            <strong>Depuis le :</strong> {{ $request->created_at->format('d/m/Y') }}
-        </p>
+            <strong>Adresse complète :</strong> {{ $form_data['adresse_complete'] ?? 'Adresse non renseignée' }}<br>
+            <strong>Commune/Ville :</strong> {{ $form_data['commune'] ?? 'Non renseignée' }}<br>
+            <strong>Quartier :</strong> {{ $form_data['quartier'] ?? 'Non renseigné' }}<br>
+            <strong>Date d'installation :</strong> {{ isset($form_data['date_installation']) ? \Carbon\Carbon::parse($form_data['date_installation'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Statut du logement :</strong> {{ $form_data['statut_logement'] ?? 'Non renseigné' }}<br>
+        </div>
+
+        @if(isset($form_data['nom_temoin']) && $form_data['nom_temoin'])
+        <p><strong>Attesté par le témoin :</strong></p>
+        <div class="citizen-info">
+            <strong>Nom et Prénoms du témoin :</strong> {{ ($form_data['nom_temoin'] ?? '') . ' ' . ($form_data['prenoms_temoin'] ?? '') }}<br>
+            <strong>Profession du témoin :</strong> {{ $form_data['profession_temoin'] ?? 'Non renseignée' }}<br>
+            <strong>Téléphone du témoin :</strong> {{ $form_data['telephone_temoin'] ?? 'Non renseigné' }}<br>
+        </div>
+        @endif
 
         <p>Cette attestation est délivrée pour servir et valoir ce que de droit.</p>
 
-        <p><strong>Motif de la demande :</strong> {{ $request->reason ?? 'Usage administratif' }}</p>
+        <p><strong>Motif de la demande :</strong> {{ $form_data['motif'] ?? $request->reason ?? 'Usage administratif' }}</p>
+        <p><strong>Lieu de délivrance :</strong> {{ $form_data['lieu_delivrance'] ?? 'Abidjan' }}</p>
     </div>
 
-    <div class="signature-section">
-        <div class="signature-box">
+    <div class="signature-section">        <div class="signature-box">
             <p><strong>Le Demandeur</strong></p>
             <div style="height: 60px;"></div>
-            <p>{{ $user->name }}</p>
+            <p>{{ ($form_data['nom'] ?? '') . ' ' . ($form_data['prenoms'] ?? '') }}</p>
         </div>
         
         <div class="signature-box">
@@ -155,7 +167,7 @@
     </div>
 
     <div class="footer">
-        <p>Document généré électroniquement le {{ is_string($date_generation) ? $date_generation . ' à ' . date('H:i') : $date_generation->format('d/m/Y à H:i') }}</p>
+        <p>Document généré électroniquement le {{ $date_generation->format('d/m/Y à H:i') }}</p>
         <p>Mairie d'Abidjan - Service des Affaires Civiles - Tél: +225 XX XX XX XX</p>
         <p>Ce document est authentique et vérifiable avec la référence: {{ $reference_number }}</p>
     </div>

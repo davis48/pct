@@ -755,13 +755,13 @@
                         </div>
                         
                         <input type="file" id="documents" name="documents[]" multiple 
-                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
+                               accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect(event)">
                         
                         <div class="file-list" id="fileList"></div>
                         <div class="file-counter" id="fileCounter">0/8 documents sélectionnés</div>
                         
-                        <div class="error-message" id="errorMessage"></div>
-                        <div class="success-message" id="successMessage"></div>
+                        <div class="error-message hidden" id="errorMessage"></div>
+                        <div class="success-message hidden" id="successMessage"></div>
                     </div>
 
                     <div class="form-actions">
@@ -867,8 +867,8 @@
                 const errorMessage = document.getElementById('errorMessage');
                 const successMessage = document.getElementById('successMessage');
                 
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
+                errorMessage.classList.add('hidden');
+                successMessage.classList.add('hidden');
                 
                 for (let file of files) {
                     if (selectedFiles.length >= maxFiles) {
@@ -959,18 +959,18 @@
             function showError(message) {
                 const errorMessage = document.getElementById('errorMessage');
                 errorMessage.textContent = message;
-                errorMessage.style.display = 'block';
+                errorMessage.classList.remove('hidden');
                 setTimeout(() => {
-                    errorMessage.style.display = 'none';
+                    errorMessage.classList.add('hidden');
                 }, 5000);
             }
             
             function showSuccess(message) {
                 const successMessage = document.getElementById('successMessage');
                 successMessage.textContent = message;
-                successMessage.style.display = 'block';
+                successMessage.classList.remove('hidden');
                 setTimeout(() => {
-                    successMessage.style.display = 'none';
+                    successMessage.classList.add('hidden');
                 }, 3000);
             }
             

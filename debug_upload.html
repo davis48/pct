@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .upload-area { 
+            border: 2px dashed #ccc; 
+            padding: 20px; 
+            text-align: center; 
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .file-item { 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #f0f0f0; 
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn { padding: 5px 10px; margin: 5px; cursor: pointer; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test de Debug Upload de Documents</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Vérification de l'élément input</h3>
+        <div class="upload-area" onclick="testClick()">
+            Cliquez ici pour tester
+        </div>
+        <input type="file" id="testDocuments" name="documents[]" multiple 
+               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="testHandleFileSelect(event)">
+        <div id="testResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Simulation des formulaires problématiques</h3>
+        <div class="upload-area" onclick="document.getElementById('documents').click()">
+            Test formulaire certificat mariage
+        </div>
+        <input type="file" id="documents" name="documents[]" multiple 
+               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
+        <div id="fileList"></div>
+        <div id="fileCounter">0/8 documents sélectionnés</div>
+        <div id="errorMessage"></div>
+        <div id="successMessage"></div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        const maxFiles = 8;
+        const maxFileSize = 5 * 1024 * 1024;
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+
+        function testClick() {
+            const input = document.getElementById('testDocuments');
+            const result = document.getElementById('testResult');
+            
+            result.innerHTML = `
+                <p>Input trouvé: ${input ? '✅ OUI' : '❌ NON'}</p>
+                <p>Type: ${input ? input.type : 'N/A'}</p>
+                <p>Style display: ${input ? input.style.display : 'N/A'}</p>
+                <p>Onclick test: ${input ? 'Tentative de click...' : 'Impossible'}</p>
+            `;
+            
+            if (input) {
+                try {
+                    input.click();
+                    result.innerHTML += '<p class="success">✅ Click réussi!</p>';
+                } catch(e) {
+                    result.innerHTML += `<p class="error">❌ Erreur click: ${e.message}</p>`;
+                }
+            }
+        }
+
+        function testHandleFileSelect(event) {
+            const result = document.getElementById('testResult');
+            const files = Array.from(event.target.files);
+            result.innerHTML += `<p class="success">🎉 Fichiers sélectionnés: ${files.length}</p>`;
+            files.forEach(file => {
+                result.innerHTML += `<p>- ${file.name} (${file.type})</p>`;
+            });
+        }
+
+        // Simulation de la fonction problématique
+        window.handleFileSelect = function(event) {
+            console.log('🔍 handleFileSelect appelée', event);
+            console.log('🔍 Files:', event.target.files);
+            
+            const files = Array.from(event.target.files);
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            // Reset messages
+            if (errorDiv) errorDiv.textContent = '';
+            if (successDiv) successDiv.textContent = '';
+            
+            console.log('🔍 Traitement de', files.length, 'fichiers');
+            
+            try {
+                processFiles(files);
+            } catch(e) {
+                console.error('❌ Erreur dans processFiles:', e);
+                if (errorDiv) errorDiv.textContent = `Erreur: ${e.message}`;
+            }
+        };
+
+        function processFiles(files) {
+            console.log('🔍 processFiles appelée avec', files.length, 'fichiers');
+            
+            selectedFiles = []; // Reset pour test
+            
+            for (let file of files) {
+                console.log('🔍 Traitement fichier:', file.name, file.type, file.size);
+                
+                if (selectedFiles.length >= maxFiles) {
+                    showError(`Maximum ${maxFiles} fichiers`);
+                    break;
+                }
+                
+                if (!allowedTypes.includes(file.type)) {
+                    showError(`Type non autorisé: ${file.name}`);
+                    continue;
+                }
+                
+                if (file.size > maxFileSize) {
+                    showError(`Fichier trop gros: ${file.name}`);
+                    continue;
+                }
+                
+                selectedFiles.push(file);
+            }
+            
+            console.log('🔍 Fichiers sélectionnés:', selectedFiles.length);
+            
+            updateDocumentFileList();
+            updateDocumentFileCounter();
+            
+            if (selectedFiles.length > 0) {
+                showSuccess(`${selectedFiles.length} fichier(s) sélectionné(s)`);
+            }
+        }
+
+        function updateDocumentFileList() {
+            const fileList = document.getElementById('fileList');
+            if (!fileList) {
+                console.error('❌ Element fileList non trouvé');
+                return;
+            }
+            
+            console.log('🔍 Mise à jour liste avec', selectedFiles.length, 'fichiers');
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name} (${formatFileSize(file.size)})</span>
+                    <button class="btn" onclick="removeDocumentFile(${index})">Supprimer</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function updateDocumentFileCounter() {
+            const counter = document.getElementById('fileCounter');
+            if (!counter) {
+                console.error('❌ Element fileCounter non trouvé');
+                return;
+            }
+            counter.textContent = `${selectedFiles.length}/${maxFiles} documents sélectionnés`;
+        }
+
+        window.removeDocumentFile = function(index) {
+            console.log('🔍 Suppression fichier index:', index);
+            selectedFiles.splice(index, 1);
+            updateDocumentFileList();
+            updateDocumentFileCounter();
+            showSuccess('Fichier supprimé');
+        };
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showError(message) {
+            console.error('❌', message);
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                errorDiv.style.color = 'red';
+            }
+        }
+
+        function showSuccess(message) {
+            console.log('✅', message);
+            const successDiv = document.getElementById('successMessage');
+            if (successDiv) {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                successDiv.style.color = 'green';
+            }
+        }
+
+        // Test au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 Page chargée, tests automatiques...');
+            
+            // Test de tous les éléments
+            const tests = [
+                { id: 'testDocuments', name: 'Input test' },
+                { id: 'documents', name: 'Input principal' },
+                { id: 'fileList', name: 'Liste fichiers' },
+                { id: 'fileCounter', name: 'Compteur' },
+                { id: 'errorMessage', name: 'Message erreur' },
+                { id: 'successMessage', name: 'Message succès' }
+            ];
+            
+            tests.forEach(test => {
+                const element = document.getElementById(test.id);
+                console.log(`🔍 ${test.name} (${test.id}):`, element ? '✅ Trouvé' : '❌ Manquant');
+            });
+            
+            // Test des fonctions
+            const functions = ['handleFileSelect', 'removeDocumentFile'];
+            functions.forEach(funcName => {
+                console.log(`🔍 Fonction ${funcName}:`, window[funcName] ? '✅ Définie' : '❌ Manquante');
+            });
+        });
+    </script>
+</body>
+</html>

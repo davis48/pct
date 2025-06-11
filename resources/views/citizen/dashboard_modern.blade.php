@@ -86,20 +86,18 @@
             <div class="col-12">
                 <div class="gradient-bg text-white p-4 rounded-4 shadow">
                     <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h1 class="h2 mb-2 fw-bold">
-                                <i class="fas fa-user-circle me-3"></i>
+                        <div class="col-md-8">                            <h1 class="h2 mb-2 fw-bold">
+                                <i class="fas fa-city me-3"></i>
                                 Bienvenue, {{ auth()->user()->prenoms }} {{ auth()->user()->nom }}
                             </h1>
                             <p class="mb-0 opacity-90">Gérez vos demandes administratives en toute simplicité</p>
-                        </div>
-                        <div class="col-md-4 text-md-end">
+                        </div>                        <div class="col-md-4 text-md-end">
                             <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
                                 <a href="{{ route('interactive-forms.index') }}" class="btn btn-light btn-lg action-btn">
-                                    <i class="fas fa-plus me-2"></i>Nouvelle Demande
+                                    <i class="fas fa-file-signature me-2"></i>Nouvelle Demande
                                 </a>
                                 <a href="{{ route('documents.index') }}" class="btn btn-outline-light action-btn">
-                                    <i class="fas fa-file-alt me-2"></i>Documents
+                                    <i class="fas fa-archive me-2"></i>Documents
                                 </a>
                             </div>
                         </div>
@@ -178,9 +176,8 @@
         @if($notifications->count() > 0)
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card shadow-sm">                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-bell me-2"></i>
+                <div class="card shadow-sm">                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-check me-2"></i>
                             Notifications récentes ({{ $notifications->count() }})
                         </h5>
                         <div class="d-flex gap-2">

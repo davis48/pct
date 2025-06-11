@@ -338,11 +338,22 @@
                                             </span>
                                     @endswitch
                                 </dd>
-                            </div>
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            </div>                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Montant</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <span class="font-semibold">5 000 FCFA</span>
+                                    @php
+                                        $amount = 500; // Montant par défaut
+                                        
+                                        // Essayer d'abord de récupérer le montant du paiement existant
+                                        $payment = $request->payments()->latest()->first();
+                                        if ($payment && $payment->amount) {
+                                            $amount = $payment->amount;
+                                        } else {
+                                            // Sinon, calculer le montant basé sur le type de document
+                                            $amount = \App\Services\PaymentService::getPriceForDocumentType($request->type ?? 'default');
+                                        }
+                                    @endphp
+                                    <span class="font-semibold">{{ number_format($amount, 0, ',', ' ') }} FCFA</span>
                                 </dd>
                             </div>
                             @if($request->payments()->where('status', 'completed')->exists())

@@ -131,31 +131,35 @@
         <div class="subtitle">Union - Travail - Progrès</div>
         <div class="subtitle">MAIRIE D'ABIDJAN</div>
         <div class="subtitle">SERVICE DE LÉGALISATION</div>
-    </div>
-
-    <div class="document-info">
-        <strong>Référence :</strong> {{ $reference_number }}<br>        <strong>Date :</strong> {{ is_string($date_generation) ? $date_generation : $date_generation->format('d/m/Y') }}<br>
-        <strong>Heure :</strong> {{ is_string($date_generation) ? date('H:i') : $date_generation->format('H:i') }}
+    </div>    <div class="document-info">
+        <strong>Référence :</strong> {{ $reference_number }}<br>
+        <strong>Date :</strong> {{ $date_generation->format('d/m/Y') }}<br>
+        <strong>Heure :</strong> {{ $date_generation->format('H:i') }}
     </div>
 
     <div class="document-title">
         LÉGALISATION DE DOCUMENT
     </div>
 
-    <div class="content">        <div class="legalization-info">
+    <div class="content">
+        <div class="legalization-info">
             <h3 style="margin-top: 0; color: #0066cc;">DEMANDEUR</h3>
-            <strong>Nom et Prénoms :</strong> {{ $data['nom'] ?? $user->name ?? 'Non renseigné' }}<br>
-            <strong>Date de naissance :</strong> {{ isset($data['date_naissance']) ? \Carbon\Carbon::parse($data['date_naissance'])->format('d/m/Y') : ($user->date_of_birth ?? 'Non renseignée') }}<br>
-            <strong>Lieu de naissance :</strong> {{ $data['lieu_naissance'] ?? $user->place_of_birth ?? 'Non renseigné' }}<br>
-            <strong>Profession :</strong> {{ $data['profession'] ?? $user->profession ?? 'Non renseignée' }}<br>
-            <strong>Domicile :</strong> {{ $data['adresse'] ?? $user->address ?? 'Non renseigné' }}<br>
-            <strong>Numéro CNI :</strong> {{ $data['numero_cni'] ?? $user->cin_number ?? 'Non renseigné' }}
-        </div><div class="document-details">
+            <strong>Nom et Prénoms :</strong> {{ $form_data['nom'] ?? 'Non renseigné' }}<br>
+            <strong>Date de naissance :</strong> {{ isset($form_data['date_naissance']) ? \Carbon\Carbon::parse($form_data['date_naissance'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Lieu de naissance :</strong> {{ $form_data['lieu_naissance'] ?? 'Non renseigné' }}<br>
+            <strong>Profession :</strong> {{ $form_data['profession'] ?? 'Non renseignée' }}<br>
+            <strong>Domicile :</strong> {{ $form_data['adresse'] ?? 'Non renseigné' }}<br>
+            <strong>Numéro CNI :</strong> {{ $form_data['numero_cni'] ?? 'Non renseigné' }}
+        </div>
+
+        <div class="document-details">
             <h3 style="margin-top: 0; color: #ffc107;">DOCUMENT À LÉGALISER</h3>
-            <strong>Type de document :</strong> {{ $data['document_type'] ?? 'Document administratif' }}<br>
-            <strong>Date du document original :</strong> {{ isset($data['document_date']) ? \Carbon\Carbon::parse($data['document_date'])->format('d/m/Y') : 'Non renseignée' }}<br>
-            <strong>Autorité émettrice :</strong> {{ $data['issuing_authority'] ?? 'Administration compétente' }}<br>
-            <strong>Numéro du document :</strong> {{ $data['document_number'] ?? 'Non renseigné' }}
+            <strong>Type de document :</strong> {{ $form_data['document_type'] ?? 'Document administratif' }}<br>
+            <strong>Date du document original :</strong> {{ isset($form_data['document_date']) ? \Carbon\Carbon::parse($form_data['document_date'])->format('d/m/Y') : 'Non renseignée' }}<br>
+            <strong>Autorité émettrice :</strong> {{ $form_data['issuing_authority'] ?? 'Administration compétente' }}<br>
+            <strong>Numéro du document :</strong> {{ $form_data['document_number'] ?? 'Non renseigné' }}<br>
+            <strong>Motif de la demande :</strong> {{ $form_data['motif_demande'] ?? 'Usage administratif' }}<br>
+            <strong>Destination :</strong> {{ $form_data['destination'] ?? 'Non précisée' }}
         </div>
 
         <div class="certification-box">

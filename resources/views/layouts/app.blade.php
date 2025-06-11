@@ -235,22 +235,21 @@
                     <a href="{{ route('home') }}" class="nav-link text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
                         <i class="fas fa-home mr-2"></i>Accueil
                     </a>
-                    
-                    <div class="dropdown relative">
+                      <div class="dropdown relative">
                         <button class="nav-link text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium flex items-center">
-                            <i class="fas fa-edit mr-2"></i>Services
+                            <i class="fas fa-stamp mr-2"></i>Services
                             <i class="fas fa-chevron-down ml-1 text-xs"></i>
                         </button>
                         <div class="dropdown-menu absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2">
                             <a href="{{ route('interactive-forms.index') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                                <i class="fas fa-file-alt mr-3 text-blue-500"></i>
+                                <i class="fas fa-file-signature mr-3 text-blue-500"></i>
                                 <div>
                                     <div class="font-medium">Formulaires Interactifs</div>
                                     <div class="text-xs text-gray-500">Remplir vos documents en ligne</div>
                                 </div>
                             </a>
                             <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                                <i class="fas fa-search mr-3 text-green-500"></i>
+                                <i class="fas fa-folder-open mr-3 text-green-500"></i>
                                 <div>
                                     <div class="font-medium">Suivi de Demandes</div>
                                     <div class="text-xs text-gray-500">Suivre l'état de vos demandes</div>
@@ -265,10 +264,9 @@
                             </a>                        </div>
                     </div>
                     
-                    @auth
-                        <!-- Notifications Bell -->
+                    @auth                        <!-- Notifications Bell -->
                         <div class="dropdown relative">                            <button id="notificationToggle" class="notification-bell nav-link text-gray-600 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium relative">
-                                <i class="fas fa-bell text-lg"></i>
+                                <i class="fas fa-clipboard-check text-lg"></i>
                                 @php
                                     $notificationCount = Auth::check() ? \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count() : 0;
                                 @endphp
@@ -303,9 +301,8 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <a href="{{ route('citizen.dashboard') }}" class="nav-link text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
-                            <i class="fas fa-tachometer-alt mr-2"></i>Tableau de bord
+                          <a href="{{ route('citizen.dashboard') }}" class="nav-link text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
+                            <i class="fas fa-city mr-2"></i>Tableau de bord
                         </a>
                         
                         <!-- Profile Dropdown -->
@@ -321,12 +318,11 @@
                                 <div class="px-4 py-3 border-b border-gray-100">
                                     <div class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</div>
                                     <div class="text-xs text-gray-500">{{ Auth::user()->email }}</div>
-                                </div>
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                                    <i class="fas fa-user mr-2"></i>Mon Profil
+                                </div>                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-id-card mr-2"></i>Mon Profil
                                 </a>
                                 <a href="{{ route('citizen.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                                    <i class="fas fa-tachometer-alt mr-2"></i>Tableau de bord
+                                    <i class="fas fa-city mr-2"></i>Tableau de bord
                                 </a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
                                     <i class="fas fa-cog mr-2"></i>Paramètres
@@ -364,13 +360,12 @@
                 <div class="px-2 pt-2 pb-3 space-y-1">
                     <a href="{{ route('home') }}" class="mobile-menu-item block px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                         <i class="fas fa-home mr-3"></i>Accueil
-                    </a>
-                    <a href="{{ route('interactive-forms.index') }}" class="mobile-menu-item block px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <i class="fas fa-edit mr-3"></i>Formulaires
+                    </a>                    <a href="{{ route('interactive-forms.index') }}" class="mobile-menu-item block px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-stamp mr-3"></i>Formulaires
                     </a>
                       @auth
                         <a href="{{ route('citizen.notifications.center') }}" class="mobile-menu-item block px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors relative">
-                            <i class="fas fa-bell mr-3"></i>Notifications
+                            <i class="fas fa-clipboard-check mr-3"></i>Notifications
                             @php
                                 $mobileNotificationCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
                             @endphp

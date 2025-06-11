@@ -20,10 +20,9 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
-        body {
+          body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             color: #1f2937;
             line-height: 1.6;
             overflow-x: hidden;
@@ -109,12 +108,11 @@
             color: #6b7280;
             font-size: 1.1rem;
         }
-        
-        .form-container {
+          .form-container {
             background: white;
             border-radius: 16px;
             padding: 2rem;
-            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.1);
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.1);
             border: 1px solid #e5e7eb;
         }
         
@@ -204,16 +202,15 @@
             flex: 1;
             justify-content: center;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          .btn-primary {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
         }
         
         .btn-secondary {
@@ -233,9 +230,8 @@
             padding-top: 1.5rem;
             border-top: 1px solid #e5e7eb;
         }
-        
-        .register-link a {
-            color: #3b82f6;
+          .register-link a {
+            color: #1976d2;
             text-decoration: none;
             font-weight: 500;
         }
@@ -364,9 +360,7 @@
                         @error('login')
                             <div class="error-text">{{ $message }}</div>
                         @enderror
-                    </div>
-
-                    <div class="input-group">
+                    </div>                    <div class="input-group">
                         <label class="input-label" for="password">
                             Mot de passe <span class="input-required">*</span>
                         </label>
@@ -375,6 +369,13 @@
                         @error('password')
                             <div class="error-text">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <!-- Lien mot de passe oublié -->
+                    <div class="forgot-password-link" style="text-align: right; margin-bottom: 1rem;">
+                        <a href="{{ route('password.request') }}" style="color: #3B82F6; text-decoration: none; font-size: 0.9rem;">
+                            Mot de passe oublié ?
+                        </a>
                     </div>
 
                     <div class="form-actions">

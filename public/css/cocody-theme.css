@@ -1,0 +1,207 @@
+/*
+ * Thème officiel Mairie de Cocody
+ * Couleurs inspirées du site officiel de la mairie
+ * https://mairiecocody.com
+ */
+
+:root {
+    /* Couleurs principales - Bleu Cocody */
+    --cocody-primary: #1976d2;
+    --cocody-primary-dark: #1565c0;
+    --cocody-primary-darker: #0d47a1;
+    --cocody-primary-light: #42a5f5;
+    --cocody-primary-lighter: #bbdefb;
+    
+    /* Couleurs secondaires - Vert Cocody */
+    --cocody-secondary: #43a047;
+    --cocody-secondary-dark: #388e3c;
+    --cocody-secondary-darker: #2e7d32;
+    --cocody-secondary-light: #66bb6a;
+    --cocody-secondary-lighter: #c8e6c9;
+    
+    /* Couleurs neutres */
+    --cocody-gray-50: #f8fafc;
+    --cocody-gray-100: #f1f5f9;
+    --cocody-gray-200: #e2e8f0;
+    --cocody-gray-300: #cbd5e1;
+    --cocody-gray-400: #94a3b8;
+    --cocody-gray-500: #64748b;
+    --cocody-gray-600: #475569;
+    --cocody-gray-700: #334155;
+    --cocody-gray-800: #1e293b;
+    --cocody-gray-900: #0f172a;
+    
+    /* Couleurs de statut */
+    --cocody-success: #43a047;
+    --cocody-warning: #ff9800;
+    --cocody-error: #f44336;
+    --cocody-info: #1976d2;
+    
+    /* Gradients */
+    --cocody-gradient-primary: linear-gradient(135deg, var(--cocody-primary), var(--cocody-primary-dark));
+    --cocody-gradient-secondary: linear-gradient(135deg, var(--cocody-secondary), var(--cocody-secondary-dark));
+    --cocody-gradient-background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
+    --cocody-gradient-card: linear-gradient(135deg, #e3f2fd 0%, #e8f5e8 100%);
+    
+    /* Ombres */
+    --cocody-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --cocody-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --cocody-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --cocody-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --cocody-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --cocody-shadow-primary: 0 4px 12px rgba(25, 118, 210, 0.4);
+    --cocody-shadow-secondary: 0 4px 12px rgba(67, 160, 71, 0.4);
+}
+
+/* Classes utilitaires pour les couleurs */
+.cocody-primary { color: var(--cocody-primary) !important; }
+.cocody-primary-dark { color: var(--cocody-primary-dark) !important; }
+.cocody-secondary { color: var(--cocody-secondary) !important; }
+.cocody-secondary-dark { color: var(--cocody-secondary-dark) !important; }
+
+.cocody-bg-primary { background-color: var(--cocody-primary) !important; }
+.cocody-bg-secondary { background-color: var(--cocody-secondary) !important; }
+.cocody-bg-gradient-primary { background: var(--cocody-gradient-primary) !important; }
+.cocody-bg-gradient-secondary { background: var(--cocody-gradient-secondary) !important; }
+
+/* Boutons Cocody */
+.btn-cocody-primary {
+    background: var(--cocody-gradient-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: var(--cocody-shadow);
+}
+
+.btn-cocody-primary:hover {
+    background: linear-gradient(135deg, var(--cocody-primary-dark), var(--cocody-primary-darker));
+    transform: translateY(-1px);
+    box-shadow: var(--cocody-shadow-primary);
+    color: white;
+}
+
+.btn-cocody-secondary {
+    background: var(--cocody-gradient-secondary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: var(--cocody-shadow);
+}
+
+.btn-cocody-secondary:hover {
+    background: linear-gradient(135deg, var(--cocody-secondary-dark), var(--cocody-secondary-darker));
+    transform: translateY(-1px);
+    box-shadow: var(--cocody-shadow-secondary);
+    color: white;
+}
+
+/* Liens Cocody */
+.link-cocody-primary {
+    color: var(--cocody-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-cocody-primary:hover {
+    color: var(--cocody-primary-dark);
+    text-decoration: underline;
+}
+
+/* Champs de saisie Cocody */
+.input-cocody:focus {
+    outline: none;
+    border-color: var(--cocody-primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+/* Cartes Cocody */
+.card-cocody {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--cocody-shadow-lg);
+    border: 1px solid var(--cocody-gray-200);
+}
+
+.card-cocody-info {
+    background: var(--cocody-gradient-card);
+    border: 1px solid var(--cocody-primary-lighter);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.card-cocody-info::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--cocody-primary);
+    border-radius: 2px 0 0 2px;
+}
+
+/* Navbar Cocody */
+.navbar-cocody {
+    background: white;
+    border-bottom: 1px solid var(--cocody-gray-200);
+    box-shadow: var(--cocody-shadow-sm);
+}
+
+.navbar-cocody .nav-link:hover {
+    color: var(--cocody-primary);
+}
+
+/* Body background Cocody */
+.body-cocody {
+    background: var(--cocody-gradient-background);
+    font-family: 'Inter', sans-serif;
+    color: var(--cocody-gray-800);
+    line-height: 1.6;
+}
+
+/* Barre de progression */
+.progress-bar-cocody {
+    height: 4px;
+    background: linear-gradient(90deg, var(--cocody-primary), var(--cocody-secondary));
+}
+
+/* Alertes */
+.alert-cocody-success {
+    background: var(--cocody-secondary-lighter);
+    border: 1px solid var(--cocody-secondary);
+    color: var(--cocody-secondary-darker);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.alert-cocody-info {
+    background: var(--cocody-primary-lighter);
+    border: 1px solid var(--cocody-primary);
+    color: var(--cocody-primary-darker);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.alert-cocody-warning {
+    background: #fff3cd;
+    border: 1px solid var(--cocody-warning);
+    color: #856404;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.alert-cocody-error {
+    background: #f8d7da;
+    border: 1px solid var(--cocody-error);
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+}

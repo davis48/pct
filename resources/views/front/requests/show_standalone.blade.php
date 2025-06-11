@@ -59,7 +59,7 @@
         }
         
         .navbar-icon {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             padding: 0.5rem;
             border-radius: 8px;
@@ -79,7 +79,7 @@
         }
         
         .nav-link:hover {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .main-content {
@@ -97,7 +97,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: #3b82f6;
+            color: #1976d2;
             text-decoration: none;
             font-weight: 500;
             margin-bottom: 2rem;
@@ -117,7 +117,7 @@
         }
         
         .request-header {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             padding: 2rem;
             display: flex;
@@ -201,7 +201,7 @@
         }
         
         .info-icon {
-            color: #3b82f6;
+            color: #1976d2;
             font-size: 1.125rem;
             margin-top: 0.125rem;
             flex-shrink: 0;
@@ -240,7 +240,7 @@
         }
         
         .section-icon {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .description-text {
@@ -274,7 +274,7 @@
         }
         
         .attachment-icon {
-            color: #3b82f6;
+            color: #1976d2;
             font-size: 1.5rem;
         }
         
@@ -330,7 +330,7 @@
         }
         
         .btn-primary {
-            background: #3b82f6;
+            background: #1976d2;
             color: white;
         }
         
@@ -405,7 +405,7 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: #1976d2;
         }
         
         .timeline-date {

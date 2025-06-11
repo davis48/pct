@@ -23,7 +23,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             color: #1f2937;
             line-height: 1.6;
             overflow-x: hidden;
@@ -59,7 +59,7 @@
         }
         
         .navbar-icon {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             padding: 0.5rem;
             border-radius: 8px;
@@ -79,7 +79,7 @@
         }
         
         .nav-link:hover {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .main-content {
@@ -105,7 +105,7 @@
         }
         
         .back-link {
-            color: #3b82f6;
+            color: #1976d2;
             font-size: 1.25rem;
             text-decoration: none;
             transition: color 0.3s ease;

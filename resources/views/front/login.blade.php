@@ -1,121 +1,401 @@
-@extends('layouts.front.app')
-@section('content')
-<!-- MODERNE TAILWINDCSS VIEW - v2.0 -->
-<section class="py-16 bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen flex items-center">
-    <div class="container mx-auto px-4">
-        <div class="max-w-md mx-auto">
-            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-                <div class="p-8">
-                    <div class="text-center mb-8">
-                        <div class="w-16 h-16 mx-auto bg-gradient-to-r from-primary-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg mb-4">
-                            <i class="fas fa-sign-in-alt text-2xl text-white"></i>
-                        </div>
-                        <h1 class="text-3xl font-bold gradient-text mb-2">Connexion</h1>
-                        <p class="text-gray-600">Accédez à votre espace personnalisé</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion | PCT UVCI</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+          body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .navbar-icon {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #3b82f6;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding: 2rem 0;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+          .form-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #34d399;
+            color: #064e3b;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            border: 1px solid #f87171;
+            color: #7f1d1d;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #60a5fa;
+            color: #1e3a8a;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-required {
+            color: #ef4444;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-field.error {
+            border-color: #ef4444;
+        }
+        
+        .error-text {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+          .btn-primary {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+          .register-link a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .pending-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pending-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .page-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ route('home') }}" class="navbar-brand">
+                <div class="navbar-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                PCT UVCI
+            </a>
+            
+            <div class="navbar-nav">
+                <a href="{{ route('home') }}" class="nav-link">Accueil</a>
+                <a href="{{ route('register.standalone') }}" class="nav-link">Inscription</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Connexion {{ $selectedRole === 'agent' ? 'Agent' : 'Citoyen' }}
+                </h1>
+                <p class="page-subtitle">
+                    Connectez-vous pour accéder aux services en ligne de PCT UVCI
+                </p>
+            </div>
+
+            <!-- Affichage des informations sur la demande en attente -->
+            @if(session('pending_form_submission'))
+                <div class="pending-info">
+                    <h4><i class="fas fa-clock"></i> Demande en attente</h4>
+                    <p>Vous avez une demande de {{ session('pending_form_submission.form_type') }} en attente. Après connexion, votre demande sera automatiquement traitée.</p>
+                </div>
+            @endif
+
+            <!-- Messages d'alerte -->
+            @if(session('success'))
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    {{ session('info') }}
+                </div>
+            @endif
+
+            <!-- Affichage des erreurs de validation -->
+            @if($errors->any())
+                <div class="alert alert-error">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Erreurs de validation</h4>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif            <div class="form-container">
+                <form action="{{ route('login.standalone') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="role" value="{{ $selectedRole ?? 'citizen' }}">
+                    
+                    <div class="input-group">
+                        <label class="input-label" for="login">
+                            Email ou Numéro de téléphone <span class="input-required">*</span>
+                        </label>
+                        <input type="text" name="login" id="login" 
+                               class="input-field @error('login') error @enderror" 
+                               value="{{ old('login') }}" required>
+                        @error('login')
+                            <div class="error-text">{{ $message }}</div>
+                        @enderror
+                    </div>                    <div class="input-group">
+                        <label class="input-label" for="password">
+                            Mot de passe <span class="input-required">*</span>
+                        </label>
+                        <input type="password" name="password" id="password" 
+                               class="input-field @error('password') error @enderror" required>
+                        @error('password')
+                            <div class="error-text">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    @if ($errors->any())
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-red-800 mb-1">Erreurs de validation</h3>
-                                    <ul class="text-sm text-red-700 space-y-1">
-                                        @foreach ($errors->all() as $error)
-                                            <li class="flex items-center">
-                                                <i class="fas fa-circle text-xs mr-2"></i>
-                                                {{ $error }}
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    <!-- Lien mot de passe oublié -->
+                    <div class="forgot-password-link" style="text-align: right; margin-bottom: 1rem;">
+                        <a href="{{ route('password.request') }}" style="color: #3B82F6; text-decoration: none; font-size: 0.9rem;">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
 
-                    <form id="loginForm" method="POST" action="{{ route('login.post') }}" class="space-y-6">
-                        @csrf
-                        <input type="hidden" name="role" value="{{ $selectedRole }}">
+                    <div class="form-actions">
+                        <a href="{{ route('interactive-forms.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Retour
+                        </a>
                         
-                        <div>
-                            <label for="login" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-envelope mr-2 text-gray-400"></i>
-                                Email ou Numéro de téléphone
-                            </label>
-                            <input type="text" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 @error('login') border-red-500 ring-2 ring-red-200 @enderror"
-                                   id="login" 
-                                   name="login" 
-                                   value="{{ old('login') }}" 
-                                   required 
-                                   autofocus
-                                   placeholder="exemple@email.com ou +225 XX XX XX XX">
-                            @error('login')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                            <p class="mt-2 text-sm text-gray-500">
-                                Vous pouvez vous connecter avec votre email ou votre numéro de téléphone.
-                            </p>
-                        </div>
-
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-lock mr-2 text-gray-400"></i>
-                                Mot de passe
-                            </label>
-                            <input type="password" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 @error('password') border-red-500 ring-2 ring-red-200 @enderror" 
-                                   id="password" 
-                                   name="password" 
-                                   required
-                                   placeholder="Votre mot de passe">
-                            @error('password')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <input type="checkbox" 
-                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" 
-                                       id="remember" 
-                                       name="remember" 
-                                       {{ old('remember') ? 'checked' : '' }}>
-                                <label class="ml-2 block text-sm text-gray-700" for="remember">
-                                    Se souvenir de moi
-                                </label>
-                            </div>
-                            <a href="{{ route('password.request') }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200">
-                                Mot de passe oublié ?
-                            </a>
-                        </div>
-
-                        <button type="submit" 
-                                class="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-primary-200">
-                            <i class="fas fa-sign-in-alt mr-2"></i>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
                             Se connecter
                         </button>
-                    </form>
-
-                    <div class="text-center mt-6">
-                        <p class="text-sm text-gray-600">
-                            Pas encore de compte ? 
-                            <a href="{{ url('/inscription') }}" class="text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200">
-                                S'inscrire
-                            </a>
-                        </p>
                     </div>
+                </form>
+
+                <div class="register-link">
+                    <p>Pas encore de compte ? <a href="{{ route('register.standalone') }}">S'inscrire</a></p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-@endsection
+    </main>
+</body>
+</html>

@@ -1,153 +1,463 @@
-@extends('layouts.front.app')
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaires Interactifs | PCT UVCI</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .navbar-icon {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #1976d2;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding: 2rem 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .page-icon {
+            color: #1976d2;
+            font-size: 2rem;
+        }
+        
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .benefits-section {
+            margin-bottom: 3rem;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        @media (min-width: 768px) {
+            .benefits-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .benefit-card {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .benefit-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .benefit-icon.green {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        .benefit-icon.blue {
+            background: #eff6ff;
+            color: #1976d2;
+        }
+        
+        .benefit-icon.purple {
+            background: #faf5ff;
+            color: #7c3aed;
+        }
+        
+        .benefit-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .benefit-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .forms-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .forms-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .forms-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .form-card-header {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-card-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        .form-card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-card-description {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .form-card-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-card-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .feature-icon {
+            color: #16a34a;
+            font-size: 0.75rem;
+        }
+        
+        .form-card-footer {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-family: inherit;
+            text-align: center;
+            justify-content: center;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ route('home') }}" class="navbar-brand">
+                <div class="navbar-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                PCT UVCI
+            </a>
+            
+            <div class="navbar-nav">
+                @auth
+                    <a href="{{ route('citizen.dashboard') }}" class="nav-link">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        Mon Espace
+                    </a>
+                    <a href="{{ route('requests.index') }}" class="nav-link">
+                        <i class="fas fa-file-alt mr-2"></i>
+                        Mes Demandes
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            Déconnexion
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('choose.role') }}" class="nav-link">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Se connecter
+                    </a>
+                @endauth
+            </div>
+        </div>
+    </nav>
 
-@section('title', 'Formulaires Interactifs')
-
-@section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-    <!-- Header Section -->
-    <div class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="text-center">
-                <h1 class="text-4xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-edit text-blue-600 mr-3"></i>
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <div class="container">
+            <!-- En-tête -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-edit page-icon"></i>
                     Formulaires Interactifs
                 </h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                <p class="page-subtitle">
                     Remplissez et générez vos documents officiels directement en ligne. 
                     Rapide, sécurisé et disponible 24h/24.
                 </p>
             </div>
-        </div>
-    </div>
 
-    <!-- Benefits Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-clock text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Gain de Temps</h3>
-                <p class="text-gray-600">Remplissez vos formulaires en quelques minutes seulement</p>
-            </div>
-            <div class="text-center">
-                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-shield-alt text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Sécurisé</h3>
-                <p class="text-gray-600">Vos données sont protégées et chiffrées</p>
-            </div>
-            <div class="text-center">
-                <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-download text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Téléchargement Instantané</h3>
-                <p class="text-gray-600">Récupérez vos documents immédiatement</p>
-            </div>
-        </div>
-
-        <!-- Forms Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            @foreach($availableForms as $formType => $formInfo)
-            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                <div class="p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-4">
-                            <i class="{{ $formInfo['icon'] }} text-xl"></i>
+            <!-- Section avantages -->
+            <div class="benefits-section">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon green">
+                            <i class="fas fa-clock"></i>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">{{ $formInfo['title'] }}</h3>
-                            <p class="text-sm text-gray-500">
-                                <i class="fas fa-clock mr-1"></i>
-                                {{ $formInfo['estimated_time'] }}
-                            </p>
-                        </div>
+                        <h3 class="benefit-title">Gain de Temps</h3>
+                        <p class="benefit-description">Remplissez vos formulaires en quelques minutes seulement</p>
                     </div>
-                    
-                    <p class="text-gray-600 mb-6">{{ $formInfo['description'] }}</p>
-                    
-                    <div class="flex space-x-3">
-                        <a href="{{ route('interactive-forms.show', $formType) }}" 
-                           class="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fas fa-edit mr-2"></i>
-                            Remplir en ligne
-                        </a>
-                        <a href="{{ route('documents.download-template', $formType) }}" 
-                           class="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                    <div class="benefit-card">
+                        <div class="benefit-icon blue">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="benefit-title">Sécurisé</h3>
+                        <p class="benefit-description">Vos données sont protégées et chiffrées</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon purple">
                             <i class="fas fa-download"></i>
-                        </a>
+                        </div>
+                        <h3 class="benefit-title">Téléchargement Instantané</h3>
+                        <p class="benefit-description">Récupérez vos documents immédiatement</p>
                     </div>
                 </div>
             </div>
-            @endforeach
-        </div>
 
-        <!-- Help Section -->
-        <div class="mt-16 bg-blue-50 rounded-lg p-8 text-center">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">
-                <i class="fas fa-question-circle text-blue-600 mr-2"></i>
-                Besoin d'aide ?
-            </h2>
-            <p class="text-gray-600 mb-6">
-                Notre équipe est là pour vous accompagner dans vos démarches administratives.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="#" class="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                    <i class="fas fa-phone mr-2"></i>
-                    Nous contacter
-                </a>
-                <a href="#" class="bg-white text-blue-600 border border-blue-600 py-3 px-6 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <i class="fas fa-book mr-2"></i>
-                    Guide d'utilisation
-                </a>
+            <!-- Section formulaires -->
+            <div class="forms-section">
+                <h2 class="section-title">Formulaires Disponibles</h2>
+                
+                <div class="forms-grid">
+                    @foreach($availableForms as $formType => $form)
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas {{ $form['icon'] }} form-card-icon"></i>
+                            <h3 class="form-card-title">{{ $form['title'] }}</h3>
+                            <p class="form-card-subtitle">{{ $form['subtitle'] ?? 'Document officiel' }}</p>
+                        </div>
+                        <div class="form-card-body">
+                            <p class="form-card-description">{{ $form['description'] }}</p>
+                            
+                            <ul class="form-card-features">
+                                <li class="form-card-feature">
+                                    <i class="fas fa-check feature-icon"></i>
+                                    <span>Génération automatique</span>
+                                </li>
+                                <li class="form-card-feature">
+                                    <i class="fas fa-check feature-icon"></i>
+                                    <span>Format PDF officiel</span>
+                                </li>
+                                <li class="form-card-feature">
+                                    <i class="fas fa-check feature-icon"></i>
+                                    <span>Téléchargement immédiat</span>
+                                </li>
+                                @if(isset($form['duration']))
+                                <li class="form-card-feature">
+                                    <i class="fas fa-clock feature-icon"></i>
+                                    <span>{{ $form['duration'] }}</span>
+                                </li>
+                                @endif
+                            </ul>
+                            
+                            <div class="form-card-footer">
+                                <a href="{{ route('interactive-forms.show', $formType) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                    Remplir le formulaire
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
         </div>
-
-        <!-- Legal Notice -->
-        <div class="mt-8 text-center text-sm text-gray-500">
-            <p>
-                <i class="fas fa-info-circle mr-1"></i>
-                Les documents générés ont la même valeur légale que ceux obtenus en mairie.
-                Conservez précieusement vos références de téléchargement.
-            </p>
-        </div>
-    </div>
-</div>
-
-<style>
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.grid > div {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.grid > div:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.grid > div:nth-child(3) {
-    animation-delay: 0.2s;
-}
-
-.grid > div:nth-child(4) {
-    animation-delay: 0.3s;
-}
-
-.grid > div:nth-child(5) {
-    animation-delay: 0.4s;
-}
-
-.grid > div:nth-child(6) {
-    animation-delay: 0.5s;
-}
-</style>
-@endsection
+    </main>
+</body>
+</html>

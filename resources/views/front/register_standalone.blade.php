@@ -20,10 +20,9 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
-        body {
+          body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             color: #1f2937;
             line-height: 1.6;
             overflow-x: hidden;
@@ -77,9 +76,8 @@
             font-weight: 500;
             transition: color 0.3s ease;
         }
-        
-        .nav-link:hover {
-            color: #3b82f6;
+          .nav-link:hover {
+            color: #1976d2;
         }
         
         .main-content {
@@ -166,11 +164,10 @@
             transition: border-color 0.3s ease;
             background: white;
         }
-        
-        .input-field:focus {
+          .input-field:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
         }
         
         .input-field.error {
@@ -204,16 +201,15 @@
             flex: 1;
             justify-content: center;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          .btn-primary {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
         }
         
         .btn-secondary {
@@ -233,9 +229,8 @@
             padding-top: 1.5rem;
             border-top: 1px solid #e5e7eb;
         }
-        
-        .login-link a {
-            color: #3b82f6;
+          .login-link a {
+            color: #1976d2;
             text-decoration: none;
             font-weight: 500;
         }

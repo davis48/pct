@@ -5,35 +5,21 @@
 @push('styles')
 <style>
     .gradient-bg {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #1976d2;
         position: relative;
         overflow: hidden;
-    }
-    .gradient-bg::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-        animation: shine 3s ease-in-out infinite;
-    }
-    @keyframes shine {
-        0%, 100% { opacity: 0; }
-        50% { opacity: 1; }
     }
     .gradient-bg-light {
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     }
     .gradient-text {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1976d2 0%, #43a047 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
     .gradient-text {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1976d2 0%, #43a047 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -70,39 +56,6 @@
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    .floating-icon {
-        animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-    .pulse-animation {
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-    
-    .animate-blob {
-        animation: blob 7s infinite;
-    }
-    
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-    
-    .animation-delay-4000 {
-        animation-delay: 4s;
-    }
-    
-    @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-    }
 </style>
 @endpush
 
@@ -112,16 +65,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <div class="z-10 relative">
-                    <div class="inline-flex items-center bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-full px-4 py-2 mb-6">
-                        <span class="text-sm font-medium">🎉 Nouveau : Formulaires interactifs disponibles</span>
-                    </div>
-                    <h1 class="text-6xl md:text-7xl font-bold mb-6 leading-tight">
-                        Bienvenue sur la 
-                        <span class="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                            Plateforme Citoyenne
-                        </span>
+                    <h1 class="text-6xl md:text-7xl font-bold mb-6 leading-tight text-white">
+                        Bienvenue sur la Plateforme Citoyenne
                     </h1>
-                    <p class="text-xl mb-8 text-purple-100 leading-relaxed">
+                    <p class="text-xl mb-8 text-blue-100 leading-relaxed">
                         Simplifiez vos démarches administratives avec notre plateforme numérique moderne.
                         Obtenez vos documents officiels rapidement et en toute sécurité.
                     </p>
@@ -135,14 +82,14 @@
                                     $dashboardUrl = '/agent/dashboard';
                                 }
                             @endphp
-                            <a href="{{ url($dashboardUrl) }}" class="group bg-white text-purple-600 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all duration-300 text-center transform hover:scale-105 hover:shadow-xl">
+                            <a href="{{ url($dashboardUrl) }}" class="group bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all duration-300 text-center transform hover:scale-105 hover:shadow-xl">
                                 <i class="fas fa-tachometer-alt mr-2 group-hover:animate-spin"></i>Mon Tableau de Bord
                             </a>
                         @else
-                            <a href="{{ route('choose.role') }}" class="group bg-white text-purple-600 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all duration-300 text-center transform hover:scale-105 hover:shadow-xl">
+                            <a href="{{ route('choose.role') }}" class="group bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all duration-300 text-center transform hover:scale-105 hover:shadow-xl">
                                 <i class="fas fa-sign-in-alt mr-2 group-hover:translate-x-1 transition-transform"></i>Se Connecter
                             </a>
-                            <a href="{{ route('register.standalone') }}" class="group border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-purple-600 transition-all duration-300 text-center transform hover:scale-105">
+                            <a href="{{ route('register.standalone') }}" class="group border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-blue-600 transition-all duration-300 text-center transform hover:scale-105">
                                 <i class="fas fa-user-plus mr-2 group-hover:rotate-12 transition-transform"></i>S'inscrire
                             </a>
                         @endauth
@@ -152,31 +99,26 @@
                     <div class="grid grid-cols-3 gap-6 mt-12">
                         <div class="text-center">
                             <div class="text-3xl font-bold stats-counter">1000+</div>
-                            <div class="text-purple-200 text-sm">Citoyens inscrits</div>
+                            <div class="text-blue-200 text-sm">Citoyens inscrits</div>
                         </div>
                         <div class="text-center">
                             <div class="text-3xl font-bold stats-counter">500+</div>
-                            <div class="text-purple-200 text-sm">Documents générés</div>
+                            <div class="text-blue-200 text-sm">Documents générés</div>
                         </div>
                         <div class="text-center">
                             <div class="text-3xl font-bold stats-counter">24/7</div>
-                            <div class="text-purple-200 text-sm">Service disponible</div>
+                            <div class="text-blue-200 text-sm">Service disponible</div>
                         </div>
                     </div>
                 </div>
                 <div class="relative z-10">
                     <div class="relative">
-                        <!-- Decorative elements -->
-                        <div class="absolute -top-4 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                        <div class="absolute -top-4 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-                        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-                        
                         <!-- Main illustration -->
                         <div class="relative bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-3xl p-8 border border-white border-opacity-20">
                             <div class="text-center">
-                                <div class="floating-icon text-8xl mb-6">🏛️</div>
+                                <div class="text-8xl mb-6">📋</div>
                                 <h3 class="text-2xl font-bold mb-4">Services Administratifs</h3>
-                                <p class="text-purple-100">Tous vos documents officiels en quelques clics</p>
+                                <p class="text-blue-100">Tous vos documents officiels en quelques clics</p>
                             </div>
                         </div>
                     </div>
@@ -186,13 +128,13 @@
         
         <!-- Animated background elements -->
         <div class="absolute top-10 left-10 text-white opacity-10">
-            <i class="fas fa-file-alt text-4xl floating-icon"></i>
+            <i class="fas fa-file-alt text-4xl"></i>
         </div>
         <div class="absolute top-32 right-20 text-white opacity-10">
-            <i class="fas fa-stamp text-3xl floating-icon" style="animation-delay: 1s;"></i>
+            <i class="fas fa-stamp text-3xl"></i>
         </div>
         <div class="absolute bottom-20 left-1/4 text-white opacity-10">
-            <i class="fas fa-certificate text-5xl floating-icon" style="animation-delay: 2s;"></i>
+            <i class="fas fa-certificate text-5xl"></i>
         </div>
     </section>
 
@@ -329,19 +271,19 @@
                 <!-- Service 6: Archivage Numérique -->
                 <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl p-8 transform hover:-translate-y-1 transition-all duration-300 group border border-gray-100">
                     <div class="flex items-start mb-6">
-                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                             <i class="fas fa-archive text-white text-2xl"></i>
                         </div>
                         <div>
                             <h5 class="text-xl font-bold text-gray-900 mb-2">Archivage Numérique</h5>
-                            <div class="w-8 h-1 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
+                            <div class="w-8 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
                         </div>
                     </div>
                     <p class="text-gray-600 leading-relaxed">
                         Conservez un historique complet de tous vos documents
                         dans votre espace personnel avec sauvegarde automatique.
                     </p>
-                    <div class="mt-4 flex items-center text-purple-600 font-medium text-sm group-hover:translate-x-1 transition-transform duration-300">
+                    <div class="mt-4 flex items-center text-blue-600 font-medium text-sm group-hover:translate-x-1 transition-transform duration-300">
                         <span>Stockage illimité</span>
                         <i class="fas fa-chevron-right ml-2"></i>
                     </div>

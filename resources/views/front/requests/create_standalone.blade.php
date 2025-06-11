@@ -59,7 +59,7 @@
         }
         
         .navbar-icon {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             padding: 0.5rem;
             border-radius: 8px;
@@ -79,7 +79,7 @@
         }
         
         .nav-link:hover {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .main-content {
@@ -153,9 +153,9 @@
         }
         
         .step-item.active .step-circle {
-            background: #3b82f6;
+            background: #1976d2;
             color: white;
-            border-color: #3b82f6;
+            border-color: #1976d2;
         }
         
         .step-label {
@@ -165,7 +165,7 @@
         }
         
         .step-item.active .step-label {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .form-section {
@@ -188,7 +188,7 @@
         }
         
         .section-icon {
-            color: #3b82f6;
+            color: #1976d2;
             font-size: 1.125rem;
         }
         
@@ -237,8 +237,8 @@
         
         .input-field:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
         }
         
         .file-upload-zone {
@@ -252,7 +252,7 @@
         }
         
         .file-upload-zone:hover {
-            border-color: #3b82f6;
+            border-color: #1976d2;
             background: #eff6ff;
         }
         
@@ -296,7 +296,7 @@
         }
         
         .btn-primary {
-            background: #3b82f6;
+            background: #1976d2;
             color: white;
         }
         
@@ -380,7 +380,7 @@
         }
         
         .file-icon {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .file-name {

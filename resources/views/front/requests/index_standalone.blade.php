@@ -59,7 +59,7 @@
         }
 
         .navbar-icon {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             padding: 0.5rem;
             border-radius: 8px;
@@ -79,7 +79,7 @@
         }
 
         .nav-link:hover {
-            color: #3b82f6;
+            color: #1976d2;
         }
 
         .main-content {
@@ -123,7 +123,7 @@
         }
 
         .page-header-icon {
-            color: #3b82f6;
+            color: #1976d2;
             font-size: 1.5rem;
         }
 
@@ -274,7 +274,7 @@
         }
 
         .btn-primary {
-            background: #3b82f6;
+            background: #1976d2;
             color: white;
         }
 
@@ -380,7 +380,7 @@
         }
 
         .create-button {
-            background: #3b82f6;
+            background: #1976d2;
             color: white;
             padding: 0.875rem 1.5rem;
             border-radius: 12px;
@@ -396,7 +396,7 @@
         .create-button:hover {
             background: #1d4ed8;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
             color: white;
         }
 

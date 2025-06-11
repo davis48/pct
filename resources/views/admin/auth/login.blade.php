@@ -111,6 +111,13 @@
                                 </div>
                             </div>
 
+                            <!-- Lien mot de passe oublié -->
+                            <div class="text-end mb-3">
+                                <a href="{{ route('password.request') }}" class="text-decoration-none">
+                                    <i class="fas fa-key me-1"></i>Mot de passe oublié ?
+                                </a>
+                            </div>
+
                             <div class="d-grid mb-4">
                                 <button type="submit" class="btn btn-admin btn-lg">
                                     <i class="fas fa-sign-in-alt me-2"></i>Se connecter

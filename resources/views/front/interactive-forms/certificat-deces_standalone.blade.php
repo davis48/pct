@@ -23,7 +23,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             color: #1f2937;
             line-height: 1.6;
             overflow-x: hidden;
@@ -296,7 +296,7 @@
         .floating-element {
             position: absolute;
             border-radius: 50%;
-            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            background: linear-gradient(45deg, rgba(25, 118, 210, 0.1), rgba(147, 51, 234, 0.1));
             animation: float 6s ease-in-out infinite;
         }
         
@@ -384,7 +384,7 @@
         
         .upload-area:hover,
         .upload-area.dragover {
-            border-color: #3b82f6;
+            border-color: #1976d2;
             background: #eff6ff;
         }
         
@@ -426,7 +426,7 @@
         }
         
         .file-icon {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .file-details {
@@ -472,7 +472,7 @@
         
         .guidelines-title {
             font-weight: 600;
-            color: #1e40af;
+            color: #0d47a1;
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
@@ -480,7 +480,7 @@
         }
         
         .guidelines-list {
-            color: #1e40af;
+            color: #0d47a1;
             font-size: 0.875rem;
             line-height: 1.5;
         }

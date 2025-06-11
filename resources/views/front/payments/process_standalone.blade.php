@@ -38,7 +38,7 @@
     
     <style>
         .phone-simulation {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             border-radius: 25px;
             padding: 20px;
             color: white;
@@ -123,7 +123,7 @@
         }
         
         .step-item.active .step-circle {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             animation: pulse 2s infinite;
         }
@@ -134,7 +134,7 @@
         }
 
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 

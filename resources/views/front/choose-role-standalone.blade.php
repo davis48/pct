@@ -23,7 +23,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
             color: #1f2937;
             line-height: 1.6;
             overflow-x: hidden;
@@ -61,7 +61,7 @@
         .navbar-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -83,7 +83,7 @@
         }
         
         .nav-link:hover {
-            color: #3b82f6;
+            color: #1976d2;
         }
         
         .main-content {
@@ -105,7 +105,7 @@
         .page-title {
             font-size: 3rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -143,7 +143,7 @@
         .role-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-color: #3b82f6;
+            border-color: #1976d2;
         }
         
         .role-card::before {
@@ -185,7 +185,7 @@
         }
         
         .role-icon.citizen {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
         }
         
         .role-icon::after {
@@ -220,7 +220,7 @@
         }
         
         .role-button {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
             padding: 1rem 2rem;
             border-radius: 12px;

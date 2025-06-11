@@ -92,6 +92,46 @@
                         @yield('header')
                     </h3>
                     <div class="d-flex align-items-center">
+                        <!-- Notifications Bell -->
+                        <div class="dropdown me-3">
+                            <button id="notificationToggle" class="btn btn-link text-decoration-none position-relative p-2" type="button">
+                                <i class="fas fa-bell text-gray-600 fs-5"></i>
+                                @php
+                                    $notificationCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                                @endphp
+                                @if($notificationCount > 0)
+                                    <span class="notification-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div id="notificationDropdown" class="dropdown-menu dropdown-menu-end" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                                <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Notifications</h6>
+                                    <button onclick="markAllAsRead()" class="btn btn-link p-0 text-decoration-none small">
+                                        Tout marquer lu
+                                    </button>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                
+                                <div id="notificationsList">
+                                    <div class="p-3 text-center text-muted">
+                                        <i class="fas fa-bell-slash mb-2 d-block"></i>
+                                        Aucune notification
+                                    </div>
+                                </div>
+                                
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item-text text-center">
+                                    <a href="{{ route('citizen.notifications.center') }}" class="btn btn-outline-primary btn-sm">
+                                        Voir toutes les notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <span class="text-muted me-3">{{ Auth::user()->nom }} {{ Auth::user()->prenoms }}</span>
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">
                             @csrf
@@ -129,5 +169,45 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Notification System Scripts -->
+    <script>
+        // Initialize dropdowns for notifications in Bootstrap layout
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            if (notificationToggle && notificationDropdown) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Toggle dropdown visibility
+                    if (notificationDropdown.classList.contains('show')) {
+                        notificationDropdown.classList.remove('show');
+                    } else {
+                        notificationDropdown.classList.add('show');
+                        
+                        // Load notifications if sync system is available
+                        if (window.notificationSync) {
+                            window.notificationSync.syncAll();
+                        }
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!notificationToggle.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                        notificationDropdown.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <!-- Notification Sync System -->
+    <script src="{{ asset('js/notification-sync.js') }}"></script>
+    
+    @stack('scripts')
 </body>
 </html>

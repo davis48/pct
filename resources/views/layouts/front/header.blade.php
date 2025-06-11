@@ -40,14 +40,42 @@
             
             <!-- Menu utilisateur -->
             <div class="flex items-center space-x-4">
-                @auth
-                    <!-- Notifications pour les citoyens -->
+                @auth                    <!-- Notifications pour les citoyens -->
                     @if(Auth::check() && Auth::user()->isCitizen())
                         <div class="relative">
-                            <button id="notifications-btn" class="text-white hover:text-blue-100 transition-colors duration-300 p-2 rounded-full hover:bg-white hover:bg-opacity-10">
+                            <button id="notifications-btn" class="text-white hover:text-blue-100 transition-colors duration-300 p-2 rounded-full hover:bg-white hover:bg-opacity-10 relative">
                                 <i class="fas fa-bell text-lg"></i>
-                                <span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                                @php
+                                    $notificationCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                                @endphp
+                                @if($notificationCount > 0)
+                                    <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                                    </span>
+                                @endif
                             </button>
+                            
+                            <!-- Notifications Dropdown -->
+                            <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                                <div class="px-4 py-2 border-b bg-gray-50">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>
+                                        <button onclick="markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
+                                            Marquer tout comme lu
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="notifications-list" class="max-h-64 overflow-y-auto">
+                                    <div class="px-4 py-3 text-center text-gray-500 text-sm">
+                                        Aucune notification
+                                    </div>
+                                </div>
+                                <div class="px-4 py-2 border-t bg-gray-50">
+                                    <a href="{{ route('citizen.notifications.center') }}" class="text-xs text-blue-600 hover:text-blue-800">
+                                        Voir toutes les notifications
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     @endif
                     

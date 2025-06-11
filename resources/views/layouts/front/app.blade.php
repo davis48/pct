@@ -128,6 +128,35 @@
             animation: spin 1s linear infinite;
         }
         
+        /* Dropdown styles */
+        .dropdown-menu {
+            display: none;
+        }
+        
+        .dropdown.active .dropdown-menu {
+            display: block;
+        }
+        
+        /* Notification dropdown specific styles */
+        #notificationDropdown {
+            min-width: 320px;
+            max-width: 400px;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Mobile menu styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.show {
+            transform: translateX(0);
+        }
+        
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -177,6 +206,49 @@
                                 <i class="fas fa-edit mr-2"></i>
                                 Formulaires
                             </a>
+                        @endif
+                        
+                        <!-- Notifications Bell (for citizens only) -->
+                        @if(auth()->user()->isCitizen())
+                        <div class="relative">
+                            <button id="notificationToggle" class="relative p-2 text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                                <i class="fas fa-bell text-lg"></i>
+                                @php
+                                    $notificationCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                                @endphp
+                                @if($notificationCount > 0)
+                                    <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            
+                            <!-- Notifications Dropdown -->
+                            <div id="notificationDropdown" class="dropdown-menu absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 max-h-96 overflow-y-auto hidden z-50">
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-medium text-gray-900">Notifications</span>
+                                        <button onclick="markAllAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
+                                            Tout marquer lu
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="notificationsList">
+                                    <!-- Les notifications seront chargées ici via AJAX -->
+                                    <div class="px-4 py-8 text-center text-gray-500">
+                                        <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                                        <p>Aucune notification</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-100 mt-2">
+                                    <a href="{{ route('citizen.notifications.center') }}" class="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 text-center">
+                                        Voir toutes les notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         @endif
                         
                         <!-- User Menu -->
@@ -256,6 +328,16 @@
                         <a href="{{ route('interactive-forms.index') }}" class="block text-gray-700 hover:text-blue-600 transition-colors duration-200">
                             <i class="fas fa-edit mr-2"></i>
                             Formulaires
+                        </a>
+                        <a href="{{ route('citizen.notifications.center') }}" class="block text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                            <i class="fas fa-bell mr-2"></i>
+                            Notifications
+                            @php
+                                $mobileNotificationCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                            @endphp
+                            @if($mobileNotificationCount > 0)
+                                <span class="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $mobileNotificationCount }}</span>
+                            @endif
                         </a>
                     @endif
                     <hr class="my-4">
@@ -584,7 +666,69 @@
                 });
             });
         });
+        
+        // Initialize dropdowns for notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            // User menu dropdown
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                    
+                    // Close notification dropdown if open
+                    const notificationDropdown = document.getElementById('notificationDropdown');
+                    if (notificationDropdown) {
+                        notificationDropdown.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Notification dropdown
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            if (notificationToggle && notificationDropdown) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('hidden');
+                    
+                    // Close user dropdown if open
+                    if (userDropdown) {
+                        userDropdown.classList.add('hidden');
+                    }
+                    
+                    // Load notifications if opening and sync system is available
+                    if (!notificationDropdown.classList.contains('hidden') && window.notificationSync) {
+                        window.notificationSync.syncAll();
+                    }
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (userDropdown && !userMenuBtn?.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+                
+                if (notificationDropdown && !notificationToggle?.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                    notificationDropdown.classList.add('hidden');
+                }
+            });
+        });
     </script>
+    
+    <!-- Notification System -->
+    @auth
+        @if(auth()->user()->isCitizen())
+            <script src="{{ asset('js/notification-sync.js') }}"></script>
+        @endif
+    @endauth
+    
     @stack('scripts')
 </body>
 

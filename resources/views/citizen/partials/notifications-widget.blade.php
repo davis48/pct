@@ -1,9 +1,9 @@
-{{-- Widget de notifications compact pour le tableau de bord --}}
+{{-- Widget de notifications compact pour le tableau de bord avec synchronisation --}}
 @if($notifications->count() > 0)
-<div class="card border-0 shadow-sm notification-compact">
+<div class="card border-0 shadow-sm notification-compact" id="notification-widget">
     <div class="card-header bg-gradient-primary text-white">
         <div class="d-flex justify-content-between align-items-center">
-            <h6 class="mb-0 fw-bold d-flex align-items-center">
+            <h6 class="mb-0 fw-bold d-flex align-items-center" id="notification-widget-title">
                 <i class="fas fa-bell me-2 {{ $unreadNotificationsCount > 0 ? 'notification-bell' : '' }}"></i>
                 Dernières Notifications
                 @if($unreadNotificationsCount > 3)
@@ -111,6 +111,83 @@
         @endif
     </div>
 </div>
+
+<!-- Script de synchronisation pour le widget -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Écouter les événements de synchronisation des notifications
+    document.addEventListener('notificationsUpdated', function(event) {
+        console.log('📱 Widget: Notifications mises à jour');
+        updateWidgetDisplay(event.detail);
+    });
+    
+    document.addEventListener('notificationRead', function(event) {
+        console.log('📱 Widget: Notification marquée comme lue');
+        hideNotification(event.detail.notificationId);
+    });
+    
+    document.addEventListener('allNotificationsRead', function(event) {
+        console.log('📱 Widget: Toutes les notifications marquées comme lues');
+        hideAllNotifications();
+    });
+});
+
+function updateWidgetDisplay(data) {
+    const widget = document.getElementById('notification-widget');
+    const title = document.getElementById('notification-widget-title');
+    
+    if (data.count === 0) {
+        // Masquer le widget s'il n'y a plus de notifications
+        if (widget) {
+            widget.style.transition = 'opacity 0.3s ease';
+            widget.style.opacity = '0';
+            setTimeout(() => {
+                widget.style.display = 'none';
+            }, 300);
+        }
+    } else {
+        // Mettre à jour le titre
+        if (title) {
+            const bellIcon = data.count > 0 ? 'notification-bell' : '';
+            title.innerHTML = `
+                <i class="fas fa-bell me-2 ${bellIcon}"></i>
+                Dernières Notifications (${data.count})
+            `;
+        }
+    }
+}
+
+function hideNotification(notificationId) {
+    const notification = document.querySelector(`#notification-widget [data-id="${notificationId}"]`);
+    if (notification) {
+        notification.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(20px)';
+        setTimeout(() => {
+            notification.remove();
+            
+            // Vérifier s'il reste des notifications
+            const remainingNotifications = document.querySelectorAll('#notification-widget .notification-item').length;
+            if (remainingNotifications === 0) {
+                hideAllNotifications();
+            }
+        }, 300);
+    }
+}
+
+function hideAllNotifications() {
+    const widget = document.getElementById('notification-widget');
+    if (widget) {
+        widget.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        widget.style.opacity = '0';
+        widget.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+            widget.style.display = 'none';
+        }, 500);
+    }
+}
+</script>
+
 @elseif(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
 {{-- Afficher un message si toutes les notifications sont dans le centre --}}
 <div class="card border-0 shadow-sm notification-compact">

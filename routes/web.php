@@ -452,6 +452,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/notification-preferences', [\App\Http\Controllers\Citizen\DashboardController::class, 'updateNotificationPreferences'])->name('notification-preferences.update');
         Route::post('/test-notification', [\App\Http\Controllers\Citizen\DashboardController::class, 'sendTestNotification'])->name('test-notification');
         
+        // Page de test des notifications synchronisées
+        Route::get('/test-notifications-sync', function () {
+            return view('test-notifications');
+        })->name('test-notifications-sync');
+        
         // Centre de notifications
         Route::get('/notifications-center', [\App\Http\Controllers\Citizen\DashboardController::class, 'notificationCenter'])->name('notifications.center');
         Route::delete('/notifications/{id}', [\App\Http\Controllers\Citizen\DashboardController::class, 'deleteNotification'])->name('notifications.delete');

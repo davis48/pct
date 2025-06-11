@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Système de Notification Synchronisé</title>
+    <meta name="csrf-token" content="test-token">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 10px;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 320px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .dropdown.active .dropdown-menu {
+            display: block;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">🔔 Test du Système de Notification Synchronisé</h1>
+        
+        <!-- Simulation de la navbar -->
+        <div class="test-section">
+            <h3>Navbar avec notifications</h3>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <span class="navbar-brand">PCT UVCI</span>
+                    <div class="d-flex">
+                        <!-- Dropdown Notifications -->
+                        <div class="dropdown me-3">
+                            <button id="notificationToggle" class="btn btn-outline-secondary position-relative">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </button>
+                            <div id="notificationDropdown" class="dropdown-menu">
+                                <div class="px-3 py-2 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">Notifications</span>
+                                        <button onclick="markAllAsRead()" class="btn btn-sm btn-link p-0">
+                                            Tout marquer lu
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="notificationsList">
+                                    <div class="px-3 py-4 text-center text-muted">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p class="mb-0 mt-2">Chargement...</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="px-3 py-2 border-top">
+                                    <a href="#" class="text-decoration-none">Voir toutes les notifications</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Simulation du sidebar -->
+        <div class="test-section">
+            <h3>Widget Sidebar</h3>
+            <div class="card" id="notification-widget" style="max-width: 400px;">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0" id="notification-widget-title">
+                            <i class="fas fa-bell me-2"></i>
+                            Dernières Notifications (3)
+                        </h6>
+                        <button class="btn btn-outline-light btn-sm" onclick="markAllAsRead()">
+                            <i class="fas fa-check-double"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0" id="notifications-container">
+                    <div class="p-3 border-bottom notification-item" data-id="1">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Notification Test 1</h6>
+                                <p class="mb-1 text-muted small">Ceci est une notification de test</p>
+                                <small class="text-muted">Il y a 5 minutes</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="notificationSync.markAsRead('1')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-3 border-bottom notification-item" data-id="2">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Notification Test 2</h6>
+                                <p class="mb-1 text-muted small">Encore une notification de test</p>
+                                <small class="text-muted">Il y a 10 minutes</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="notificationSync.markAsRead('2')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-3 notification-item" data-id="3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Notification Test 3</h6>
+                                <p class="mb-1 text-muted small">La dernière notification de test</p>
+                                <small class="text-muted">Il y a 15 minutes</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="notificationSync.markAsRead('3')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contrôles de test -->
+        <div class="test-section">
+            <h3>Contrôles de Test</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-primary me-2" onclick="simulateNewNotification()">
+                        <i class="fas fa-plus"></i> Simuler nouvelle notification
+                    </button>
+                    <button class="btn btn-warning me-2" onclick="simulateMarkAsRead()">
+                        <i class="fas fa-check"></i> Marquer une notification comme lue
+                    </button>
+                    <button class="btn btn-success me-2" onclick="simulateMarkAllAsRead()">
+                        <i class="fas fa-check-double"></i> Marquer toutes comme lues
+                    </button>
+                    <button class="btn btn-info" onclick="testSync()">
+                        <i class="fas fa-sync"></i> Forcer la synchronisation
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log de debug -->
+        <div class="test-section">
+            <h3>Log de Debug</h3>
+            <div id="debug-log" class="log"></div>
+            <button class="btn btn-secondary btn-sm mt-2" onclick="clearLog()">
+                <i class="fas fa-eraser"></i> Vider le log
+            </button>
+        </div>
+    </div>
+
+    <!-- Mock du système de notification -->
+    <script>
+        // Mock des données de notification
+        let mockNotifications = [
+            {
+                id: '1',
+                title: 'Notification Test 1',
+                message: 'Ceci est une notification de test',
+                time_ago: 'Il y a 5 minutes'
+            },
+            {
+                id: '2',
+                title: 'Notification Test 2',
+                message: 'Encore une notification de test',
+                time_ago: 'Il y a 10 minutes'
+            },
+            {
+                id: '3',
+                title: 'Notification Test 3',
+                message: 'La dernière notification de test',
+                time_ago: 'Il y a 15 minutes'
+            }
+        ];
+        
+        let mockNotificationCount = 3;
+        
+        // Mock des fonctions fetch pour les tests
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            log(`🌐 Fetch appelé: ${url}`);
+            
+            if (url.includes('/notifications/ajax')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        notifications: mockNotifications,
+                        count: mockNotificationCount
+                    })
+                });
+            }
+            
+            if (url.includes('/notifications/') && url.includes('/read')) {
+                const notificationId = url.split('/').slice(-2)[0];
+                log(`✅ Notification ${notificationId} marquée comme lue`);
+                
+                // Supprimer de la liste mock
+                mockNotifications = mockNotifications.filter(n => n.id !== notificationId);
+                mockNotificationCount = mockNotifications.length;
+                
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ success: true })
+                });
+            }
+            
+            if (url.includes('/notifications/read-all')) {
+                log(`✅ Toutes les notifications marquées comme lues`);
+                mockNotifications = [];
+                mockNotificationCount = 0;
+                
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ success: true })
+                });
+            }
+            
+            return originalFetch(url, options);
+        };
+        
+        // Fonction de log
+        function log(message) {
+            const logElement = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('debug-log').innerHTML = '';
+        }
+        
+        // Fonctions de test
+        function simulateNewNotification() {
+            const newId = Date.now().toString();
+            const newNotification = {
+                id: newId,
+                title: `Nouvelle notification ${newId}`,
+                message: 'Notification créée par le test',
+                time_ago: 'À l\'instant'
+            };
+            
+            mockNotifications.unshift(newNotification);
+            mockNotificationCount++;
+            
+            log(`🆕 Nouvelle notification créée: ${newNotification.title}`);
+            
+            if (window.notificationSync) {
+                window.notificationSync.syncAll();
+            }
+        }
+        
+        function simulateMarkAsRead() {
+            if (mockNotifications.length > 0) {
+                const notificationId = mockNotifications[0].id;
+                if (window.notificationSync) {
+                    window.notificationSync.markAsRead(notificationId);
+                }
+            } else {
+                log('❌ Aucune notification à marquer comme lue');
+            }
+        }
+        
+        function simulateMarkAllAsRead() {
+            if (window.notificationSync) {
+                window.notificationSync.markAllAsRead();
+            }
+        }
+        
+        function testSync() {
+            if (window.notificationSync) {
+                log('🔄 Synchronisation forcée...');
+                window.notificationSync.syncAll();
+            } else {
+                log('❌ Système de synchronisation non disponible');
+            }
+        }
+        
+        // Écouter les événements du système de synchronisation
+        document.addEventListener('notificationsUpdated', function(event) {
+            log(`📱 Événement: notificationsUpdated - ${event.detail.count} notifications`);
+        });
+        
+        document.addEventListener('notificationRead', function(event) {
+            log(`📖 Événement: notificationRead - ID: ${event.detail.notificationId}`);
+        });
+        
+        document.addEventListener('allNotificationsRead', function(event) {
+            log(`📚 Événement: allNotificationsRead`);
+        });
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Page de test chargée');
+            
+            // Initialiser les dropdowns
+            const notificationToggle = document.getElementById('notificationToggle');
+            if (notificationToggle) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const dropdown = this.parentElement;
+                    dropdown.classList.toggle('active');
+                    
+                    if (dropdown.classList.contains('active') && window.notificationSync) {
+                        window.notificationSync.syncAll();
+                    }
+                });
+            }
+            
+            // Vérifier si le système de synchronisation se charge
+            setTimeout(() => {
+                if (window.notificationSync) {
+                    log('✅ Système de synchronisation chargé et fonctionnel');
+                } else {
+                    log('❌ Système de synchronisation non disponible');
+                }
+            }, 1000);
+        });
+    </script>
+    
+    <!-- Charger le système de synchronisation -->
+    <script src="../js/notification-sync.js"></script>
+</body>
+</html>

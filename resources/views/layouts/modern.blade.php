@@ -199,18 +199,31 @@
                                 <i class="fas fa-edit mr-2"></i>
                                 Formulaires
                             </a>                        @endif
-                        
-                        <!-- Notifications -->
+                          <!-- Notifications -->
                         <div class="relative">
                             <button id="notifications-btn" class="text-gray-700 hover:text-blue-600 transition-colors duration-200 relative">
                                 <i class="fas fa-bell text-xl"></i>
-                                <span id="notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
+                                @php
+                                    $notificationCount = Auth::check() ? \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count() : 0;
+                                @endphp
+                                @if($notificationCount > 0)
+                                    <span id="notification-badge" class="notification-badge absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                                    </span>
+                                @else
+                                    <span id="notification-badge" class="notification-badge absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
+                                @endif
                             </button>
                             
                             <!-- Notifications Dropdown -->
                             <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 hidden z-50">
                                 <div class="px-4 py-2 border-b bg-gray-50">
-                                    <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>
+                                    <div class="flex justify-content-between align-items-center">
+                                        <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>
+                                        <button onclick="markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
+                                            Marquer tout comme lu
+                                        </button>
+                                    </div>
                                 </div>
                                 <div id="notifications-list" class="max-h-64 overflow-y-auto">
                                     <div class="px-4 py-3 text-center text-gray-500 text-sm">
@@ -218,9 +231,9 @@
                                     </div>
                                 </div>
                                 <div class="px-4 py-2 border-t bg-gray-50">
-                                    <button onclick="markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
-                                        Marquer tout comme lu
-                                    </button>
+                                    <a href="{{ route('citizen.notifications.center') }}" class="text-xs text-blue-600 hover:text-blue-800">
+                                        Voir toutes les notifications
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -739,9 +752,15 @@
             .catch(error => {
                 console.error('Erreur lors du marquage des notifications:', error);
             });
-            @endauth
-        }
+            @endauth        }
     </script>
+    
+    <!-- Notification System -->
+    @auth
+        @if(auth()->user()->isCitizen())
+            <script src="{{ asset('js/notification-sync.js') }}"></script>
+        @endif
+    @endauth
     
     @stack('scripts')
 </body>

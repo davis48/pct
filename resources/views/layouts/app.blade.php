@@ -800,9 +800,8 @@
                     <p>Chargement...</p>
                 </div>
             `;
-            
-            // Fetch notifications
-            fetch('/citizen/notifications/ajax')
+              // Fetch notifications
+            fetch('{{ route("citizen.notifications.ajax") }}')
                 .then(response => response.json())
                 .then(data => {
                     if (data.notifications && data.notifications.length > 0) {
@@ -838,11 +837,9 @@
                         </div>
                     `;
                 });
-        }
-
-        // Mark notification as read
+        }        // Mark notification as read
         function markNotificationAsRead(notificationId) {
-            fetch(`/citizen/notifications/${notificationId}/read`, {
+            fetch(`{{ route("citizen.notifications.read", "") }}/${notificationId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -858,18 +855,19 @@
                         notificationElement.remove();
                     }
                     
-                    // Update badge
+                    // Update badge immediately
                     updateNotificationBadge();
+                    
+                    // Reload notifications in dropdown
+                    loadNotifications();
                 }
             })
             .catch(error => {
                 console.error('Erreur lors du marquage de la notification:', error);
             });
-        }
-
-        // Mark all notifications as read
+        }        // Mark all notifications as read
         function markAllAsRead() {
-            fetch('/citizen/notifications/read-all', {
+            fetch('{{ route("citizen.notifications.read-all") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -890,26 +888,62 @@
                         `;
                     }
                     
-                    // Update badge
+                    // Update badge immediately
                     updateNotificationBadge();
                 }
             })
             .catch(error => {
                 console.error('Erreur lors du marquage des notifications:', error);
             });
-        }
-
-        // Update notification badge
+        }// Update notification badge
         function updateNotificationBadge() {
-            const badge = document.querySelector('.notification-badge');
-            if (badge) {
-                badge.style.display = 'none';
-            }
+            fetch('{{ route("citizen.notifications.ajax") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (data.count > 0) {
+                        if (badge) {
+                            badge.textContent = data.count > 99 ? '99+' : data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            // Créer le badge s'il n'existe pas
+                            const notificationToggle = document.getElementById('notificationToggle');
+                            if (notificationToggle) {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center';
+                                newBadge.textContent = data.count > 99 ? '99+' : data.count;
+                                notificationToggle.appendChild(newBadge);
+                            }
+                        }
+                    } else {
+                        if (badge) {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la mise à jour du badge:', error);
+                });
         }        // Initialize dropdowns when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             initializeDropdowns();
+            
+            // Initial badge update
+            updateNotificationBadge();
+            
+            // Auto-refresh notifications every 30 seconds
+            setInterval(function() {
+                updateNotificationBadge();
+                // Also refresh the dropdown content if it's open
+                const dropdown = document.querySelector('.dropdown.active #notificationToggle');
+                if (dropdown) {
+                    loadNotifications();
+                }
+            }, 30000);
         });
-    </script>
+    </script>    
+    <!-- Notification System -->
+    <script src="{{ asset('js/notification-sync.js') }}"></script>
     
     @stack('scripts')
 </body>

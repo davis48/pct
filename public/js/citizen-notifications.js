@@ -9,11 +9,32 @@
         }
     });
 
-    // Fonction pour marquer une notification comme lue
+    // Écouter les événements du système de synchronisation global
+    document.addEventListener('notificationsUpdated', function(event) {
+        console.log('🔔 Mise à jour des notifications reçue:', event.detail);
+        updateNotificationCount();
+    });
+
+    document.addEventListener('notificationRead', function(event) {
+        console.log('🔔 Notification marquée comme lue:', event.detail.notificationId);
+        updateNotificationCount();
+    });
+
+    document.addEventListener('allNotificationsRead', function(event) {
+        console.log('🔔 Toutes les notifications marquées comme lues');
+        updateNotificationCount();
+    });
+
+    // Fonction pour marquer une notification comme lue (compatible avec l'ancien système)
     window.markAsRead = function(notificationId) {
         console.log('Tentative de suppression de la notification ID:', notificationId);
         
-        // URL correcte pour marquer comme lue
+        // Utiliser le nouveau système de synchronisation si disponible
+        if (window.notificationSync) {
+            return window.notificationSync.markAsRead(notificationId);
+        }
+        
+        // Fallback vers l'ancienne méthode
         const url = '/citizen/notifications/' + notificationId + '/read';
         
         $.ajax({
@@ -46,12 +67,16 @@
                 alert('Erreur lors de la suppression de la notification: ' + error);
             }
         });
-    };
-
-    // Fonction pour marquer toutes les notifications comme lues
+    };    // Fonction pour marquer toutes les notifications comme lues
     window.markAllAsRead = function() {
         console.log('Tentative de suppression de toutes les notifications');
         
+        // Utiliser le nouveau système de synchronisation si disponible
+        if (window.notificationSync) {
+            return window.notificationSync.markAllAsRead();
+        }
+        
+        // Fallback vers l'ancienne méthode
         $.ajax({
             url: '/citizen/notifications/read-all',
             type: 'POST',

@@ -179,14 +179,45 @@
             <p><strong>VALIDITÉ :</strong> Ce certificat est valable pendant une durée de trois (3) mois à compter de sa date de délivrance.</p>
             <p><strong>USAGE :</strong> Ce document ne peut être utilisé que pour les fins pour lesquelles il a été demandé.</p>
         </div>
-    </div>
-
-    <div class="signature-section">
+    </div>    <div class="signature-section">
         <div class="signature-box">
             <p><strong>L'Officier d'État Civil</strong></p>
-            <div style="height: 60px;"></div>
-            <p>{{ $request->processed_by ?? 'Maire d\'Abidjan' }}</p>
-            <p><em>Cachet et signature</em></p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+                @if($official_seal)
+                    <div style="text-align: center;">
+                        <img src="{{ $official_seal }}" alt="Cachet officiel" style="max-width: 120px; max-height: 120px;">
+                    </div>
+                @endif
+                
+                @if($mayor_signature)
+                    <div style="text-align: center;">
+                        <img src="{{ $mayor_signature }}" alt="Signature du maire" style="max-width: 150px; max-height: 80px;">
+                    </div>
+                @endif
+            </div>
+            
+            <p><strong>{{ $mayor_name ?? ($request->processed_by ?? 'PCT_MAYOR') }}</strong></p>
+            @if(!$mayor_signature || !$official_seal)
+                <p><em>Cachet et signature</em></p>
+            @endif
+            
+            {{-- Cachet électronique déplacé sous le nom du maire, aligné à droite --}}
+            <div style="text-align: right; margin-top: 20px;">
+                @if($electronic_seal_image)
+                    <img src="{{ $electronic_seal_image }}" alt="Cachet électronique" style="max-width: 200px; max-height: 120px; border: 1px solid #ddd;">
+                @else
+                    <div style="display: inline-block; text-align: center; margin: 0; padding: 12px; border: 2px dashed #2c5aa0; background-color: #f8f9fa; border-radius: 6px; max-width: 220px;">
+                        <p style="margin: 0; font-size: 11px; color: #2c5aa0;"><strong>CACHET ÉLECTRONIQUE</strong></p>
+                        <p style="margin: 3px 0; font-size: 9px; color: #666;">Document certifié conforme</p>
+                        <p style="margin: 3px 0; font-size: 9px; color: #666;">Signé par: PCT_MAYOR</p>
+                        <p style="margin: 3px 0; font-size: 9px; color: #666;">Date: {{ is_string($date_generation) ? $date_generation . ' à ' . date('H:i') : $date_generation->format('d/m/Y H:i') }}</p>
+                        @if(isset($electronic_seal['verification_code']))
+                            <p style="margin: 5px 0; font-size: 8px; color: #d32f2f; font-family: monospace;"><strong>Code: {{ $electronic_seal['verification_code'] }}</strong></p>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 

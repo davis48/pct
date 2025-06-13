@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Official Document Settings
+    |--------------------------------------------------------------------------
+    |
+    | These configuration options determine the official information used
+    | in generated documents like mayor name and municipality name.
+    |
+    */
+
+    'mayor_name' => env('MAYOR_NAME', 'M. Jean KOUASSI'),
+    'municipality_name' => env('MUNICIPALITY_NAME', 'Mairie de Cocody'),
+
 ];

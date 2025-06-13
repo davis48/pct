@@ -53,6 +53,22 @@
         .signature-section {
             margin-top: 50px;
             text-align: right;
+            page-break-inside: avoid;
+        }
+        .signature-section img {
+            max-width: 100%;
+            height: auto;
+        }
+        .signature-images {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+        .seal-container, .signature-container {
+            text-align: center;
+            flex: 1;
         }
         .footer {
             position: fixed;
@@ -133,9 +149,42 @@
     <div class="signature-section">
         <p>{{ $municipality ?? 'Mairie' }}, le {{ $date_generation->format('d/m/Y') }}</p>
         <p><strong>Le Maire</strong></p>
-        <div style="height: 80px;"></div>
-        <p><strong>{{ $mayor_name ?? 'Le Maire' }}</strong></p>
-        <p style="font-size: 12px;">Cachet et signature</p>
+        
+        <div class="signature-images">
+            @if($official_seal)
+                <div class="seal-container">
+                    <img src="{{ $official_seal }}" alt="Cachet officiel" style="max-width: 120px; max-height: 120px;">
+                </div>
+            @endif
+            
+            @if($mayor_signature)
+                <div class="signature-container">
+                    <img src="{{ $mayor_signature }}" alt="Signature du maire" style="max-width: 150px; max-height: 80px;">
+                </div>
+            @endif
+        </div>
+        
+        <p><strong>{{ $mayor_name ?? 'PCT_MAYOR' }}</strong></p>
+        @if(!$mayor_signature || !$official_seal)
+            <p style="font-size: 12px; color: #666;">Cachet et signature</p>
+        @endif
+        
+        {{-- Cachet électronique déplacé sous le nom du maire, aligné à droite --}}
+        <div style="text-align: right; margin-top: 20px;">
+            @if($electronic_seal_image)
+                <img src="{{ $electronic_seal_image }}" alt="Cachet électronique" style="max-width: 200px; max-height: 120px; border: 1px solid #ddd;">
+            @else
+                <div style="display: inline-block; text-align: center; margin: 0; padding: 12px; border: 2px dashed #2c5aa0; background-color: #f8f9fa; border-radius: 6px; max-width: 220px;">
+                    <p style="margin: 0; font-size: 11px; color: #2c5aa0;"><strong>CACHET ÉLECTRONIQUE</strong></p>
+                    <p style="margin: 3px 0; font-size: 9px; color: #666;">Document certifié conforme</p>
+                    <p style="margin: 3px 0; font-size: 9px; color: #666;">Signé par: {{ $mayor_name ?? 'PCT_MAYOR' }}</p>
+                    <p style="margin: 3px 0; font-size: 9px; color: #666;">Date: {{ $date_generation->format('d/m/Y H:i') }}</p>
+                    @if(isset($electronic_seal['verification_code']))
+                        <p style="margin: 5px 0; font-size: 8px; color: #d32f2f; font-family: monospace;"><strong>Code: {{ $electronic_seal['verification_code'] }}</strong></p>
+                    @endif
+                </div>
+            @endif
+        </div>
     </div>
 
     <div class="footer">

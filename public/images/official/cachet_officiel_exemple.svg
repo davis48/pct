@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .seal-text { font-family: Arial, sans-serif; font-size: 12px; fill: #2c5aa0; font-weight: bold; }
+      .seal-small { font-family: Arial, sans-serif; font-size: 8px; fill: #2c5aa0; }
+    </style>
+  </defs>
+  
+  <!-- Cercle extérieur du cachet -->
+  <circle cx="75" cy="75" r="70" stroke="#2c5aa0" stroke-width="3" fill="none"/>
+  <circle cx="75" cy="75" r="65" stroke="#2c5aa0" stroke-width="1" fill="none"/>
+  
+  <!-- Texte du cachet -->
+  <path id="circle-text" d="M 75,75 m -60,0 a 60,60 0 1,1 120,0 a 60,60 0 1,1 -120,0" fill="none"/>
+  <text class="seal-text">
+    <textPath href="#circle-text" startOffset="0%">MAIRIE DE COCODY</textPath>
+  </text>
+  
+  <!-- Centre du cachet -->
+  <text x="75" y="70" text-anchor="middle" class="seal-text">RÉPUBLIQUE</text>
+  <text x="75" y="82" text-anchor="middle" class="seal-text">DE</text>
+  <text x="75" y="94" text-anchor="middle" class="seal-text">CÔTE D'IVOIRE</text>
+  
+  <!-- Date en bas -->
+  <text x="75" y="130" text-anchor="middle" class="seal-small">2025</text>
+</svg>

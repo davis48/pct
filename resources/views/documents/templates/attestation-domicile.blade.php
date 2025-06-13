@@ -150,19 +150,50 @@
 
         <p><strong>Motif de la demande :</strong> {{ $form_data['motif'] ?? $request->reason ?? 'Usage administratif' }}</p>
         <p><strong>Lieu de délivrance :</strong> {{ $form_data['lieu_delivrance'] ?? 'Abidjan' }}</p>
-    </div>
-
-    <div class="signature-section">        <div class="signature-box">
+    </div>    <div class="signature-section">
+        <div class="signature-box">
             <p><strong>Le Demandeur</strong></p>
             <div style="height: 60px;"></div>
             <p>{{ ($form_data['nom'] ?? '') . ' ' . ($form_data['prenoms'] ?? '') }}</p>
         </div>
-        
-        <div class="signature-box">
+          <div class="signature-box">
             <p><strong>Le Maire</strong></p>
-            <div style="height: 60px;"></div>
-            <p>{{ $request->processed_by ?? 'Maire d\'Abidjan' }}</p>
-            <p><em>Cachet et signature</em></p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+                @if($official_seal)
+                    <div style="text-align: center;">
+                        <img src="{{ $official_seal }}" alt="Cachet officiel" style="max-width: 80px; max-height: 80px;">
+                    </div>
+                @endif
+                
+                @if($mayor_signature)
+                    <div style="text-align: center;">
+                        <img src="{{ $mayor_signature }}" alt="Signature du maire" style="max-width: 100px; max-height: 60px;">
+                    </div>
+                @endif
+            </div>
+            
+            <p><strong>{{ $mayor_name ?? ($request->processed_by ?? 'PCT_MAYOR') }}</strong></p>
+            @if(!$mayor_signature || !$official_seal)
+                <p><em>Cachet et signature</em></p>
+            @endif
+            
+            {{-- Cachet électronique déplacé sous le nom du maire, aligné à droite --}}
+            <div style="text-align: right; margin-top: 20px;">
+                @if($electronic_seal_image)
+                    <img src="{{ $electronic_seal_image }}" alt="Cachet électronique" style="max-width: 180px; max-height: 100px; border: 1px solid #ddd;">
+                @else
+                    <div style="display: inline-block; text-align: center; margin: 0; padding: 10px; border: 2px dashed #2c5aa0; background-color: #f8f9fa; border-radius: 6px; max-width: 200px;">
+                        <p style="margin: 0; font-size: 10px; color: #2c5aa0;"><strong>CACHET ÉLECTRONIQUE</strong></p>
+                        <p style="margin: 2px 0; font-size: 8px; color: #666;">Document certifié conforme</p>
+                        <p style="margin: 2px 0; font-size: 8px; color: #666;">Signé par: PCT_MAYOR</p>
+                        <p style="margin: 2px 0; font-size: 8px; color: #666;">Date: {{ $date_generation->format('d/m/Y H:i') }}</p>
+                        @if(isset($electronic_seal['verification_code']))
+                            <p style="margin: 3px 0; font-size: 7px; color: #d32f2f; font-family: monospace;"><strong>Code: {{ $electronic_seal['verification_code'] }}</strong></p>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 

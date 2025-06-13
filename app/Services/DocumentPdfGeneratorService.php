@@ -98,7 +98,7 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-        ], $formData);
+        ], $formData, $this->getOfficialDocumentData());
 
         // Log pour tracer les données transmises au template
         Log::info('Données transmises au template de l\'extrait de naissance', $data);
@@ -117,7 +117,6 @@ class DocumentPdfGeneratorService
             'reference_number' => $request->reference_number,
             'date_generation' => now(),
             'commune' => 'Commune de [Nom de votre commune]',
-
             // Données spécifiques du mariage
             'spouse_name' => $formData['spouse_name'] ?? '',
             'spouse_birth_date' => $formData['spouse_birth_date'] ?? '',
@@ -131,6 +130,8 @@ class DocumentPdfGeneratorService
             'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,
             'nationality' => $formData['nationality'] ?? $user->nationality
         ];
+
+        $data = array_merge($data, $this->getOfficialDocumentData());
 
         $pdf = Pdf::loadView('documents.templates.certificat-mariage', $data);
         return $pdf->download('certificat-mariage-' . $request->reference_number . '.pdf');
@@ -154,6 +155,8 @@ class DocumentPdfGeneratorService
             'mother_name' => $formData['mother_name'] ?? $user->mother_name
         ];
 
+        $data = array_merge($data, $this->getOfficialDocumentData());
+
         $pdf = Pdf::loadView('documents.templates.declaration-naissance', $data);
         return $pdf->download('declaration-naissance-' . $request->reference_number . '.pdf');
     }    private function generateCertificatCelibat(CitizenRequest $request, User $user, array $additionalData = [])
@@ -176,6 +179,8 @@ class DocumentPdfGeneratorService
             'profession' => $formData['profession'] ?? $user->profession,
             'address' => $formData['address'] ?? $user->address
         ];
+
+        $data = array_merge($data, $this->getOfficialDocumentData());
 
         $pdf = Pdf::loadView('documents.templates.certificat-celibat', $data);
         return $pdf->download('certificat-celibat-' . $request->reference_number . '.pdf');
@@ -201,6 +206,8 @@ class DocumentPdfGeneratorService
             'place_of_birth' => $formData['place_of_birth'] ?? $user->place_of_birth,
             'nationality' => $formData['nationality'] ?? $user->nationality
         ];
+
+        $data = array_merge($data, $this->getOfficialDocumentData());
 
         $pdf = Pdf::loadView('documents.templates.certificat-deces', $data);
         return $pdf->download('certificat-deces-' . $request->reference_number . '.pdf');
@@ -228,6 +235,8 @@ class DocumentPdfGeneratorService
             'residence_duration' => $formData['residence_duration'] ?? ''
         ];
 
+        $data = array_merge($data, $this->getOfficialDocumentData());
+
         $pdf = Pdf::loadView('documents.templates.attestation-domicile', $data);
         return $pdf->download('attestation-domicile-' . $request->reference_number . '.pdf');
     }
@@ -252,7 +261,97 @@ class DocumentPdfGeneratorService
             'document_type' => $formData['document_type'] ?? '',
             'document_date' => $formData['document_date'] ?? '',
             'issuing_authority' => $formData['issuing_authority'] ?? ''
-        ];        $pdf = Pdf::loadView('documents.templates.legalisation', $data);
+        ];
+
+        $data = array_merge($data, $this->getOfficialDocumentData());
+
+        $data = array_merge($data, $this->getOfficialDocumentData());
+
+        $pdf = Pdf::loadView('documents.templates.legalisation', $data);
         return $pdf->download('legalisation-' . $request->reference_number . '.pdf');
+    }
+
+    /**
+     * Obtenir le chemin de la signature du maire
+     */
+    private function getMayorSignaturePath()
+    {
+        $signaturePath = public_path('images/official/signature_maire.png');
+        return file_exists($signaturePath) ? $signaturePath : null;
+    }
+
+    /**
+     * Obtenir le chemin du cachet officiel
+     */
+    private function getOfficialSealPath()
+    {
+        $sealPath = public_path('images/official/cachet_officiel.png');
+        return file_exists($sealPath) ? $sealPath : null;
+    }
+
+    /**
+     * Obtenir les données communes pour la signature et le cachet
+     */
+    private function getOfficialDocumentData()
+    {
+        $electronicSealData = $this->getElectronicSealData();
+        
+        return [
+            'mayor_signature' => $this->getMayorSignaturePath(),
+            'official_seal' => $this->getOfficialSealPath(),
+            'electronic_seal' => $electronicSealData,
+            'electronic_seal_image' => $this->generateElectronicSeal($electronicSealData),
+            'mayor_name' => 'PCT_MAYOR',
+            'municipality' => config('app.municipality_name', 'Mairie de Cocody'),
+        ];
+    }
+
+    /**
+     * Générer les données du cachet électronique
+     */
+    private function getElectronicSealData()
+    {
+        return [
+            'seal_number' => 'SEAL-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+            'seal_date' => now()->format('d/m/Y H:i:s'),
+            'seal_authority' => 'MAIRIE DE COCODY',
+            'verification_code' => strtoupper(substr(md5(uniqid()), 0, 8)),
+        ];
+    }
+
+    /**
+     * Générer le cachet électronique avec les données dynamiques
+     */
+    private function generateElectronicSeal($sealData)
+    {
+        $templatePath = public_path('images/official/cachet_electronique_v2.svg');
+        
+        // Fallback vers le template original si le v2 n'existe pas
+        if (!file_exists($templatePath)) {
+            $templatePath = public_path('images/official/cachet_electronique_template.svg');
+        }
+        
+        if (!file_exists($templatePath)) {
+            return null;
+        }
+        
+        $svgContent = file_get_contents($templatePath);
+        
+        // Remplacer les placeholders par les vraies données
+        $svgContent = str_replace('{DATE}', $sealData['seal_date'], $svgContent);
+        $svgContent = str_replace('{VERIFICATION_CODE}', $sealData['verification_code'], $svgContent);
+        
+        // Créer un fichier temporaire avec les données
+        $tempFile = storage_path('app/temp/electronic_seal_' . uniqid() . '.svg');
+        
+        // Créer le répertoire temp s'il n'existe pas
+        $tempDir = dirname($tempFile);
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        
+        file_put_contents($tempFile, $svgContent);
+        
+        return $tempFile;
     }
 }

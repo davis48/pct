@@ -466,7 +466,7 @@
                     <i class="fas fa-tachometer-alt mr-2"></i>
                     Mon Espace
                 </a>
-                <a href="{{ route('requests.create') }}" class="nav-link">
+                <a href="{{ route('interactive-forms.index') }}" class="nav-link">
                     <i class="fas fa-plus mr-2"></i>
                     Nouvelle demande
                 </a>
@@ -493,7 +493,7 @@
                     </h1>
                     <p>Suivez le statut de toutes vos demandes de documents</p>
                 </div>
-                <a href="{{ route('requests.create') }}" class="create-button">
+                <a href="{{ route('interactive-forms.index') }}" class="create-button">
                     <i class="fas fa-plus-circle"></i>
                     Nouvelle demande
                 </a>
@@ -693,7 +693,7 @@
                         </div>
                         <h3>Aucune demande trouvée</h3>
                         <p>Vous n'avez pas encore soumis de demande de document.</p>
-                        <a href="{{ route('requests.create') }}" class="create-button">
+                        <a href="{{ route('interactive-forms.index') }}" class="create-button">
                             <i class="fas fa-plus-circle"></i>
                             Créer votre première demande
                         </a>

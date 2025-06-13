@@ -625,10 +625,9 @@
                     <i class="fas fa-heart form-icon"></i>
                     <h2 class="form-title">Certificat de Mariage</h2>
                     <p class="form-description">Remplissez les informations ci-dessous pour générer votre certificat</p>
-                </div>
-
-                <form action="{{ route('interactive-forms.generate', 'certificat-mariage') }}" method="POST" enctype="multipart/form-data">
+                </div>                <form action="{{ route('interactive-forms.standalone.generate', 'certificat-mariage') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="type_document" value="certificat-mariage">
                     <div class="form-body">
                         <!-- Informations de l'époux -->
                         <div class="form-section">
@@ -815,20 +814,20 @@
                                 </p>
                             </div>
                         </div>
-                        
-                        <div class="upload-area" onclick="document.getElementById('documents').click()">
+                          <div class="upload-area" onclick="document.getElementById('documents').click()">
                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                             <div class="upload-text">Cliquez ici pour sélectionner vos documents</div>
                             <div class="upload-hint">ou glissez-déposez vos fichiers ici</div>
                         </div>
-                          <input type="file" id="documents" name="documents[]" multiple 
-                               accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect(event)">
+                        
+                        <input type="file" id="documents" name="documents[]" multiple 
+                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileSelect(event)">
                         
                         <div class="file-list" id="fileList"></div>
                         <div class="file-counter" id="fileCounter">0/8 documents sélectionnés</div>
                         
-                        <div class="error-message hidden" id="errorMessage"></div>
-                        <div class="success-message hidden" id="successMessage"></div>
+                        <div class="error-message" id="errorMessage"></div>
+                        <div class="success-message" id="successMessage"></div>
                     </div>
 
                     <div class="form-actions">
@@ -845,81 +844,8 @@
                 </form>
             </div>
         </div>
-    </main>
-
-    <script>
-        // Script pour gérer l'upload de documents
-        document.addEventListener('DOMContentLoaded', function() {
-            // Debug pour l'upload
-            console.log('🔍 Debug certificat de mariage - Upload');
-            console.log('Upload area:', document.querySelector('.upload-area'));
-            console.log('File input:', document.getElementById('documents'));
-            console.log('handleFileSelect:', window.handleFileSelect);
-            
-            // Test manuel du clic
-            const uploadArea = document.querySelector('.upload-area');
-            if (uploadArea) {
-                uploadArea.addEventListener('click', function() {
-                    console.log('🖱️ Upload area cliquée');
-                    const fileInput = document.getElementById('documents');
-                    if (fileInput) {
-                        console.log('📁 Ouverture du sélecteur de fichiers');
-                        fileInput.click();
-                    } else {
-                        console.log('❌ Aucun input file trouvé');
-                    }
-                });
-            }
-            
-            uploadArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-
-            uploadArea.addEventListener('dragleave', function() {
-                uploadArea.classList.remove('dragover');
-            });
-
-            uploadArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                uploadArea.classList.remove('dragover');
-
-                var files = e.dataTransfer.files;
-                handleFiles(files);
-            });
-
-            function handleFiles(files) {
-                for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
-                    var listItem = document.createElement('div');
-                    listItem.className = 'file-item';
-
-                    var fileInfo = document.createElement('div');
-                    fileInfo.className = 'file-info';
-                    fileInfo.innerHTML = '<i class="fas fa-file file-icon"></i>' + file.name;
-
-                    var fileDetails = document.createElement('div');
-                    fileDetails.className = 'file-details';
-                    fileDetails.innerHTML = '<div class="file-name">' + file.name + '</div>' +
-                                            '<div class="file-size">' + (file.size / 1024).toFixed(2) + ' Ko</div>';
-
-                    var removeFile = document.createElement('div');
-                    removeFile.className = 'remove-file';
-                    removeFile.innerHTML = '<i class="fas fa-times"></i>';
-                    removeFile.onclick = (function(file) {
-                        return function() {
-                            var index = Array.prototype.indexOf.call(fileList.children, listItem);
-                            if (index !== -1) {
-                                fileList.removeChild(listItem);
-                            }
-                        };
-                    })(file);                    listItem.appendChild(fileInfo);
-                    listItem.appendChild(fileDetails);
-                    listItem.appendChild(removeFile);
-                    fileList.appendChild(listItem);
-                }
-            }
-            
+    </main>    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             // Gestion de l'upload de documents
             let selectedFiles = [];
             const maxFiles = 8;
@@ -935,8 +861,8 @@
                 const errorMessage = document.getElementById('errorMessage');
                 const successMessage = document.getElementById('successMessage');
                 
-                errorMessage.classList.add('hidden');
-                successMessage.classList.add('hidden');
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
                 
                 for (let file of files) {
                     if (selectedFiles.length >= maxFiles) {
@@ -1027,42 +953,24 @@
             function showError(message) {
                 const errorMessage = document.getElementById('errorMessage');
                 errorMessage.textContent = message;
-                errorMessage.classList.remove('hidden');
+                errorMessage.style.display = 'block';
                 setTimeout(() => {
-                    errorMessage.classList.add('hidden');
+                    errorMessage.style.display = 'none';
                 }, 5000);
             }
             
             function showSuccess(message) {
                 const successMessage = document.getElementById('successMessage');
                 successMessage.textContent = message;
-                successMessage.classList.remove('hidden');
+                successMessage.style.display = 'block';
                 setTimeout(() => {
-                    successMessage.classList.add('hidden');
+                    successMessage.style.display = 'none';
                 }, 3000);
             }
               // Drag and drop functionality
             const uploadArea = document.querySelector('.upload-area');
             
-            console.log('🔧 Vérification upload certificat mariage:', {
-                uploadArea: !!uploadArea,
-                fileInput: !!document.getElementById('documents'),
-                handleFileSelect: !!window.handleFileSelect
-            });
-            
             if (uploadArea) {
-                // Test manuel du clic 
-                uploadArea.addEventListener('click', function(e) {
-                    console.log('🖱️ Zone upload cliquée');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const fileInput = document.getElementById('documents');
-                    if (fileInput) {
-                        console.log('📁 Ouverture sélecteur fichiers');
-                        fileInput.click();
-                    }
-                });
-                
                 uploadArea.addEventListener('dragover', function(e) {
                     e.preventDefault();
                     uploadArea.classList.add('dragover');
@@ -1079,6 +987,41 @@
                     
                     const files = Array.from(e.dataTransfer.files);
                     processFiles(files);
+                });
+            }
+            
+            // Form submission handler
+            const form = document.querySelector('form[action*="generate"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // S'assurer que l'input de fichiers est à jour
+                    updateDocumentFileInput();
+                    
+                    // Optionnel: validation côté client
+                    const requiredFields = form.querySelectorAll('input[required], select[required]');
+                    let isValid = true;
+                    
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.style.borderColor = '#ef4444';
+                        } else {
+                            field.style.borderColor = '';
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        showError('Veuillez remplir tous les champs obligatoires.');
+                        return false;
+                    }
+                    
+                    // Afficher un message de chargement
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement en cours...';
+                    }
                 });
             }
         });

@@ -208,22 +208,22 @@ Route::post('/connexion-standalone', [HomeController::class, 'processLoginStanda
 
 // Routes des formulaires interactifs (publiques)
 Route::prefix('formulaires-interactifs')->name('interactive-forms.')->group(function () {
-    Route::get('/', [InteractiveFormController::class, 'index'])->name('index');
-    Route::get('/{formType}', [InteractiveFormController::class, 'show'])->name('show');
-    Route::post('/{formType}/generate', [InteractiveFormController::class, 'generate'])->name('generate');
-    Route::get('/{formType}/{requestId}/download', [InteractiveFormController::class, 'download'])->name('download');
+    Route::get('/', [\App\Http\Controllers\Front\InteractiveFormController::class, 'index'])->name('index');
+    Route::get('/{formType}', [\App\Http\Controllers\Front\InteractiveFormController::class, 'show'])->name('show');
+    Route::post('/{formType}/generate', [\App\Http\Controllers\Front\InteractiveFormController::class, 'generate'])->name('generate');
+    Route::get('/{formType}/{requestId}/download', [\App\Http\Controllers\Front\InteractiveFormController::class, 'download'])->name('download');
 });
 
 // Routes des formulaires standalone
 Route::prefix('interactive-forms')->name('interactive-forms.standalone.')->group(function () {
-    Route::get('/extrait-naissance-standalone', [InteractiveFormController::class, 'extraitNaissanceStandalone'])->name('extrait-naissance');
-    Route::get('/attestation-domicile-standalone', [InteractiveFormController::class, 'attestationDomicileStandalone'])->name('attestation-domicile');
-    Route::get('/certificat-mariage-standalone', [InteractiveFormController::class, 'certificatMariageStandalone'])->name('certificat-mariage');
-    Route::get('/certificat-celibat-standalone', [InteractiveFormController::class, 'certificatCelibatStandalone'])->name('certificat-celibat');
-    Route::get('/certificat-deces-standalone', [InteractiveFormController::class, 'certificatDecesStandalone'])->name('certificat-deces');
-    Route::get('/legalisation-standalone', [InteractiveFormController::class, 'legalisationStandalone'])->name('legalisation');
-    Route::post('/{formType}/generate', [InteractiveFormController::class, 'generate'])->name('generate');
-    Route::post('/process-pending', [InteractiveFormController::class, 'processPendingSubmission'])->name('process-pending');
+    Route::get('/extrait-naissance-standalone', [\App\Http\Controllers\Front\InteractiveFormController::class, 'extraitNaissanceStandalone'])->name('extrait-naissance');
+    Route::get('/attestation-domicile-standalone', [\App\Http\Controllers\Front\InteractiveFormController::class, 'attestationDomicileStandalone'])->name('attestation-domicile');
+    Route::get('/certificat-mariage-standalone', [\App\Http\Controllers\Front\InteractiveFormController::class, 'certificatMariageStandalone'])->name('certificat-mariage');
+    Route::get('/certificat-celibat-standalone', [\App\Http\Controllers\Front\InteractiveFormController::class, 'certificatCelibatStandalone'])->name('certificat-celibat');
+    Route::get('/certificat-deces-standalone', [\App\Http\Controllers\Front\InteractiveFormController::class, 'certificatDecesStandalone'])->name('certificat-deces');
+    Route::get('/legalisation-standalone', [\App\Http\Controllers\Front\InteractiveFormController::class, 'legalisationStandalone'])->name('legalisation');
+    Route::post('/{formType}/generate', [\App\Http\Controllers\Front\InteractiveFormController::class, 'generate'])->name('generate');
+    Route::post('/process-pending', [\App\Http\Controllers\Front\InteractiveFormController::class, 'processPendingSubmission'])->name('process-pending');
 });
 
 // Routes des paiements standalone
@@ -569,3 +569,51 @@ Route::get('/test-notifications-api', function() {
         ]
     ]);
 })->name('test.notifications.api');
+
+// Route de test pour debug certificat de mariage
+Route::get('/test-certificat-mariage-debug', function() {
+    return view('test-certificat-mariage-debug');
+});
+
+// Route de test pour simuler la soumission
+Route::post('/test-certificat-mariage-submit', function(Request $request) {
+    Log::info('Test soumission certificat mariage', [
+        'data' => $request->all(),
+        'files' => $request->hasFile('documents') ? 'Oui' : 'Non'
+    ]);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Test réussi',
+        'data_received' => $request->all()
+    ]);
+})->name('test.certificat.submit');
+
+// Route de test pour connexion rapide
+Route::get('/test-login-quick', function() {
+    $user = App\Models\User::first();
+    if ($user) {
+        Auth::login($user);
+        return redirect('/formulaires-interactifs/certificat-mariage')
+            ->with('success', 'Connecté en tant que: ' . $user->email);
+    }
+    return redirect('/')->with('error', 'Aucun utilisateur trouvé');
+})->name('test.quick.login');
+
+// Route pour le formulaire de test simple
+Route::get('/test-certificat-mariage-simple', function() {
+    return view('test-certificat-mariage-simple');
+})->name('test.certificat.simple');
+
+// Route pour le formulaire de test avec soumission directe
+Route::get('/test-certificat-mariage-direct', function() {
+    return view('test-certificat-mariage-direct');
+})->name('test.certificat.direct');
+
+// Route pour obtenir un token CSRF frais
+Route::get('/test-get-csrf-token', function() {
+    return response()->json([
+        'token' => csrf_token(),
+        'session_id' => session()->getId()
+    ]);
+});

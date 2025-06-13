@@ -169,22 +169,53 @@ class InteractiveFormController extends Controller
 
         // Validation des données selon le type de formulaire
         $validatedData = $this->validateFormData($request, $formType);
+        
+        Log::info('Données validées avec succès', [
+            'form_type' => $formType,
+            'validated_data_keys' => array_keys($validatedData)
+        ]);
+        
         // Gérer les documents uploadés
         $uploadedDocuments = [];
         if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $file) {
+            Log::info('Fichiers détectés', ['count' => count($request->file('documents'))]);
+            
+            foreach ($request->file('documents') as $index => $file) {
                 if ($file->isValid()) {
-                    $uploadedDocuments[] = [
-                        'original_name' => $file->getClientOriginalName(),
-                        'size' => $file->getSize(),
-                        'type' => $file->getClientMimeType(),
-                        // Ne pas stocker le contenu ici pour éviter les données trop volumineuses
-                        'temp_path' => $file->getRealPath() // Chemin temporaire pour traitement ultérieur
-                    ];
+                    // Stocker immédiatement le fichier pour éviter les problèmes de fichiers temporaires
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = 'temp_upload_' . uniqid() . '.' . $extension;
+                    
+                    try {
+                        $path = $file->storeAs('temp_uploads', $filename, 'public');
+                        
+                        $uploadedDocuments[] = [
+                            'original_name' => $file->getClientOriginalName(),
+                            'stored_path' => $path,
+                            'size' => $file->getSize(),
+                            'type' => $file->getClientMimeType(),
+                        ];
+                        
+                        Log::info('Fichier uploadé avec succès', [
+                            'index' => $index,
+                            'original_name' => $file->getClientOriginalName(),
+                            'stored_path' => $path
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Erreur lors de l\'upload du fichier', [
+                            'index' => $index,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
                 }
             }
         }        // L'utilisateur doit être connecté pour créer une demande
         if (!Auth::check()) {
+            Log::info('Utilisateur non connecté, redirection vers login', [
+                'form_type' => $formType,
+                'has_files' => !empty($uploadedDocuments)
+            ]);
+            
             // Pour les formulaires standalone, sauvegarder les données en session et rediriger vers connexion
             session([
                 'pending_form_submission' => [
@@ -199,6 +230,11 @@ class InteractiveFormController extends Controller
                 ->with('info', 'Pour finaliser votre demande et procéder au paiement, veuillez vous connecter ou créer un compte.')
                 ->with('show_register_option', true);
         }
+        
+        Log::info('Utilisateur connecté, création de la demande', [
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email
+        ]);
 
         try {
             // Mettre à jour les informations personnelles de l'utilisateur si disponibles
@@ -241,29 +277,66 @@ class InteractiveFormController extends Controller
                 ])
             ]);            // Stocker les documents uploadés si disponibles
             if (!empty($uploadedDocuments)) {
+                Log::info('Sauvegarde des documents en base de données', ['count' => count($uploadedDocuments)]);
+                
                 foreach ($uploadedDocuments as $index => $docData) {
-                    // Utiliser le fichier temporaire directement
-                    $extension = pathinfo($docData['original_name'], PATHINFO_EXTENSION);
-                    $filename = 'request_' . $citizenRequest->id . '_doc_' . ($index + 1) . '.' . $extension;
-
-                    // Stocker le fichier dans le storage Laravel
-                    $path = Storage::disk('public')->putFileAs(
-                        'attachments',
-                        new \Illuminate\Http\File($docData['temp_path']),
-                        $filename
-                    );
-                      // Créer l'enregistrement dans la base de données
-                    $citizenRequest->attachments()->create([
-                        'file_name' => $docData['original_name'],
-                        'file_path' => $path,
-                        'file_size' => $docData['size'],
-                        'file_type' => $docData['type'],                        'uploaded_by' => Auth::id(),
-                        'type' => 'citizen'
-                    ]);
+                    try {
+                        // Déplacer le fichier du répertoire temporaire vers le répertoire final
+                        $finalFilename = 'request_' . $citizenRequest->id . '_doc_' . ($index + 1) . '.' . pathinfo($docData['original_name'], PATHINFO_EXTENSION);
+                        $finalPath = 'attachments/' . $finalFilename;
+                        
+                        // Copier depuis le répertoire temporaire
+                        if (Storage::disk('public')->exists($docData['stored_path'])) {
+                            Storage::disk('public')->move($docData['stored_path'], $finalPath);
+                            
+                            // Créer l'enregistrement dans la base de données
+                            $citizenRequest->attachments()->create([
+                                'file_name' => $docData['original_name'],
+                                'file_path' => $finalPath,
+                                'file_size' => $docData['size'],
+                                'file_type' => $docData['type'],
+                                'uploaded_by' => Auth::id(),
+                                'type' => 'citizen'
+                            ]);
+                            
+                            Log::info('Document sauvegardé avec succès', [
+                                'index' => $index,
+                                'original_name' => $docData['original_name'],
+                                'final_path' => $finalPath
+                            ]);
+                        } else {
+                            Log::error('Fichier temporaire non trouvé', ['temp_path' => $docData['stored_path']]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Erreur lors de la sauvegarde du document', [
+                            'index' => $index,
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                    }
                 }
             }
 
+            // TEST TEMPORAIRE : Retourner les données au lieu de rediriger
+            if ($request->has('test_mode')) {
+                Log::info('Mode test activé - retour des données au lieu de redirection');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Formulaire traité avec succès en mode test',
+                    'citizen_request_id' => $citizenRequest->id,
+                    'reference_number' => $citizenRequest->reference_number,
+                    'validated_data' => $validatedData,
+                    'uploaded_documents_count' => count($uploadedDocuments),
+                    'redirect_url' => route('payments.standalone.show', $citizenRequest)
+                ]);
+            }
+
             // Rediriger vers la page de paiement standalone
+            Log::info('Tentative de redirection vers paiement', [
+                'request_id' => $citizenRequest->id,
+                'reference' => $citizenRequest->reference_number
+            ]);
+            
             return redirect()->route('payments.standalone.show', $citizenRequest)
                 ->with('success', '🎉 Votre formulaire a été traité avec succès ! Référence: ' . $citizenRequest->reference_number . '. Veuillez procéder au paiement pour finaliser votre demande.');
 

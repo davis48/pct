@@ -215,7 +215,8 @@ class CitizenRequest extends Model
 
         // Pour les formulaires interactifs, utiliser les données additionnelles
         if ($this->additional_data) {
-            $additionalData = json_decode($this->additional_data, true);
+            // additional_data est déjà casté en array, pas besoin de json_decode
+            $additionalData = $this->additional_data;
             
             // Si c'est un formulaire interactif, utiliser le form_type
             if (isset($additionalData['form_type'])) {
@@ -273,7 +274,8 @@ class CitizenRequest extends Model
 
         // Pour les formulaires interactifs, déduire la catégorie
         if ($this->additional_data) {
-            $additionalData = json_decode($this->additional_data, true);
+            // additional_data est déjà casté en array, pas besoin de json_decode
+            $additionalData = $this->additional_data;
             
             if (isset($additionalData['form_type'])) {
                 return $this->getFormTypeCategory($additionalData['form_type']);

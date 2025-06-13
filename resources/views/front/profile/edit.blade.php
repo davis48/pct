@@ -163,19 +163,37 @@
                                                 {{ $message }}
                                             </p>
                                         @enderror
-                                    </div>
-
-                                    <div>
+                                    </div>                                    <div>
                                         <label for="date_naissance" class="block text-sm font-medium text-gray-700 mb-2">
                                             <i class="fas fa-calendar mr-2 text-gray-400"></i>
-                                            Date de naissance
-                                        </label>
-                                        <input type="date" 
+                                            Date de naissance <span class="text-red-500">*</span>
+                                        </label>                                        <input type="date" 
                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 @error('date_naissance') border-red-500 ring-2 ring-red-200 @enderror" 
                                                id="date_naissance" 
                                                name="date_naissance" 
-                                               value="{{ old('date_naissance', Auth::user()->date_naissance) }}">
+                                               value="{{ old('date_naissance', Auth::user()->date_naissance ? Auth::user()->date_naissance->format('Y-m-d') : '') }}"
+                                               required>
                                         @error('date_naissance')
+                                            <p class="mt-2 text-sm text-red-600 flex items-center">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div><div>
+                                        <label for="genre" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-venus-mars mr-2 text-gray-400"></i>
+                                            Genre <span class="text-red-500">*</span>
+                                        </label>
+                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 @error('genre') border-red-500 ring-2 ring-red-200 @enderror" 
+                                                id="genre" 
+                                                name="genre"
+                                                required>
+                                            <option value="">Sélectionner...</option>
+                                            <option value="M" {{ old('genre', Auth::user()->genre) == 'M' ? 'selected' : '' }}>Masculin</option>
+                                            <option value="F" {{ old('genre', Auth::user()->genre) == 'F' ? 'selected' : '' }}>Féminin</option>
+                                            <option value="Autre" {{ old('genre', Auth::user()->genre) == 'Autre' ? 'selected' : '' }}>Autre</option>
+                                        </select>
+                                        @error('genre')
                                             <p class="mt-2 text-sm text-red-600 flex items-center">
                                                 <i class="fas fa-exclamation-triangle mr-1"></i>
                                                 {{ $message }}
@@ -184,19 +202,18 @@
                                     </div>
 
                                     <div>
-                                        <label for="genre" class="block text-sm font-medium text-gray-700 mb-2">
-                                            <i class="fas fa-venus-mars mr-2 text-gray-400"></i>
-                                            Genre
+                                        <label for="place_of_birth" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                                            Lieu de naissance <span class="text-red-500">*</span>
                                         </label>
-                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 @error('genre') border-red-500 ring-2 ring-red-200 @enderror" 
-                                                id="genre" 
-                                                name="genre">
-                                            <option value="">Sélectionner...</option>
-                                            <option value="M" {{ old('genre', Auth::user()->genre) == 'M' ? 'selected' : '' }}>Masculin</option>
-                                            <option value="F" {{ old('genre', Auth::user()->genre) == 'F' ? 'selected' : '' }}>Féminin</option>
-                                            <option value="Autre" {{ old('genre', Auth::user()->genre) == 'Autre' ? 'selected' : '' }}>Autre</option>
-                                        </select>
-                                        @error('genre')
+                                        <input type="text" 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 @error('place_of_birth') border-red-500 ring-2 ring-red-200 @enderror" 
+                                               id="place_of_birth" 
+                                               name="place_of_birth" 
+                                               value="{{ old('place_of_birth', Auth::user()->place_of_birth) }}"
+                                               placeholder="Ville/Pays de naissance"
+                                               required>
+                                        @error('place_of_birth')
                                             <p class="mt-2 text-sm text-red-600 flex items-center">
                                                 <i class="fas fa-exclamation-triangle mr-1"></i>
                                                 {{ $message }}

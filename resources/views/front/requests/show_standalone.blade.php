@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE htm    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +15,7 @@
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/navbar-blue-standalone.css') }}">
     
     <style>
         * {
@@ -70,16 +73,15 @@
             gap: 2rem;
             align-items: center;
         }
-        
-        .nav-link {
+          .nav-link {
             text-decoration: none;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             transition: color 0.3s ease;
         }
         
         .nav-link:hover {
-            color: #1976d2;
+            color: white;
         }
         
         .main-content {
@@ -455,7 +457,7 @@
         <div class="navbar-content">
             <a href="{{ route('home') }}" class="navbar-brand">
                 <div class="navbar-icon">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -752,10 +754,9 @@
                                 <a href="{{ route('documents.download', $request) }}" class="btn btn-success btn-lg @if($request->status == 'approved') btn-download-highlight @endif" style="margin-right: 0.75rem;">
                                     <i class="fas fa-download"></i>
                                     Télécharger {{ $documentName }}
-                                </a>
-                                <button onclick="window.print()" class="btn btn-primary btn-lg">
+                                </a>                                <button onclick="window.print()" class="btn btn-primary btn-lg">
                                     <i class="fas fa-print"></i>
-                                    Imprimer
+                                    Imprimer la page
                                 </button>
                             @endif
                             
@@ -778,3 +779,6 @@
     </main>
 </body>
 </html>
+
+
+

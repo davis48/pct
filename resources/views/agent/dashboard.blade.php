@@ -21,7 +21,7 @@
 @endsection
 
 @section('content')
-<div class="space-y-8" x-data="{
+<div class="space-y-8 bg-white min-h-screen" x-data="{
     statusFilter: '',
     viewMode: 'table',
     notifications: [],
@@ -151,12 +151,12 @@
     </div>
 
     <!-- Demandes récentes -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div class="px-6 py-4 bg-white border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-800">Demandes récentes</h3>
                 <div class="flex items-center space-x-4">
-                    <select x-model="statusFilter" @change="filterRequests()" class="text-sm border rounded-lg px-3 py-1">
+                    <select x-model="statusFilter" @change="filterRequests()" class="text-sm border rounded-lg px-3 py-1 bg-white text-gray-700">
                         <option value="">Tous les statuts</option>
                         <option value="en_attente">En attente</option>
                         <option value="processing">En cours</option>
@@ -170,16 +170,16 @@
         </div>
 
         <!-- Vue tableau -->
-        <div x-show="viewMode === 'table'" class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+        <div x-show="viewMode === 'table'" class="overflow-x-auto bg-white">
+            <table class="min-w-full divide-y divide-gray-200 bg-white">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demandeur</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Référence</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Document</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Demandeur</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="requests-table-body">
@@ -216,12 +216,12 @@
                                     @else {{ $request->status }} @endif
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 {{ $request->created_at->format('d/m/Y H:i') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('agent.requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900">Voir</a>
-                                <a href="{{ route('agent.requests.process', $request->id) }}" class="ml-3 text-green-600 hover:text-green-900">Traiter</a>
+                                <a href="{{ route('agent.requests.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Voir</a>
+                                <a href="{{ route('agent.requests.process', $request->id) }}" class="ml-3 text-green-600 hover:text-green-900 font-medium">Traiter</a>
                             </td>
                         </tr>
                     @empty

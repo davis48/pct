@@ -1,0 +1,136 @@
+/* 
+ * CSS d'accessibilité pour les navbars bleues
+ * Garantit la lisibilité des liens et éléments de navigation
+ */
+
+/* Règles générales pour les navbars avec fond bleu/gradient bleu */
+.navbar[style*="linear-gradient"],
+nav[style*="linear-gradient"],
+header[style*="linear-gradient"],
+.bg-gradient-to-r[class*="blue"],
+.sidebar[style*="linear-gradient"] {
+    --navbar-text-color: rgba(255, 255, 255, 0.9);
+    --navbar-text-hover: white;
+    --navbar-icon-color: rgba(255, 255, 255, 0.8);
+    --navbar-icon-hover: white;
+}
+
+/* Amélioration automatique des liens avec couleurs grises sur fond bleu */
+[style*="linear-gradient"] a[class*="text-gray"],
+[style*="background: linear-gradient"] a[class*="text-gray"],
+.navbar a[class*="text-gray"],
+.sidebar a[class*="text-gray"],
+#navbar a[class*="text-gray"] {
+    color: var(--navbar-text-color, rgba(255, 255, 255, 0.9)) !important;
+    transition: all 0.3s ease !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[style*="linear-gradient"] a[class*="text-gray"]:hover,
+[style*="background: linear-gradient"] a[class*="text-gray"]:hover,
+.navbar a[class*="text-gray"]:hover,
+.sidebar a[class*="text-gray"]:hover,
+#navbar a[class*="text-gray"]:hover {
+    color: var(--navbar-text-hover, white) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transform: translateY(-1px) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+/* Amélioration des boutons sur fond bleu */
+[style*="linear-gradient"] button[class*="text-gray"],
+.navbar button[class*="text-gray"],
+.sidebar button[class*="text-gray"],
+#navbar button[class*="text-gray"] {
+    color: var(--navbar-text-color, rgba(255, 255, 255, 0.9)) !important;
+    transition: all 0.3s ease !important;
+}
+
+[style*="linear-gradient"] button[class*="text-gray"]:hover,
+.navbar button[class*="text-gray"]:hover,
+.sidebar button[class*="text-gray"]:hover,
+#navbar button[class*="text-gray"]:hover {
+    color: var(--navbar-text-hover, white) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Amélioration des icônes */
+[style*="linear-gradient"] i[class*="fas"],
+.navbar i[class*="fas"],
+.sidebar i[class*="fas"],
+#navbar i[class*="fas"] {
+    color: var(--navbar-icon-color, rgba(255, 255, 255, 0.8)) !important;
+    transition: all 0.3s ease !important;
+}
+
+[style*="linear-gradient"] a:hover i[class*="fas"],
+.navbar a:hover i[class*="fas"],
+.sidebar a:hover i[class*="fas"],
+#navbar a:hover i[class*="fas"] {
+    color: var(--navbar-icon-hover, white) !important;
+    transform: scale(1.1) !important;
+}
+
+/* Cas spéciaux pour les dropdowns */
+.dropdown-menu a[class*="text-gray"] {
+    color: #374151 !important; /* Garder gris foncé pour dropdown blanc */
+}
+
+.dropdown-menu a[class*="text-gray"]:hover {
+    color: #1976d2 !important;
+    background: rgba(25, 118, 210, 0.1) !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .mobile-menu:not([style*="linear-gradient"]) a[class*="text-gray"] {
+        color: #374151 !important; /* Garder gris foncé pour mobile menu blanc */
+    }
+    
+    .mobile-menu:not([style*="linear-gradient"]) a[class*="text-gray"]:hover {
+        color: #1976d2 !important;
+        background: rgba(25, 118, 210, 0.1) !important;
+    }
+}
+
+/* Animation pour les effets hover */
+@keyframes navbarHoverGlow {
+    from {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    to {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+}
+
+[style*="linear-gradient"] a:hover,
+.navbar a:hover,
+.sidebar a:hover {
+    animation: navbarHoverGlow 0.3s ease-in-out;
+}
+
+/* Accessibilité: Focus states pour la navigation au clavier */
+[style*="linear-gradient"] a:focus,
+.navbar a:focus,
+.sidebar a:focus,
+#navbar a:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8) !important;
+    outline-offset: 2px !important;
+    color: white !important;
+}
+
+/* Contraste élevé pour les utilisateurs malvoyants */
+@media (prefers-contrast: high) {
+    [style*="linear-gradient"] a,
+    .navbar a,
+    .sidebar a,
+    #navbar a {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+    }
+}

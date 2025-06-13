@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -10,9 +10,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+      <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar-blue-standalone.css') }}">
     
     <style>
         * {
@@ -73,16 +74,15 @@
             gap: 2rem;
             align-items: center;
         }
-        
-        .nav-link {
+          .nav-link {
             text-decoration: none;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             transition: color 0.3s ease;
         }
         
         .nav-link:hover {
-            color: #1976d2;
+            color: white;
         }
         
         .main-content {
@@ -490,7 +490,7 @@
         <div class="navbar-content">
             <a href="{{ route('home') }}" class="navbar-brand">
                 <div class="navbar-icon">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -1029,3 +1029,6 @@
     </script>
 </body>
 </html>
+
+
+

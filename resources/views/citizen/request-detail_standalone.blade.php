@@ -6,13 +6,27 @@
     <title>Détails de la demande | PCT UVCI</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Configuration Tailwind personnalisée -->
+    <!-- CSS pour tous les dropdowns -->
+    <link rel="stylesheet" href="{{ asset('css/dropdown-fix-global.css') }}">    
+    <!-- CSS personnalisés -->
+    <link rel="stylesheet" href="{{ asset('css/cocody-theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar-accessibility-fix.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
+    
+    <!-- TailwindCSS CDN AVANT la configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js pour les dropdowns -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -28,15 +42,19 @@
                             600: '#2563eb',
                             700: '#1d4ed8',
                             800: '#1e40af',
-                            900: '#1e3a8a',
+                            900: '#1e3a8a'
+                        },
+                        cocody: {
+                            primary: '#1976d2',
+                            secondary: '#43a047',
+                            'secondary-light': '#66bb6a'
                         }
                     }
                 }
             }
         }
     </script>
-    
-    <style>
+      <style>
         /* Styles pour les toggles de notification */
         input[type="checkbox"] + label {
             transition: background-color 0.3s ease;
@@ -76,62 +94,445 @@
             animation: pulse 2s infinite;
         }
 
-        .navbar {
-            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        /* Styles pour la navbar moderne */
+        body {
+            font-family: 'Inter', sans-serif;
+            padding-top: 80px; /* Espace pour navbar fixe */
         }
-
-        .navbar-brand {
-            font-size: 1.5rem;
+          /* Navbar fixe avec fond bleu */
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(25, 118, 210, 0.2);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        /* Logo pour navbar bleue */
+        .logo-gradient {
+            color: white;
             font-weight: bold;
+        }
+        
+        /* Liens navbar - couleurs claires pour fond bleu */
+        .navbar-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .navbar-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .navbar-link.active {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Badge de notifications */
+        .notification-badge {
+            background: #dc2626;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            min-width: 1.25rem;
+            text-align: center;
+        }        /* Dropdown styles - harmonisés avec le dashboard */
+        .dropdown-content {
+            min-width: 200px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .dropdown-item {
+            color: #374151 !important;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+            display: block;
             text-decoration: none;
+        }
+        
+        .dropdown-item:hover {
+            background: #f8fafc;
+            color: #1976d2 !important;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item.danger {
+            color: #dc2626 !important;
+        }
+        
+        .dropdown-item.danger:hover {
+            background: #fef2f2;
+            color: #b91c1c !important;
+        }
+        
+        /* Mobile menu - fond bleu */
+        .mobile-menu {
+            background: #1565c0;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Avatar utilisateur - plus visible */
+        .user-avatar {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Styles additionnels pour la page */
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
             color: white;
         }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
         }
 
-        .nav-link:hover {
-            color: white;
+        /* Styles supplémentaires pour navbar bleue */
+        .navbar-fixed {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        /* Accentuation des liens navbar */
+        .navbar-link {
+            color: white !important;
+            font-weight: 600 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-link:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        .navbar-link.active {
+            background: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Amélioration des icônes */
+        .navbar-fixed i {
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        /* Adaptation badges notifications */
+        .notification-badge {
+            background: #ff3d00 !important;
+            box-shadow: 0 0 0 2px #1565c0;
+        }
+        
+        /* Style spécifique pour boutons et dropdown */
+        .navbar-fixed button[type="submit"],
+        .navbar-fixed a.dropdown-item {
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu a, 
+            .mobile-menu button {
+                color: white !important;
+            }
+            
+            .mobile-menu a:hover, 
+            .mobile-menu button:hover {
+                background: rgba(255, 255, 255, 0.15) !important;
+            }
         }
     </style>
-</head>
-<body class="bg-gray-50">
-    <!-- Barre de navigation -->
-    <nav class="navbar">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <a href="{{ route('home') }}" class="navbar-brand">
-                    PCT UVCI
-                </a>                <div class="flex space-x-6">
-                    <a href="{{ route('home') }}" class="nav-link">Accueil</a>
+    
+    <!-- Navbar fixe professionnelle -->
+    <nav class="navbar-fixed no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{ route('home') }}" class="flex items-center group">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-file-contract text-white text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold logo-gradient">PCT UVCI</span>
+                    </a>
+                </div>
+
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-1">
                     @auth
-                        <a href="{{ route('citizen.dashboard') }}" class="nav-link">
-                            <i class="fas fa-tachometer-alt mr-1"></i> Tableau de bord
-                        </a>
-                        <a href="{{ route('requests.index') }}" class="nav-link">
-                            <i class="fas fa-file-alt mr-1"></i> Mes demandes
-                        </a>
-                        <span class="text-white">{{ Auth::user()->nom ?? Auth::user()->name }}</span>
-                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="nav-link bg-transparent border-0 p-0" style="background: none; border: none; cursor: pointer;">
-                                <i class="fas fa-sign-out-alt"></i> Déconnexion
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login.standalone') }}" class="nav-link">Connexion</a>
-                        <a href="{{ route('register.standalone') }}" class="nav-link">Inscription</a>
+                        @if(auth()->user()->isCitizen())
+                            <!-- Dashboard -->
+                            <a href="{{ route('citizen.dashboard') }}" 
+                               class="navbar-link {{ request()->routeIs('citizen.dashboard') ? 'active' : '' }}">
+                                <i class="fas fa-home mr-2"></i>
+                                Accueil
+                            </a>
+                            
+                            <!-- Mes Demandes -->
+                            <a href="{{ route('requests.index') }}" 
+                               class="navbar-link {{ request()->routeIs('requests.*') ? 'active' : '' }}">
+                                <i class="fas fa-folder-open mr-2"></i>
+                                Mes Demandes
+                            </a>
+                            
+                            <!-- Formulaires avec dropdown -->
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" 
+                                        class="navbar-link flex items-center {{ request()->routeIs('interactive-forms.*') ? 'active' : '' }}">
+                                    <i class="fas fa-edit mr-2"></i>
+                                    Formulaires
+                                    <i class="fas fa-chevron-down ml-1 text-sm" :class="{ 'rotate-180': open }"></i>
+                                </button>
+                                
+                                <div x-show="open" 
+                                     @click.away="open = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 transform scale-95"
+                                     x-transition:enter-end="opacity-1 transform scale-100"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-1 transform scale-100"
+                                     x-transition:leave-end="opacity-0 transform scale-95"
+                                     class="absolute left-0 mt-2 dropdown-content z-50">
+                                    <a href="{{ route('interactive-forms.index') }}" class="dropdown-item">
+                                        <i class="fas fa-list mr-2 text-blue-600"></i>
+                                        Tous les formulaires
+                                    </a>
+                                    <a href="{{ route('interactive-forms.show', 'extrait-naissance') }}" class="dropdown-item">
+                                        <i class="fas fa-baby mr-2 text-green-600"></i>
+                                        Extrait de naissance
+                                    </a>
+                                    <a href="{{ route('interactive-forms.show', 'certificat-mariage') }}" class="dropdown-item">
+                                        <i class="fas fa-heart mr-2 text-pink-600"></i>
+                                        Certificat de mariage
+                                    </a>
+                                    <a href="{{ route('interactive-forms.show', 'certificat-deces') }}" class="dropdown-item">
+                                        <i class="fas fa-cross mr-2 text-gray-600"></i>
+                                        Certificat de décès
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Notifications -->
+                            @php
+                                $notificationCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                            @endphp
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" class="navbar-link relative">
+                                    <i class="fas fa-bell mr-1"></i>
+                                    @if($notificationCount > 0)
+                                        <span id="notification-badge" class="notification-badge absolute -top-1 -right-1">
+                                            {{ $notificationCount > 99 ? '99+' : $notificationCount }}
+                                        </span>
+                                    @else
+                                        <span id="notification-badge" class="notification-badge absolute -top-1 -right-1" style="display: none;">0</span>
+                                    @endif
+                                </button>                                <div x-show="open" 
+                                     @click.away="open = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 transform scale-95"
+                                     x-transition:enter-end="opacity-1 transform scale-100"
+                                     class="absolute right-0 mt-2 w-80 dropdown-content z-50">
+                                    <div class="py-3 px-4 bg-blue-50 border-b border-gray-200">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="font-semibold text-gray-800">Notifications</h3>
+                                            @if($notificationCount > 0)
+                                                <button onclick="markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
+                                                    <i class="fas fa-check-double mr-1"></i> Tout marquer lu
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                        <div class="px-4 py-6 text-center text-gray-500">
+                                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent mx-auto mb-2"></div>
+                                            Chargement...
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('citizen.notifications.center') }}" class="dropdown-item border-t border-gray-200 text-center text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-bell mr-1"></i> Voir toutes les notifications
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                     @endauth
+                </div>
+
+                <!-- Menu Utilisateur -->
+                <div class="flex items-center space-x-4">
+                    @auth
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center space-x-2 navbar-link">
+                                <div class="w-8 h-8 rounded-full user-avatar flex items-center justify-center">
+                                    @if(Auth::user()->profile_photo)
+                                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" 
+                                             alt="Photo" class="w-8 h-8 rounded-full object-cover">
+                                    @else
+                                        <span class="text-sm font-semibold">
+                                            {{ strtoupper(substr(Auth::user()->prenoms ?? 'U', 0, 1)) }}{{ strtoupper(substr(Auth::user()->nom ?? 'U', 0, 1)) }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <span class="hidden lg:block font-medium">{{ Auth::user()->prenoms }} {{ Auth::user()->nom }}</span>
+                                <i class="fas fa-chevron-down text-sm" :class="{ 'rotate-180': open }"></i>
+                            </button>
+                              <div x-show="open" 
+                                 @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform scale-95"
+                                 x-transition:enter-end="opacity-1 transform scale-100"
+                                 class="absolute right-0 mt-2 dropdown-content z-50 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-56">
+                                <div class="py-3 px-4 bg-blue-50 border-b border-blue-100">
+                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->prenoms }} {{ Auth::user()->nom }}</p>
+                                    <p class="text-xs text-gray-500 mt-1 truncate">{{ Auth::user()->email }}</p>
+                                </div>
+                                <a href="{{ route('profile.edit') }}" class="dropdown-item flex items-center">
+                                    <i class="fas fa-user mr-3 text-blue-600 w-5 text-center"></i>
+                                    <span>Mon Profil</span>
+                                </a>
+                                <a href="{{ route('citizen.dashboard') }}" class="dropdown-item flex items-center">
+                                    <i class="fas fa-tachometer-alt mr-3 text-green-600 w-5 text-center"></i>
+                                    <span>Tableau de bord</span>
+                                </a>
+                                <a href="{{ route('citizen.notifications.center') }}" class="dropdown-item flex items-center">
+                                    <i class="fas fa-bell mr-3 text-yellow-600 w-5 text-center"></i>
+                                    <span>Notifications</span>
+                                    @if($notificationCount > 0)
+                                        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $notificationCount }}</span>
+                                    @endif
+                                </a>
+                                <hr class="border-gray-200">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item danger w-full text-left flex items-center">
+                                        <i class="fas fa-sign-out-alt mr-3 w-5 text-center"></i>
+                                        <span>Déconnexion</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>                    @else
+                        <a href="{{ route('choose.role') }}" class="navbar-link">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Connexion
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors duration-200 font-medium border border-white hover:border-blue-100">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            S'inscrire
+                        </a>
+                    @endauth
+
+                    <!-- Bouton menu mobile -->
+                    <div class="md:hidden" x-data="{ mobileOpen: false }">
+                        <button @click="mobileOpen = !mobileOpen" class="navbar-link">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        
+                        <!-- Menu Mobile -->
+                        <div x-show="mobileOpen" 
+                             @click.away="mobileOpen = false"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform -translate-y-2"
+                             x-transition:enter-end="opacity-1 transform translate-y-0"
+                             class="fixed inset-x-0 top-20 md:hidden mobile-menu border-t border-gray-200">                            <div class="px-4 py-6 space-y-3 bg-blue-700 shadow-lg border-t border-blue-800">
+                                @auth
+                                    @if(auth()->user()->isCitizen())
+                                        <a href="{{ route('citizen.dashboard') }}" class="block navbar-link text-white">
+                                            <i class="fas fa-home mr-2"></i>Accueil
+                                        </a>
+                                        <a href="{{ route('requests.index') }}" class="block navbar-link text-white">
+                                            <i class="fas fa-folder-open mr-2"></i>Mes Demandes
+                                        </a>
+                                        <a href="{{ route('interactive-forms.index') }}" class="block navbar-link text-white">
+                                            <i class="fas fa-edit mr-2"></i>Formulaires
+                                        </a>
+                                        <a href="{{ route('profile.edit') }}" class="block navbar-link text-white">
+                                            <i class="fas fa-user mr-2"></i>Mon Profil
+                                        </a>                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="block w-full text-left navbar-link danger">
+                                                <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endauth
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <div class="min-h-screen bg-gray-50 py-8">
+    </nav>    <div class="min-h-screen bg-gray-50 py-8 pt-20">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Breadcrumb -->
             <nav class="flex mb-8" aria-label="Breadcrumb">
@@ -258,17 +659,15 @@
                                 Télécharger {{ $documentName }}
                             </a>
                         @endif
-                        
-                        <button type="button" onclick="window.print()" 
+                          <button type="button" onclick="window.print()" 
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <i class="fas fa-print mr-2"></i>
-                            Imprimer
+                            Imprimer la page
                         </button>
-                        
-                        <a href="{{ route('home') }}" 
+                          <a href="{{ route('citizen.dashboard') }}" 
                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <i class="fas fa-arrow-left mr-2"></i>
-                            Retour à l'accueil
+                            Retour au tableau de bord
                         </a>
                     </div>
                 </div>
@@ -464,9 +863,7 @@
             </div>
             @endif
         </div>
-    </div>
-
-    <!-- Footer -->
+    </div>    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-8 mt-12">
         <div class="container mx-auto px-4">
             <div class="text-center">
@@ -475,5 +872,181 @@
             </div>
         </div>
     </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('open');
+            });
+        }
+
+        // User dropdown toggle
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+        }        // Chargement initial des notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            // Précharger les notifications pour mettre à jour le badge
+            loadNotifications();
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (userDropdown && !userDropdown.classList.contains('hidden')) {
+                userDropdown.classList.add('hidden');
+            }
+            if (notificationsDropdown && !notificationsDropdown.classList.contains('hidden')) {
+                notificationsDropdown.classList.add('hidden');
+            }
+        });        // Navbar scroll effect - maintient le style bleu
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.navbar-fixed');
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 10) {
+                navbar.style.boxShadow = '0 4px 12px rgba(13, 71, 161, 0.4)';
+                navbar.style.background = 'linear-gradient(135deg, #1976d2 0%, #1565c0 70%, #0d47a1 100%)';
+            } else {
+                navbar.style.boxShadow = '0 2px 8px rgba(13, 71, 161, 0.3)';
+                navbar.style.background = 'linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%)';
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // Load notifications function
+        function loadNotifications() {
+            const notificationsList = document.getElementById('notification-list');
+            const notificationBadge = document.getElementById('notification-badge');
+            
+            // Afficher l'état de chargement
+            notificationsList.innerHTML = `
+                <div class="px-4 py-6 text-center text-gray-500">
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2"></div>
+                    <p>Chargement des notifications...</p>
+                </div>
+            `;            // Charger les notifications générales de l'utilisateur
+            const url = '/citizen/notifications';
+            
+            fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.notifications && data.notifications.length > 0) {
+                    notificationsList.innerHTML = data.notifications.map(notification => {
+                        let icon = 'fas fa-bell';
+                        let iconColor = 'text-blue-500';
+                        
+                        // Assigner des icônes selon le type de notification
+                        if (notification.data && notification.data.type) {
+                            switch(notification.data.type) {
+                                case 'status_update':
+                                    icon = 'fas fa-sync';
+                                    iconColor = 'text-green-500';
+                                    break;
+                                case 'payment':
+                                    icon = 'fas fa-money-bill';
+                                    iconColor = 'text-emerald-500';
+                                    break;
+                                case 'document':
+                                    icon = 'fas fa-file-alt';
+                                    iconColor = 'text-amber-500';
+                                    break;
+                                case 'alert':
+                                    icon = 'fas fa-exclamation-triangle';
+                                    iconColor = 'text-red-500';
+                                    break;
+                            }
+                        }
+                        
+                        return `                            <div class="dropdown-item ${notification.is_read ? '' : 'bg-blue-50'}">
+                                <div class="flex items-start">
+                                    <div class="mr-3 mt-1">
+                                        <i class="${icon} ${iconColor} w-5 text-center"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">${notification.title || (notification.data ? notification.data.title : '') || 'Notification'}</p>
+                                        <p class="text-sm text-gray-600 mt-1">${notification.message || (notification.data ? notification.data.message : '')}</p>
+                                        <p class="text-xs text-gray-400 mt-1">${notification.created_at}</p>
+                                    </div>
+                                    ${!notification.is_read ? '<div class="ml-2 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>' : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Mettre à jour le badge avec le nombre exact
+                    const unreadCount = data.unread_count || data.notifications.filter(n => !n.is_read).length;
+                    if (unreadCount > 0) {
+                        notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                        notificationBadge.style.display = 'flex';
+                    } else {
+                        notificationBadge.style.display = 'none';
+                    }
+                } else {                    notificationsList.innerHTML = `
+                        <div class="dropdown-item text-center py-4">
+                            <i class="fas fa-bell-slash text-xl mb-2 text-gray-400"></i>
+                            <p class="text-gray-500">Aucune notification</p>
+                        </div>
+                    `;
+                    notificationBadge.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des notifications:', error);
+                notificationsList.innerHTML = `
+                    <div class="dropdown-item text-center py-4">
+                        <i class="fas fa-exclamation-circle text-xl mb-2 text-red-500"></i>
+                        <p class="text-red-500 mb-2">Erreur lors du chargement</p>
+                        <button onclick="loadNotifications()" class="mt-1 text-sm text-blue-600 hover:underline">
+                            <i class="fas fa-redo mr-1"></i> Réessayer
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead() {
+            fetch('/citizen/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour des notifications:', error);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -136,6 +136,17 @@ function updateWidgetDisplay(data) {
     const widget = document.getElementById('notification-widget');
     const title = document.getElementById('notification-widget-title');
     
+    // Mettre à jour les badges du centre de notifications dans le widget
+    const widgetCenterBadges = widget ? widget.querySelectorAll('.badge.bg-danger, .badge.bg-warning') : [];
+    widgetCenterBadges.forEach(badge => {
+        if (data.count > 0) {
+            badge.textContent = data.count > 99 ? '99+' : data.count;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    });
+    
     if (data.count === 0) {
         // Masquer le widget s'il n'y a plus de notifications
         if (widget) {
@@ -146,12 +157,24 @@ function updateWidgetDisplay(data) {
             }, 300);
         }
     } else {
+        // Afficher le widget s'il est masqué
+        if (widget && widget.style.display === 'none') {
+            widget.style.display = 'block';
+            widget.style.opacity = '1';
+        }
+        
         // Mettre à jour le titre
         if (title) {
             const bellIcon = data.count > 0 ? 'notification-bell' : '';
+            const unreadCount = data.count;
+            const displayedCount = Math.min(unreadCount, 3);
+            const additionalCount = Math.max(0, unreadCount - 3);
+            
+            // Rebuild the title with correct structure
             title.innerHTML = `
                 <i class="fas fa-bell me-2 ${bellIcon}"></i>
-                Dernières Notifications (${data.count})
+                Dernières Notifications
+                ${additionalCount > 0 ? `<span class="badge bg-warning text-dark ms-2 notification-badge-pulse">+${additionalCount}</span>` : ''}
             `;
         }
     }

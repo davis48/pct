@@ -13,6 +13,15 @@
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         * {
@@ -28,15 +37,14 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-        
-        .navbar {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+          .navbar {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+            border-bottom: 1px solid rgba(25, 118, 210, 0.2);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 50;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
         }
         
         .navbar-content {
@@ -47,19 +55,17 @@
             justify-content: space-between;
             align-items: center;
         }
-        
-        .navbar-brand {
+          .navbar-brand {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             text-decoration: none;
-            color: #1f2937;
+            color: white;
             font-weight: 600;
             font-size: 1.25rem;
         }
-        
-        .navbar-icon {
-            background: linear-gradient(135deg, #1976d2, #1565c0);
+          .navbar-icon {
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             padding: 0.5rem;
             border-radius: 8px;
@@ -70,16 +76,15 @@
             gap: 2rem;
             align-items: center;
         }
-        
-        .nav-link {
+          .nav-link {
             text-decoration: none;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             transition: color 0.3s ease;
         }
         
         .nav-link:hover {
-            color: #1976d2;
+            color: white;
         }
         
         .main-content {
@@ -336,7 +341,7 @@
         <div class="navbar-content">
             <a href="{{ route('home') }}" class="navbar-brand">
                 <div class="navbar-icon">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -395,7 +400,7 @@
                     </div>
                     <div class="benefit-card">
                         <div class="benefit-icon blue">
-                            <i class="fas fa-shield-alt"></i>
+                            <i class="fas fa-file-contract"></i>
                         </div>
                         <h3 class="benefit-title">Sécurisé</h3>
                         <p class="benefit-description">Vos données sont protégées et chiffrées</p>
@@ -461,3 +466,4 @@
     </main>
 </body>
 </html>
+

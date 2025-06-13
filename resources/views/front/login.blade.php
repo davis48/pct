@@ -203,7 +203,7 @@
             justify-content: center;
         }
           .btn-primary {
-            background: linear-gradient(135deg, #1976d2, #1565c0);
+            background: #2563eb;
             color: white;
         }
         
@@ -281,7 +281,7 @@
         <div class="navbar-content">
             <a href="{{ route('home') }}" class="navbar-brand">
                 <div class="navbar-icon">
-                    <i class="fas fa-university"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -388,12 +388,13 @@
                             <i class="fas fa-sign-in-alt"></i>
                             Se connecter
                         </button>
-                    </div>
-                </form>
+                    </div>                </form>
 
+                @if($selectedRole !== 'agent')
                 <div class="register-link">
                     <p>Pas encore de compte ? <a href="{{ route('register.standalone') }}">S'inscrire</a></p>
                 </div>
+                @endif
             </div>
         </div>
     </main>

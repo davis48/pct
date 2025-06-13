@@ -14,6 +14,11 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Correctifs d'accessibilité pour la lisibilité des navbars -->
+    <link rel="stylesheet" href="{{ asset('css/navbar-accessibility-fix.css') }}">
+    <!-- CSS global pour tous les dropdowns -->
+    <link rel="stylesheet" href="{{ asset('css/dropdown-fix-global.css') }}">
+    
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -66,7 +71,7 @@
         }
         
         .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -161,6 +166,111 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        
+        /* CSS spécifique pour les dropdowns - évite les conflits avec le CSS d'accessibilité */
+        #user-dropdown a,
+        #user-dropdown button,
+        #notificationDropdown a,
+        #notificationDropdown span,
+        #notificationDropdown p {
+            color: inherit !important; /* Préserve les couleurs originales */
+        }
+        
+        /* Force les couleurs spécifiques pour le dropdown utilisateur */
+        #user-dropdown .text-gray-800 {
+            color: #1f2937 !important;
+        }
+        
+        #user-dropdown .text-red-600 {
+            color: #dc2626 !important;
+        }
+        
+        #user-dropdown .text-blue-600 {
+            color: #2563eb !important;
+        }
+        
+        /* Force les couleurs spécifiques pour le dropdown notifications */
+        #notificationDropdown .text-gray-900 {
+            color: #111827 !important;
+        }
+        
+        #notificationDropdown .text-blue-600 {
+            color: #2563eb !important;
+        }
+        
+        #notificationDropdown .text-gray-500 {
+            color: #6b7280 !important;
+        }
+        
+        /* CORRECTION URGENTE - FORCE LES COULEURS DES DROPDOWNS */
+        /* Priority sur tous les autres CSS avec !important */
+        
+        /* Tous les dropdowns */
+        #user-dropdown *,
+        #profileDropdown *,
+        #notificationDropdown *,
+        #notifications-dropdown *,
+        .dropdown-menu *,
+        div[id*="dropdown"] *,
+        div[class*="dropdown"] * {
+            color: #1f2937 !important; /* Force gris foncé */
+        }
+        
+        /* Liens dans les dropdowns */
+        #user-dropdown a,
+        #profileDropdown a, 
+        #notificationDropdown a,
+        #notifications-dropdown a,
+        .dropdown-menu a {
+            color: #1f2937 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Boutons dans les dropdowns */
+        #user-dropdown button,
+        #profileDropdown button,
+        #notificationDropdown button,
+        #notifications-dropdown button,
+        .dropdown-menu button {
+            color: #1f2937 !important;
+        }
+        
+        /* Icônes dans les dropdowns */
+        #user-dropdown i,
+        #profileDropdown i,
+        #notificationDropdown i,
+        #notifications-dropdown i,
+        .dropdown-menu i {
+            color: #2563eb !important;
+        }
+        
+        /* Boutons de déconnexion en rouge */
+        #user-dropdown button[type="submit"],
+        #profileDropdown button[type="submit"],
+        .dropdown-menu button[type="submit"] {
+            color: #dc2626 !important;
+        }
+        
+        /* Hover effects */
+        #user-dropdown a:hover,
+        #profileDropdown a:hover,
+        #notificationDropdown a:hover,
+        #notifications-dropdown a:hover,
+        .dropdown-menu a:hover {
+            color: #1d4ed8 !important;
+            background-color: #f3f4f6 !important;
+        }
+        
+        /* Force l'affichage des dropdowns quand ils sont ouverts */
+        #user-dropdown:not(.hidden),
+        #profileDropdown:not(.hidden),
+        #notificationDropdown:not(.hidden),
+        #notifications-dropdown:not(.hidden) {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 9999 !important;
+        }
     </style>
     
     @stack('styles')
@@ -173,10 +283,10 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center group">
-                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
-                            <i class="fas fa-shield-alt text-white text-lg"></i>
+                        <div class="bg-blue-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-file-contract text-white text-lg"></i>
                         </div>
-                        <span class="text-xl font-bold gradient-text">PCT UVCI</span>
+                        <span class="text-xl font-bold text-white">PCT UVCI</span>
                     </a>
                 </div>
 
@@ -253,29 +363,33 @@
                         
                         <!-- User Menu -->
                         <div class="relative">
-                            <button id="user-menu-btn" class="flex items-center text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                            <button id="user-menu-btn" class="flex items-center text-white hover:text-blue-100 transition-colors duration-200" style="color: white !important;">
                                 <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-white text-sm font-semibold">{{ substr(auth()->user()->name ?? 'U', 0, 1) }}</span>
+                                    @if(auth()->user()->profile_photo)
+                                        <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="Photo" class="w-8 h-8 rounded-full object-cover">
+                                    @else
+                                        <span class="text-white text-sm font-semibold">{{ strtoupper(substr(auth()->user()->prenoms ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->nom ?? 'U', 0, 1)) }}</span>
+                                    @endif
                                 </div>
-                                <span class="hidden lg:block">{{ auth()->user()->name ?? 'Utilisateur' }}</span>
-                                <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                                <span class="hidden lg:block" style="color: white !important;">{{ auth()->user()->prenoms }} {{ auth()->user()->nom }}</span>
+                                <i class="fas fa-chevron-down ml-2 text-sm" style="color: white !important;"></i>
                             </button>
                             
                             <!-- Dropdown Menu -->
-                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-user mr-2"></i>
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50 border border-gray-200">
+                                <a href="{{ route('profile.edit') }}" style="color: #1f2937 !important;" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-user mr-2" style="color: #2563eb !important;"></i>
                                     Mon Profil
                                 </a>
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-cog mr-2"></i>
+                                <a href="{{ route('profile.edit') }}" style="color: #1f2937 !important;" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-cog mr-2" style="color: #2563eb !important;"></i>
                                     Paramètres
                                 </a>
-                                <hr class="my-2">
+                                <hr class="my-2 border-gray-200">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>
+                                    <button type="submit" style="color: #dc2626 !important;" class="block w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-700 transition-colors duration-200">
+                                        <i class="fas fa-sign-out-alt mr-2" style="color: #dc2626 !important;"></i>
                                         Déconnexion
                                     </button>
                                 </form>
@@ -507,229 +621,4 @@
 
     @stack('scripts')
 </body>
-</html>
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-    </style>
-    @stack('styles')
-</head>
-
-<body class="bg-gray-50 font-sans antialiased">
-    <!-- Navigation -->
-    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 no-print">
-    
-    <!-- Flash Messages -->
-    @if(session()->has('payment_success') || session()->has('success') || session()->has('error') || session()->has('warning') || session()->has('info'))
-        <div id="flash-messages" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
-            @if(session('payment_success'))
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg mb-4 animate-pulse">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-green-800">Paiement réussi !</h3>
-                            <div class="mt-1 text-sm text-green-700">{{ session('payment_success') }}</div>
-                        </div>
-                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-100 inline-flex h-8 w-8" onclick="this.parentElement.parentElement.remove()">
-                            <span class="sr-only">Fermer</span>
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            @endif
-            
-            @if(session('success'))
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg mb-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-green-800">Succès !</h3>
-                            <div class="mt-1 text-sm text-green-700">{{ session('success') }}</div>
-                        </div>
-                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-100 inline-flex h-8 w-8" onclick="this.parentElement.parentElement.remove()">
-                            <span class="sr-only">Fermer</span>
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            @endif
-            
-            @if(session('error'))
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg mb-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-red-800">Erreur !</h3>
-                            <div class="mt-1 text-sm text-red-700">{{ session('error') }}</div>
-                        </div>
-                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-100 inline-flex h-8 w-8" onclick="this.parentElement.parentElement.remove()">
-                            <span class="sr-only">Fermer</span>
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            @endif
-            
-            @if(session('warning'))
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 shadow-lg mb-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-yellow-800">Attention !</h3>
-                            <div class="mt-1 text-sm text-yellow-700">{{ session('warning') }}</div>
-                        </div>
-                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-100 inline-flex h-8 w-8" onclick="this.parentElement.parentElement.remove()">
-                            <span class="sr-only">Fermer</span>
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            @endif
-            
-            @if(session('info'))
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-lg mb-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-info-circle text-blue-500 text-xl"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-blue-800">Information</h3>
-                            <div class="mt-1 text-sm text-blue-700">{{ session('info') }}</div>
-                        </div>
-                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-100 inline-flex h-8 w-8" onclick="this.parentElement.parentElement.remove()">
-                            <span class="sr-only">Fermer</span>
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            @endif
-        </div>
-    @endif
-    
-    <!-- Main Content -->
-    <main class="pt-16">
-        @yield('content')
-    </main>
-
-    <!-- Footer -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Custom JS -->
-    <script src="{{ asset('js/front.js') }}" defer></script>
-    <script>
-        // Modern JavaScript for enhanced UI interactions
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-hide flash messages after 8 seconds (for payment success, longer to read)
-            setTimeout(function() {
-                const flashMessages = document.querySelectorAll('#flash-messages > div');
-                flashMessages.forEach(function(alert) {
-                    if (alert.textContent.includes('Paiement')) {
-                        // Longer time for payment success messages
-                        setTimeout(function() {
-                            alert.style.opacity = '0';
-                            alert.style.transform = 'translateY(-20px)';
-                            setTimeout(function() {
-                                alert.remove();
-                            }, 300);
-                        }, 8000);
-                    } else {
-                        // Standard time for other messages
-                        setTimeout(function() {
-                            alert.style.opacity = '0';
-                            alert.style.transform = 'translateY(-20px)';
-                            setTimeout(function() {
-                                alert.remove();
-                            }, 300);
-                        }, 5000);
-                    }
-                });
-            }, 100);
-            
-            // Smooth scroll for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-        });
-        
-        // Initialize dropdowns for notifications
-        document.addEventListener('DOMContentLoaded', function() {
-            // User menu dropdown
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userDropdown = document.getElementById('user-dropdown');
-            
-            if (userMenuBtn && userDropdown) {
-                userMenuBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    userDropdown.classList.toggle('hidden');
-                    
-                    // Close notification dropdown if open
-                    const notificationDropdown = document.getElementById('notificationDropdown');
-                    if (notificationDropdown) {
-                        notificationDropdown.classList.add('hidden');
-                    }
-                });
-            }
-            
-            // Notification dropdown
-            const notificationToggle = document.getElementById('notificationToggle');
-            const notificationDropdown = document.getElementById('notificationDropdown');
-            
-            if (notificationToggle && notificationDropdown) {
-                notificationToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    notificationDropdown.classList.toggle('hidden');
-                    
-                    // Close user dropdown if open
-                    if (userDropdown) {
-                        userDropdown.classList.add('hidden');
-                    }
-                    
-                    // Load notifications if opening and sync system is available
-                    if (!notificationDropdown.classList.contains('hidden') && window.notificationSync) {
-                        window.notificationSync.syncAll();
-                    }
-                });
-            }
-            
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                if (userDropdown && !userMenuBtn?.contains(e.target) && !userDropdown.contains(e.target)) {
-                    userDropdown.classList.add('hidden');
-                }
-                
-                if (notificationDropdown && !notificationToggle?.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    notificationDropdown.classList.add('hidden');
-                }
-            });
-        });
-    </script>
-    
-    <!-- Notification System -->
-    @auth
-        @if(auth()->user()->isCitizen())
-            <script src="{{ asset('js/notification-sync.js') }}"></script>
-        @endif
-    @endauth
-    
-    @stack('scripts')
-</body>
-
 </html>

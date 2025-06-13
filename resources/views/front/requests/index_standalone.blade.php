@@ -13,6 +13,7 @@
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
 
     <style>
         * {
@@ -30,13 +31,13 @@
         }
 
         .navbar {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+            border-bottom: 1px solid rgba(25, 118, 210, 0.2);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 50;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
         }
 
         .navbar-content {
@@ -53,7 +54,7 @@
             align-items: center;
             gap: 0.75rem;
             text-decoration: none;
-            color: #1f2937;
+            color: white;
             font-weight: 600;
             font-size: 1.25rem;
         }
@@ -73,13 +74,13 @@
 
         .nav-link {
             text-decoration: none;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
         .nav-link:hover {
-            color: #1976d2;
+            color: white;
         }
 
         .main-content {
@@ -455,7 +456,7 @@
         <div class="navbar-content">
             <a href="{{ route('home') }}" class="navbar-brand">
                 <div class="navbar-icon">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -775,3 +776,4 @@
     </style>
 </body>
 </html>
+

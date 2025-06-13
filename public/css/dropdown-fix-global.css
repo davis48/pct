@@ -1,0 +1,220 @@
+/*
+ * CSS global pour corriger TOUS les dropdowns du projet
+ * Force les couleurs lisibles sur fond blanc pour tous les dropdowns
+ */
+
+/* === CORRECTION GLOBALE DES DROPDOWNS === */
+
+/* Sélecteurs génériques pour tous les dropdowns */
+#user-dropdown,
+#user-dropdown *,
+#profileDropdown,
+#profileDropdown *,
+#notificationDropdown,
+#notificationDropdown *,
+#notificationDropdown,
+#notifications-dropdown,
+#notifications-dropdown *,
+.dropdown-menu,
+.dropdown-menu *,
+[id*="dropdown"],
+[id*="dropdown"] *,
+[class*="dropdown"],
+[class*="dropdown"] * {
+    /* Force la couleur héritée ou définie explicitement */
+    color: inherit !important;
+}
+
+/* === COULEURS SPÉCIFIQUES PAR TYPE === */
+
+/* Liens et boutons dans les dropdowns */
+#user-dropdown a,
+#profileDropdown a,
+#notificationDropdown a,
+#notifications-dropdown a,
+.dropdown-menu a,
+[id*="dropdown"] a,
+[class*="dropdown"] a {
+    color: #374151 !important; /* Gris foncé lisible */
+}
+
+/* Texte gris foncé dans les dropdowns */
+#user-dropdown .text-gray-700,
+#user-dropdown .text-gray-800,
+#profileDropdown .text-gray-700,
+#profileDropdown .text-gray-800,
+#notificationDropdown .text-gray-700,
+#notificationDropdown .text-gray-800,
+#notifications-dropdown .text-gray-700,
+#notifications-dropdown .text-gray-800,
+.dropdown-menu .text-gray-700,
+.dropdown-menu .text-gray-800 {
+    color: #1f2937 !important; /* Gris très foncé */
+}
+
+/* Texte gris moyen dans les dropdowns */
+#user-dropdown .text-gray-500,
+#user-dropdown .text-gray-600,
+#profileDropdown .text-gray-500,
+#profileDropdown .text-gray-600,
+#notificationDropdown .text-gray-500,
+#notificationDropdown .text-gray-600,
+#notifications-dropdown .text-gray-500,
+#notifications-dropdown .text-gray-600,
+.dropdown-menu .text-gray-500,
+.dropdown-menu .text-gray-600 {
+    color: #6b7280 !important; /* Gris moyen */
+}
+
+/* Texte gris clair dans les dropdowns */
+#user-dropdown .text-gray-900,
+#profileDropdown .text-gray-900,
+#notificationDropdown .text-gray-900,
+#notifications-dropdown .text-gray-900,
+.dropdown-menu .text-gray-900 {
+    color: #111827 !important; /* Gris très foncé */
+}
+
+/* Couleurs bleues dans les dropdowns */
+#user-dropdown .text-blue-600,
+#user-dropdown .text-blue-700,
+#profileDropdown .text-blue-600,
+#profileDropdown .text-blue-700,
+#notificationDropdown .text-blue-600,
+#notificationDropdown .text-blue-700,
+#notifications-dropdown .text-blue-600,
+#notifications-dropdown .text-blue-700,
+.dropdown-menu .text-blue-600,
+.dropdown-menu .text-blue-700 {
+    color: #2563eb !important; /* Bleu vif */
+}
+
+/* Couleurs rouges dans les dropdowns (déconnexion, suppression) */
+#user-dropdown .text-red-600,
+#user-dropdown .text-red-700,
+#profileDropdown .text-red-600,
+#profileDropdown .text-red-700,
+#notificationDropdown .text-red-600,
+#notificationDropdown .text-red-700,
+#notifications-dropdown .text-red-600,
+#notifications-dropdown .text-red-700,
+.dropdown-menu .text-red-600,
+.dropdown-menu .text-red-700 {
+    color: #dc2626 !important; /* Rouge vif */
+}
+
+/* Icônes dans les dropdowns */
+#user-dropdown i,
+#profileDropdown i,
+#notificationDropdown i,
+#notifications-dropdown i,
+.dropdown-menu i {
+    color: #2563eb !important; /* Icônes bleues par défaut */
+}
+
+/* Icônes spécifiques */
+#user-dropdown .fas.fa-sign-out-alt,
+#profileDropdown .fas.fa-sign-out-alt,
+.dropdown-menu .fas.fa-sign-out-alt {
+    color: #dc2626 !important; /* Icône déconnexion rouge */
+}
+
+/* === ÉTATS HOVER === */
+
+/* Hover pour les liens dans les dropdowns */
+#user-dropdown a:hover,
+#profileDropdown a:hover,
+#notificationDropdown a:hover,
+#notifications-dropdown a:hover,
+.dropdown-menu a:hover {
+    color: #1d4ed8 !important; /* Bleu plus foncé au hover */
+    background-color: #f3f4f6 !important; /* Fond gris clair */
+}
+
+/* Hover pour les boutons dans les dropdowns */
+#user-dropdown button:hover,
+#profileDropdown button:hover,
+#notificationDropdown button:hover,
+#notifications-dropdown button:hover,
+.dropdown-menu button:hover {
+    background-color: #f3f4f6 !important; /* Fond gris clair */
+}
+
+/* Hover pour les éléments de déconnexion */
+#user-dropdown .text-red-600:hover,
+#user-dropdown button[type="submit"]:hover,
+#profileDropdown .text-red-600:hover,
+#profileDropdown button[type="submit"]:hover,
+.dropdown-menu .text-red-600:hover,
+.dropdown-menu button[type="submit"]:hover {
+    color: #b91c1c !important; /* Rouge plus foncé */
+    background-color: #fef2f2 !important; /* Fond rouge très clair */
+}
+
+/* === OVERRIDE DU CSS D'ACCESSIBILITÉ === */
+
+/* Empêche le CSS d'accessibilité d'affecter les dropdowns */
+nav .dropdown-menu *,
+.navbar .dropdown-menu *,
+#navbar .dropdown-menu *,
+#user-dropdown *,
+#profileDropdown *,
+#notificationDropdown *,
+#notifications-dropdown * {
+    /* Préserve les couleurs définies ci-dessus */
+    color: inherit !important;
+}
+
+/* === BORDURES ET SÉPARATEURS === */
+
+/* Améliore la lisibilité des séparateurs */
+#user-dropdown hr,
+#profileDropdown hr,
+#notificationDropdown hr,
+#notifications-dropdown hr,
+.dropdown-menu hr {
+    border-color: #e5e7eb !important; /* Bordure gris clair */
+}
+
+/* === Z-INDEX ET AFFICHAGE === */
+
+/* Assure que les dropdowns sont bien visibles */
+#user-dropdown,
+#profileDropdown,
+#notificationDropdown,
+#notifications-dropdown,
+.dropdown-menu {
+    z-index: 9999 !important;
+    background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Force l'affichage quand les dropdowns sont ouverts */
+#user-dropdown:not(.hidden),
+#profileDropdown:not(.hidden),
+#notificationDropdown:not(.hidden),
+#notifications-dropdown:not(.hidden),
+.dropdown-menu:not(.hidden),
+.dropdown.active .dropdown-menu {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* === RESPONSIVE === */
+
+/* Ajustements pour mobile */
+@media (max-width: 768px) {
+    #user-dropdown,
+    #profileDropdown,
+    #notificationDropdown,
+    #notifications-dropdown,
+    .dropdown-menu {
+        position: fixed !important;
+        right: 1rem !important;
+        left: auto !important;
+        width: calc(100vw - 2rem) !important;
+        max-width: 320px !important;
+    }
+}

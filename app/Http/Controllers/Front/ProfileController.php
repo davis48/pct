@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
@@ -22,12 +23,18 @@ class ProfileController extends Controller
         return view('front.profile.edit');
     }
 
+    public function editStandalone()
+    {
+        $user = Auth::user();
+        return view('front.profile.edit_standalone_new', compact('user'));
+    }
+
     public function update(Request $request)
     {
         $user = Auth::user();
 
         // Log les données soumises pour débogage
-        \Log::info('Données du formulaire de mise à jour de profil:', $request->all());
+        Log::info('Données du formulaire de mise à jour de profil:', $request->all());
 
         $validated = $request->validate([
             'nom' => ['required', 'string', 'max:100'],
@@ -38,12 +45,20 @@ class ProfileController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
+            'current_password' => ['nullable', 'string', 'required_with:password'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'profile_photo' => ['nullable', 'image', 'max:2048'], // max 2MB
         ]);
 
+        // Vérifier le mot de passe actuel si un nouveau mot de passe est fourni
+        if ($request->filled('password')) {
+            if (!$request->filled('current_password') || !Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
+            }
+        }
+
         // Log les données validées
-        \Log::info('Données validées:', $validated);
+        Log::info('Données validées:', $validated);
 
         if ($request->hasFile('profile_photo')) {
             // Supprimer l'ancienne photo si elle existe
@@ -68,7 +83,7 @@ class ProfileController extends Controller
         $user->genre = $validated['genre'];
         
         // Log les données avant enregistrement
-        \Log::info('Données utilisateur avant sauvegarde:', $user->toArray());
+        Log::info('Données utilisateur avant sauvegarde:', $user->toArray());
 
         if ($request->filled('password')) {
             $user->password = Hash::make($validated['password']);
@@ -77,7 +92,7 @@ class ProfileController extends Controller
         $user->save();
         
         // Log après sauvegarde
-        \Log::info('Utilisateur sauvegardé avec ID: ' . $user->id);
+        Log::info('Utilisateur sauvegardé avec ID: ' . $user->id);
 
         return redirect()->route('profile.edit')
             ->with('success', 'Profil mis à jour avec succès.');

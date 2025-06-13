@@ -9,14 +9,24 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Thème Cocody -->
+    <link rel="stylesheet" href="{{ asset('css/cocody-theme.css') }}">    <!-- Navbar bleue pour interfaces citoyens -->
+    <link rel="stylesheet" href="{{ asset('css/navbar-blue-standalone.css') }}">
+    
+    <!-- Correctifs d'accessibilité pour la lisibilité -->
+    <link rel="stylesheet" href="{{ asset('css/navbar-accessibility-fix.css') }}">
+    
+    <!-- CSS global pour tous les dropdowns -->
+    <link rel="stylesheet" href="{{ asset('css/dropdown-fix-global.css') }}">
+    
+    <!-- CSS global pour tous les dropdowns -->
+    <link rel="stylesheet" href="{{ asset('css/dropdown-fix-global.css') }}">
+    
     <!-- TailwindCSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+    <script src="https://cdn.tailwindcss.com"></script>    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -25,9 +35,29 @@
                     },
                     colors: {
                         primary: {
-                            50: '#eff6ff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
+                            50: '#e3f2fd',
+                            100: '#bbdefb',
+                            200: '#90caf9',
+                            300: '#64b5f6',
+                            400: '#42a5f5',
+                            500: '#1976d2',
+                            600: '#1565c0',
+                            700: '#0d47a1',
+                            800: '#0d47a1',
+                            900: '#0d47a1',
+                        },
+                        secondary: {
+                            50: '#e8f5e8',
+                            100: '#c8e6c9',
+                            200: '#a5d6a7',
+                            300: '#81c784',
+                            400: '#66bb6a',
+                            500: '#43a047',
+                            600: '#388e3c',
+                            700: '#2e7d32',
+                            800: '#2e7d32',
+                            900: '#2e7d32',
+                        },
                             700: '#1d4ed8',
                             800: '#1e40af',
                             900: '#1e3a8a',
@@ -154,6 +184,76 @@
                 transform: translateX(-220px);
             }
         }
+
+        /* CORRECTION URGENTE - FORCE LES COULEURS DES DROPDOWNS */
+        /* Priority sur tous les autres CSS avec !important */
+        
+        /* Tous les dropdowns */
+        #user-dropdown *,
+        #profileDropdown *,
+        #notificationDropdown *,
+        #notifications-dropdown *,
+        .dropdown-menu *,
+        div[id*="dropdown"] *,
+        div[class*="dropdown"] * {
+            color: #1f2937 !important; /* Force gris foncé */
+        }
+        
+        /* Liens dans les dropdowns */
+        #user-dropdown a,
+        #profileDropdown a, 
+        #notificationDropdown a,
+        #notifications-dropdown a,
+        .dropdown-menu a {
+            color: #1f2937 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Boutons dans les dropdowns */
+        #user-dropdown button,
+        #profileDropdown button,
+        #notificationDropdown button,
+        #notifications-dropdown button,
+        .dropdown-menu button {
+            color: #1f2937 !important;
+        }
+        
+        /* Icônes dans les dropdowns */
+        #user-dropdown i,
+        #profileDropdown i,
+        #notificationDropdown i,
+        #notifications-dropdown i,
+        .dropdown-menu i {
+            color: #2563eb !important;
+        }
+        
+        /* Boutons de déconnexion en rouge */
+        #user-dropdown button[type="submit"],
+        #profileDropdown button[type="submit"],
+        .dropdown-menu button[type="submit"] {
+            color: #dc2626 !important;
+        }
+        
+        /* Hover effects */
+        #user-dropdown a:hover,
+        #profileDropdown a:hover,
+        #notificationDropdown a:hover,
+        #notifications-dropdown a:hover,
+        .dropdown-menu a:hover {
+            color: #1d4ed8 !important;
+            background-color: #f3f4f6 !important;
+        }
+        
+        /* Force l'affichage des dropdowns quand ils sont ouverts */
+        #user-dropdown:not(.hidden),
+        #profileDropdown:not(.hidden),
+        #notificationDropdown:not(.hidden),
+        #notifications-dropdown:not(.hidden) {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 9999 !important;
+        }
     </style>
     
     @stack('styles')
@@ -164,12 +264,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ route('home') }}" class="flex items-center group">
-                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
-                            <i class="fas fa-shield-alt text-white text-lg"></i>
+                <div class="flex items-center">                    <a href="{{ route('home') }}" class="flex items-center group">                        <div class="bg-blue-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-file-contract text-white text-lg"></i>
                         </div>
-                        <span class="text-xl font-bold gradient-text">PCT UVCI</span>
+                        <span class="text-xl font-bold text-white">PCT UVCI</span>
                     </a>
                 </div>
 
@@ -239,30 +337,31 @@
                         </div>
                         
                         <!-- User Menu -->
-                        <div class="relative">
-                            <button id="user-menu-btn" class="flex items-center text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                        <div class="relative">                            <button id="user-menu-btn" class="flex items-center text-white hover:text-blue-100 transition-colors duration-200" style="color: white !important;">
                                 <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-white text-sm font-semibold">{{ substr(auth()->user()->name ?? 'U', 0, 1) }}</span>
+                                    @if(auth()->user()->profile_photo)
+                                        <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="Photo" class="w-8 h-8 rounded-full object-cover">
+                                    @else
+                                        <span class="text-white text-sm font-semibold">{{ strtoupper(substr(auth()->user()->prenoms ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->nom ?? 'U', 0, 1)) }}</span>
+                                    @endif
                                 </div>
-                                <span class="hidden lg:block">{{ auth()->user()->name ?? 'Utilisateur' }}</span>
-                                <i class="fas fa-chevron-down ml-2 text-sm"></i>
-                            </button>
-                            
-                            <!-- Dropdown Menu -->
-                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-user mr-2"></i>
+                                <span class="hidden lg:block" style="color: white !important;">{{ auth()->user()->prenoms }} {{ auth()->user()->nom }}</span>
+                                <i class="fas fa-chevron-down ml-2 text-sm" style="color: white !important;"></i>
+                            </button>                            <!-- Dropdown Menu -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50 border border-gray-200">
+                                <a href="{{ route('profile.edit') }}" style="color: #1f2937 !important;" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-user mr-2" style="color: #2563eb !important;"></i>
                                     Mon Profil
                                 </a>
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-cog mr-2"></i>
+                                <a href="{{ route('profile.edit') }}" style="color: #1f2937 !important;" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-cog mr-2" style="color: #2563eb !important;"></i>
                                     Paramètres
                                 </a>
-                                <hr class="my-2">
+                                <hr class="my-2 border-gray-200">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>
+                                    <button type="submit" style="color: #dc2626 !important;" class="w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-700 transition-colors duration-200">
+                                        <i class="fas fa-sign-out-alt mr-2" style="color: #dc2626 !important;"></i>
                                         Se Déconnecter
                                     </button>
                                 </form>
@@ -382,9 +481,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- À propos -->
                 <div class="space-y-4">
-                    <div class="flex items-center">
-                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg mr-3">
-                            <i class="fas fa-shield-alt text-white"></i>
+                    <div class="flex items-center">                        <div class="bg-blue-600 p-2 rounded-lg mr-3">                            <i class="fas fa-file-contract text-white"></i>
                         </div>
                         <h3 class="text-lg font-bold">PCT UVCI</h3>
                     </div>

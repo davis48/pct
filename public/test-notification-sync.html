@@ -69,13 +69,21 @@
 <body>
     <div class="container mt-4">
         <h1 class="mb-4">🔔 Test du Système de Notification Synchronisé</h1>
-        
-        <!-- Simulation de la navbar -->
+          <!-- Simulation de la navbar harmonisée -->
         <div class="test-section">
             <h3>Navbar avec notifications</h3>
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <span class="navbar-brand">PCT UVCI</span>
+                    <div class="d-flex align-items-center">
+                        <!-- Logo PCT UVCI -->
+                        <div class="d-flex align-items-center me-4">
+                            <div class="bg-primary p-2 rounded me-2">
+                                <i class="fas fa-file-contract text-white"></i>
+                            </div>
+                            <span class="navbar-brand mb-0 fw-bold" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">PCT UVCI</span>
+                        </div>
+                        <span class="text-muted">Test des Notifications</span>
+                    </div>
                     <div class="d-flex">
                         <!-- Dropdown Notifications -->
                         <div class="dropdown me-3">

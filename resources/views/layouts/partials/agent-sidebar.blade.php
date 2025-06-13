@@ -160,11 +160,11 @@ $remindersCount = CitizenRequest::where('status', CitizenRequest::STATUS_PENDING
                     <h3 class="text-sm font-semibold text-white">Actions rapides</h3>
                     <div class="space-y-2">
                         <button onclick="assignNextRequest()"
-                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-3 py-2 text-sm font-medium transition-colors">
+                                class="w-full bg-primary-600 hover:bg-primary-700 text-white rounded-md px-3 py-2 text-sm font-medium transition-colors">
                             <i class="fas fa-plus mr-2"></i>Prendre une demande
                         </button>
                         <a href="{{ route('agent.requests.index', ['status' => 'en_attente']) }}"
-                           class="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-md px-3 py-2 text-sm font-medium transition-colors block text-center">
+                           class="w-full bg-secondary-600 hover:bg-secondary-700 text-white rounded-md px-3 py-2 text-sm font-medium transition-colors block text-center">
                             <i class="fas fa-clock mr-2"></i>Demandes urgentes
                         </a>
                     </div>

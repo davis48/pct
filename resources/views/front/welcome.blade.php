@@ -2,6 +2,8 @@
 
 @section('title', 'Accueil - PCT UVCI')
 
+@push('body-class', 'welcome-page homepage')
+
 @push('styles')
 <style>
     .gradient-bg {
@@ -66,7 +68,7 @@
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <div class="z-10 relative">
                     <h1 class="text-6xl md:text-7xl font-bold mb-6 leading-tight text-white">
-                        Bienvenue sur la Plateforme Citoyenne
+                        Bienvenue sur la plateforme de demande d'acte d'état civil en ligne
                     </h1>
                     <p class="text-xl mb-8 text-blue-100 leading-relaxed">
                         Simplifiez vos démarches administratives avec notre plateforme numérique moderne.

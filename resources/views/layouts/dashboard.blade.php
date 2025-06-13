@@ -5,34 +5,53 @@
     .dashboard-container {
         min-height: calc(100vh - 4rem);
     }
-    
-    .sidebar {
-        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      .sidebar {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
         min-height: calc(100vh - 4rem);
         transition: all 0.3s ease;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 2px 0 10px rgba(25, 118, 210, 0.1);
     }
-    
-    .sidebar-item {
+      .sidebar-item {
         transition: all 0.3s ease;
         border-radius: 0.5rem;
         margin: 0.25rem 0;
+        color: rgba(255, 255, 255, 0.9) !important;
     }
     
     .sidebar-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
+        background: rgba(255, 255, 255, 0.15) !important;
+        transform: translateX(8px);
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }    .sidebar-item.active {
+        background: rgba(255, 255, 255, 0.25) !important;
+        border-left: 4px solid #43a047;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
-    
-    .sidebar-item.active {
-        background: rgba(255, 255, 255, 0.2);
-        border-left: 4px solid #60a5fa;
-    }
-    
-    .main-content {
+      .main-content {
         background: #f8fafc;
         min-height: calc(100vh - 4rem);
         padding: 2rem;
+    }
+      /* Gradient pour l'en-tête de bienvenue */
+    .gradient-bg {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+        box-shadow: 0 8px 32px rgba(25, 118, 210, 0.3);
+    }
+    
+    /* Cartes de contenu */
+    .content-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(229, 231, 235, 0.8);
+        transition: all 0.3s ease;
+    }
+    
+    .content-card:hover {
+        box-shadow: 0 8px 25px rgba(25, 118, 210, 0.15);
+        transform: translateY(-2px);
     }
     
     @media (max-width: 1024px) {
@@ -99,6 +118,33 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
     }
+    
+    /* Amélioration de la lisibilité des éléments sidebar */
+    .sidebar .sidebar-item i {
+        color: rgba(255, 255, 255, 0.8) !important;
+        transition: all 0.3s ease;
+        margin-right: 0.75rem;
+    }
+    
+    .sidebar .sidebar-item:hover i {
+        color: white !important;
+        transform: scale(1.1);
+    }
+    
+    .sidebar .sidebar-item.active i {
+        color: white !important;
+    }
+    
+    /* Correction pour tous les liens dans la sidebar */
+    .sidebar a {
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-decoration: none;
+    }
+    
+    .sidebar a:hover {
+        color: white !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
 </style>
 @endpush
 
@@ -113,7 +159,7 @@
                 </div>
                 <div>
                     <h2 class="font-bold text-lg">@yield('dashboard-title', 'Espace Utilisateur')</h2>
-                    <p class="text-blue-200 text-sm">{{ auth()->user()->name ?? 'Utilisateur' }}</p>
+                    <p class="text-blue-200 text-sm">{{ auth()->user()->prenoms . ' ' . auth()->user()->nom }}</p>
                 </div>
             </div>
             
@@ -129,7 +175,7 @@
     <div class="flex-1 main-content">
         <!-- Mobile Sidebar Toggle -->
         <div class="lg:hidden mb-4">
-            <button id="sidebar-toggle" class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+            <button id="sidebar-toggle" class="bg-primary-600 text-white p-2 rounded-lg hover:bg-primary-700 transition-colors duration-200">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -224,3 +270,4 @@
     });
 </script>
 @endpush
+

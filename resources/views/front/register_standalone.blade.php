@@ -1,83 +1,102 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription | PCT UVCI</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+      <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+      <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/navbar-blue-standalone.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
     
+    <!-- Configuration Tailwind personnalisée -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-          body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
-            color: #1f2937;
-            line-height: 1.6;
-            overflow-x: hidden;
+        /* Styles pour le navbar moderne */
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .navbar {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .hover-lift {
+            transition: all 0.3s ease;
         }
         
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: #1f2937;
-            font-weight: 600;
-            font-size: 1.25rem;
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        .navbar-icon {
+        .btn-primary {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-        
-        .navbar-nav {
-            display: flex;
-            gap: 2rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
             align-items: center;
+            gap: 0.5rem;
         }
         
-        .nav-link {
-            text-decoration: none;
-            color: #6b7280;
-            font-weight: 500;
-            transition: color 0.3s ease;
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            color: white;
         }
-          .nav-link:hover {
-            color: #1976d2;
+        
+        .navbar-scroll {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Styles pour les formulaires */
+        body {
+            font-family: 'Inter', sans-serif;
         }
         
         .main-content {
@@ -147,8 +166,7 @@
         .input-label {
             display: block;
             font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.5rem;
+            color: #374151;            margin-bottom: 0.5rem;
         }
         
         .input-required {
@@ -164,10 +182,11 @@
             transition: border-color 0.3s ease;
             background: white;
         }
-          .input-field:focus {
+        
+        .input-field:focus {
             outline: none;
-            border-color: #1976d2;
-            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
         .input-field.error {
@@ -201,16 +220,6 @@
             flex: 1;
             justify-content: center;
         }
-          .btn-primary {
-            background: linear-gradient(135deg, #1976d2, #1565c0);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #1565c0, #0d47a1);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
-        }
         
         .btn-secondary {
             background: #f3f4f6;
@@ -229,8 +238,9 @@
             padding-top: 1.5rem;
             border-top: 1px solid #e5e7eb;
         }
-          .login-link a {
-            color: #1976d2;
+        
+        .login-link a {
+            color: #3b82f6;
             text-decoration: none;
             font-weight: 500;
         }
@@ -250,8 +260,7 @@
         
         .pending-info h4 {
             font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
+            margin-bottom: 0.5rem;        }
         
         @media (max-width: 768px) {
             .container {
@@ -274,26 +283,77 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 via-white to-purple-50">
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="{{ route('home') }}" class="navbar-brand">
-                <div class="navbar-icon">
-                    <i class="fas fa-university"></i>
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">                    <a href="{{ route('home') }}" class="flex items-center group">                        <div class="bg-blue-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-file-contract text-white text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">PCT UVCI</span>
+                    </a>
                 </div>
-                PCT UVCI
-            </a>
-            
-            <div class="navbar-nav">
-                <a href="{{ route('home') }}" class="nav-link">Accueil</a>
-                <a href="{{ route('login') }}" class="nav-link">Connexion</a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 transition-colors duration-200">Accueil</a>
+                    <a href="{{ route('interactive-forms.index') }}" class="text-gray-700 hover:text-blue-600 transition-colors duration-200">Services</a>
+                    <a href="{{ route('choose.role') }}" class="text-gray-700 hover:text-blue-600 transition-colors duration-200">Connexion</a>
+                    <a href="{{ route('register') }}" class="btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        S'inscrire
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-blue-600 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="mobile-menu md:hidden fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center">                        <div class="bg-blue-600 p-2 rounded-lg mr-3">                            <i class="fas fa-file-contract text-white"></i>
+                        </div>
+                        <span class="text-lg font-bold gradient-text">PCT UVCI</span>
+                    </div>
+                    <button id="mobile-menu-close" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <nav class="space-y-4">
+                    <a href="{{ route('home') }}" class="block text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2">
+                        <i class="fas fa-home mr-2"></i>
+                        Accueil
+                    </a>
+                    <a href="{{ route('interactive-forms.index') }}" class="block text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2">
+                        <i class="fas fa-file-alt mr-2"></i>
+                        Services
+                    </a>
+                    <a href="{{ route('choose.role') }}" class="block text-gray-700 hover:text-blue-600 transition-colors duration-200 py-2">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Connexion
+                    </a>
+                    <a href="{{ route('register') }}" class="block btn-primary w-full mt-4">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        S'inscrire
+                    </a>
+                </nav>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
+    <!-- Overlay pour le menu mobile -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden md:hidden"></div>    <!-- Main Content -->
+    <main class="pt-20 min-h-screen">
         <div class="container">
             <div class="page-header">
                 <h1 class="page-title">
@@ -498,19 +558,74 @@
                             <i class="fas fa-arrow-left"></i>
                             Retour
                         </a>
-                        
-                        <button type="submit" class="btn btn-primary">
+                          <button type="submit" class="btn btn-primary shine-effect">
                             <i class="fas fa-user-plus"></i>
                             Créer mon compte
                         </button>
                     </div>
-                </form>
-
-                <div class="login-link">
+                </form>                <div class="login-link">
                     <p>Vous avez déjà un compte ? <a href="{{ route('login.standalone') }}">Se connecter</a></p>
                 </div>
             </div>
         </div>
     </main>
+
+    <script>
+        // JavaScript pour le navbar moderne
+        const navbar = document.getElementById('navbar');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        // Effet de scroll sur le navbar
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scroll');
+            } else {
+                navbar.classList.remove('navbar-scroll');
+            }
+        });
+
+        // Menu mobile
+        function openMobileMenu() {
+            mobileMenu.classList.add('open');
+            mobileOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('open');
+            mobileOverlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', openMobileMenu);
+        }
+
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', closeMobileMenu);
+        }
+
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', closeMobileMenu);
+        }
+
+        // Fermer le menu mobile avec Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+
+        // Initialiser l'état du navbar au chargement
+        window.addEventListener('load', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scroll');
+            }
+        });
+    </script>
 </body>
 </html>
+

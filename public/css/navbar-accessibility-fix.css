@@ -1,0 +1,192 @@
+/* 
+ * Correctifs d'accessibilité pour la lisibilité des navbars
+ * Assure une lisibilité optimale des textes et liens sur tous les arrière-plans
+ */
+
+/* Navbars avec arrière-plan bleu - amélioration de la lisibilité */
+.navbar[style*="linear-gradient"][style*="#1976d2"] .nav-link,
+.navbar[style*="linear-gradient"][style*="blue"] .nav-link,
+nav[style*="linear-gradient"][style*="#1976d2"] .nav-link,
+nav[style*="linear-gradient"][style*="blue"] .nav-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.navbar[style*="linear-gradient"][style*="#1976d2"] .nav-link:hover,
+.navbar[style*="linear-gradient"][style*="blue"] .nav-link:hover,
+nav[style*="linear-gradient"][style*="#1976d2"] .nav-link:hover,
+nav[style*="linear-gradient"][style*="blue"] .nav-link:hover {
+    color: white !important;
+}
+
+/* Correction pour les navbars avec classes CSS bleues */
+.navbar.bg-primary .nav-link,
+.navbar.bg-blue-600 .nav-link,
+.navbar.bg-blue-500 .nav-link,
+nav.bg-primary .nav-link,
+nav.bg-blue-600 .nav-link,
+nav.bg-blue-500 .nav-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.navbar.bg-primary .nav-link:hover,
+.navbar.bg-blue-600 .nav-link:hover,
+.navbar.bg-blue-500 .nav-link:hover,
+nav.bg-primary .nav-link:hover,
+nav.bg-blue-600 .nav-link:hover,
+nav.bg-blue-500 .nav-link:hover {
+    color: white !important;
+}
+
+/* Liens dans navbars avec gradient inline style */
+nav[style*="background: linear-gradient"][style*="1976d2"] a:not(.btn),
+.navbar[style*="background: linear-gradient"][style*="1976d2"] a:not(.btn) {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+nav[style*="background: linear-gradient"][style*="1976d2"] a:not(.btn):hover,
+.navbar[style*="background: linear-gradient"][style*="1976d2"] a:not(.btn):hover {
+    color: white !important;
+}
+
+/* Texte des brand dans navbars bleues */
+.navbar[style*="linear-gradient"][style*="#1976d2"] .navbar-brand,
+nav[style*="linear-gradient"][style*="#1976d2"] .navbar-brand {
+    color: white !important;
+}
+
+/* Navigation mobile pour navbars bleues */
+@media (max-width: 768px) {
+    .navbar[style*="linear-gradient"][style*="#1976d2"] .mobile-menu a,
+    nav[style*="linear-gradient"][style*="#1976d2"] .mobile-menu a {
+        color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    .navbar[style*="linear-gradient"][style*="#1976d2"] .mobile-menu a:hover,
+    nav[style*="linear-gradient"][style*="#1976d2"] .mobile-menu a:hover {
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Navbars avec gradient primary (Tailwind) - correction de lisibilité */
+.bg-gradient-to-r.from-primary-600 .nav-link,
+.bg-gradient-to-r.from-primary-600 a:not(.btn),
+nav.bg-gradient-to-r.from-primary-600 .nav-link,
+nav.bg-gradient-to-r.from-primary-600 a:not(.btn) {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.bg-gradient-to-r.from-primary-600 .nav-link:hover,
+.bg-gradient-to-r.from-primary-600 a:not(.btn):hover,
+nav.bg-gradient-to-r.from-primary-600 .nav-link:hover,
+nav.bg-gradient-to-r.from-primary-600 a:not(.btn):hover {
+    color: white !important;
+}
+
+/* Amélioration du contraste pour les boutons dans les navbars bleues */
+.navbar[style*="linear-gradient"][style*="#1976d2"] .btn-outline-light,
+nav[style*="linear-gradient"][style*="#1976d2"] .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.navbar[style*="linear-gradient"][style*="#1976d2"] .btn-outline-light:hover,
+nav[style*="linear-gradient"][style*="#1976d2"] .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: white !important;
+    color: white !important;
+}
+
+/* Correctifs spécifiques pour dashboard et édition de profil */
+
+/* Navbar du profil et dashboard avec text-gray-700 */
+#navbar a[class*="text-gray-700"]:not(.dropdown-menu *):not(#user-dropdown *):not(#notificationDropdown *),
+.navbar a[class*="text-gray-700"]:not(.dropdown-menu *):not(#user-dropdown *):not(#notificationDropdown *),
+nav a[class*="text-gray-700"]:not(.dropdown-menu *):not(#user-dropdown *):not(#notificationDropdown *) {
+    color: rgba(255, 255, 255, 0.95) !important;
+    transition: all 0.3s ease !important;
+}
+
+#navbar a[class*="text-gray-700"]:not(.dropdown-menu *):not(#user-dropdown *):not(#notificationDropdown *):hover,
+.navbar a[class*="text-gray-700"]:not(.dropdown-menu *):not(#user-dropdown *):not(#notificationDropdown *):hover,
+nav a[class*="text-gray-700"]:not(.dropdown-menu *):not(#user-dropdown *):not(#notificationDropdown *):hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    padding: 0.25rem 0.5rem !important;
+    transform: translateY(-1px) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Buttons avec text-gray sur navbars bleues */
+#navbar button[class*="text-gray"],
+.navbar button[class*="text-gray"],
+nav button[class*="text-gray"] {
+    color: rgba(255, 255, 255, 0.95) !important;
+    transition: all 0.3s ease !important;
+}
+
+#navbar button[class*="text-gray"]:hover,
+.navbar button[class*="text-gray"]:hover,
+nav button[class*="text-gray"]:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Sidebar avec gradient bleu - amélioration */
+.sidebar[style*="linear-gradient"] a,
+.sidebar[style*="linear-gradient"] .sidebar-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.3s ease !important;
+}
+
+.sidebar[style*="linear-gradient"] a:hover,
+.sidebar[style*="linear-gradient"] .sidebar-item:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    transform: translateX(8px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+}
+
+/* Icônes dans navbars et sidebar bleues */
+#navbar i[class*="fas"],
+.navbar i[class*="fas"],
+.sidebar i[class*="fas"] {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease !important;
+}
+
+#navbar a:hover i[class*="fas"],
+.navbar a:hover i[class*="fas"],
+.sidebar a:hover i[class*="fas"] {
+    color: white !important;
+    transform: scale(1.1) !important;
+}
+
+/* CSS pour navbar utilisant le CSS navbar-blue-standalone */
+body:not(.homepage):not(.welcome-page) #navbar a[class*="text-gray"],
+body:not(.homepage):not(.welcome-page) .navbar a[class*="text-gray"] {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+body:not(.homepage):not(.welcome-page) #navbar a[class*="text-gray"]:hover,
+body:not(.homepage):not(.welcome-page) .navbar a[class*="text-gray"]:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    padding: 0.25rem 0.5rem !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Focus states pour l'accessibilité */
+#navbar a:focus,
+.navbar a:focus,
+.sidebar a:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8) !important;
+    outline-offset: 2px !important;
+    color: white !important;
+}

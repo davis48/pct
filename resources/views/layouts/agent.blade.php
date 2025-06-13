@@ -14,6 +14,9 @@
     <!-- Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Thème Cocody -->
+    <link rel="stylesheet" href="{{ asset('css/cocody-theme.css') }}">
+
     <!-- Alpine.js pour l'interactivité -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -35,12 +38,33 @@
         }
 
         .sidebar-gradient {
-            background: linear-gradient(145deg, #1e3a8a 0%, #3730a3 50%, #581c87 100%);
+            background: linear-gradient(145deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+            box-shadow: 2px 0 15px rgba(25, 118, 210, 0.15);
         }
 
         .stats-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 1px solid rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(25, 118, 210, 0.1);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.08);
+        }
+
+        /* Uniformisation fond blanc */
+        body {
+            background-color: #ffffff !important;
+        }
+        
+        .main-content {
+            background-color: #ffffff !important;
+        }
+        
+        /* Assurer la lisibilité sur fond blanc */
+        .text-dark {
+            color: #1f2937 !important;
+        }
+        
+        .bg-white-uniform {
+            background-color: #ffffff !important;
+            color: #1f2937 !important;
         }
 
         .nav-item {
@@ -54,7 +78,8 @@
 
         .nav-item.active {
             background: rgba(255, 255, 255, 0.2);
-            border-right: 4px solid #fbbf24;
+            border-right: 4px solid #43a047;
+            font-weight: 600;
         }
 
         .pulse-animation {
@@ -69,6 +94,9 @@
         .notification-badge {
             background: linear-gradient(45deg, #ef4444, #dc2626);
             animation: bounce 1s infinite;
+            border: 2px solid white;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
         }
 
         @keyframes bounce {
@@ -142,7 +170,7 @@
                             </div>
                             <input type="text"
                                    placeholder="Rechercher une demande..."
-                                   class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                                    x-data="{ searchQuery: '' }"
                                    x-model="searchQuery"
                                    @keyup.enter="window.location.href = '/agent/requests?search=' + encodeURIComponent(searchQuery)">
@@ -175,7 +203,7 @@
                         <div class="relative" x-data="{ open: false }">
                             <button type="button" @click="open = !open" class="-m-1.5 flex items-center p-1.5" id="user-menu-button">
                                 <span class="sr-only">Ouvrir le menu utilisateur</span>
-                                <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                                <div class="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
                                     <span class="text-sm font-medium text-white">
                                         {{ substr(auth()->user()->prenoms, 0, 1) }}{{ substr(auth()->user()->nom, 0, 1) }}
                                     </span>
@@ -214,19 +242,19 @@
             </div>
 
             <!-- Page content -->
-            <main class="py-6">
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <main class="py-6 bg-white-uniform">
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 bg-white">
                     @if(session('success'))
                         <div class="mb-4 rounded-md bg-green-50 p-4 animate-pulse" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
                             <div class="flex">
                                 <div class="flex-shrink-0">
-                                    <i class="fas fa-check-circle h-5 w-5 text-green-400"></i>
+                                    <i class="fas fa-check-circle h-5 w-5 text-green-600"></i>
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
                                 </div>
                                 <div class="ml-auto pl-3">
-                                    <button @click="show = false" class="text-green-400 hover:text-green-600">
+                                    <button @click="show = false" class="text-green-600 hover:text-green-800">
                                         <i class="fas fa-times h-4 w-4"></i>
                                     </button>
                                 </div>
@@ -238,13 +266,13 @@
                         <div class="mb-4 rounded-md bg-red-50 p-4 animate-pulse" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
                             <div class="flex">
                                 <div class="flex-shrink-0">
-                                    <i class="fas fa-exclamation-circle h-5 w-5 text-red-400"></i>
+                                    <i class="fas fa-exclamation-circle h-5 w-5 text-red-600"></i>
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
                                 </div>
                                 <div class="ml-auto pl-3">
-                                    <button @click="show = false" class="text-red-400 hover:text-red-600">
+                                    <button @click="show = false" class="text-red-600 hover:text-red-800">
                                         <i class="fas fa-times h-4 w-4"></i>
                                     </button>
                                 </div>

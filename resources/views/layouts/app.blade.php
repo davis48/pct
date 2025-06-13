@@ -15,6 +15,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+      <!-- Correctifs d'accessibilité pour la lisibilité des navbars -->
+    <link rel="stylesheet" href="{{ asset('css/navbar-accessibility-fix.css') }}">
+    <!-- CSS global pour tous les dropdowns -->
+    <link rel="stylesheet" href="{{ asset('css/dropdown-fix-global.css') }}">
     
     <style>
         body {
@@ -97,6 +101,8 @@
             transform: translateY(-10px);
             transition: all 0.3s ease;
             pointer-events: none;
+            z-index: 9999 !important;
+            position: absolute !important;
         }
         
         .dropdown.active .dropdown-menu,
@@ -105,6 +111,7 @@
             visibility: visible;
             transform: translateY(0);
             pointer-events: auto;
+            z-index: 9999 !important;
         }
         
         /* Garde le dropdown ouvert quand la souris est sur le menu */
@@ -113,6 +120,7 @@
             visibility: visible !important;
             transform: translateY(0) !important;
             pointer-events: auto !important;
+            z-index: 9999 !important;
         }
         
         /* Zone de tolérance pour la navigation souris */
@@ -207,6 +215,76 @@
             border-color: rgba(59, 130, 246, 0.4);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* CORRECTION URGENTE - FORCE LES COULEURS DES DROPDOWNS */
+        /* Priority sur tous les autres CSS avec !important */
+        
+        /* Tous les dropdowns */
+        #user-dropdown *,
+        #profileDropdown *,
+        #notificationDropdown *,
+        #notifications-dropdown *,
+        .dropdown-menu *,
+        div[id*="dropdown"] *,
+        div[class*="dropdown"] * {
+            color: #1f2937 !important; /* Force gris foncé */
+        }
+        
+        /* Liens dans les dropdowns */
+        #user-dropdown a,
+        #profileDropdown a, 
+        #notificationDropdown a,
+        #notifications-dropdown a,
+        .dropdown-menu a {
+            color: #1f2937 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Boutons dans les dropdowns */
+        #user-dropdown button,
+        #profileDropdown button,
+        #notificationDropdown button,
+        #notifications-dropdown button,
+        .dropdown-menu button {
+            color: #1f2937 !important;
+        }
+        
+        /* Icônes dans les dropdowns */
+        #user-dropdown i,
+        #profileDropdown i,
+        #notificationDropdown i,
+        #notifications-dropdown i,
+        .dropdown-menu i {
+            color: #2563eb !important;
+        }
+        
+        /* Boutons de déconnexion en rouge */
+        #user-dropdown button[type="submit"],
+        #profileDropdown button[type="submit"],
+        .dropdown-menu button[type="submit"] {
+            color: #dc2626 !important;
+        }
+        
+        /* Hover effects */
+        #user-dropdown a:hover,
+        #profileDropdown a:hover,
+        #notificationDropdown a:hover,
+        #notifications-dropdown a:hover,
+        .dropdown-menu a:hover {
+            color: #1d4ed8 !important;
+            background-color: #f3f4f6 !important;
+        }
+        
+        /* Force l'affichage des dropdowns quand ils sont ouverts */
+        #user-dropdown:not(.hidden),
+        #profileDropdown:not(.hidden),
+        #notificationDropdown:not(.hidden),
+        #notifications-dropdown:not(.hidden) {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 9999 !important;
         }
     </style>
     
@@ -839,6 +917,12 @@
                 });
         }        // Mark notification as read
         function markNotificationAsRead(notificationId) {
+            // Utiliser le système de synchronisation global s'il est disponible
+            if (window.notificationSync) {
+                return window.notificationSync.markAsRead(notificationId);
+            }
+            
+            // Fallback vers l'ancienne méthode
             fetch(`{{ route("citizen.notifications.read", "") }}/${notificationId}`, {
                 method: 'POST',
                 headers: {
@@ -855,11 +939,20 @@
                         notificationElement.remove();
                     }
                     
-                    // Update badge immediately
-                    updateNotificationBadge();
+                    // Déclencher la synchronisation globale
+                    if (window.notificationSync) {
+                        window.notificationSync.syncAll();
+                    } else {
+                        updateNotificationBadge();
+                    }
                     
                     // Reload notifications in dropdown
                     loadNotifications();
+                    
+                    // Déclencher l'événement personnalisé pour informer les autres composants
+                    document.dispatchEvent(new CustomEvent('notificationRead', {
+                        detail: { notificationId: notificationId }
+                    }));
                 }
             })
             .catch(error => {
@@ -867,6 +960,12 @@
             });
         }        // Mark all notifications as read
         function markAllAsRead() {
+            // Utiliser le système de synchronisation global s'il est disponible
+            if (window.notificationSync) {
+                return window.notificationSync.markAllAsRead();
+            }
+            
+            // Fallback vers l'ancienne méthode
             fetch('{{ route("citizen.notifications.read-all") }}', {
                 method: 'POST',
                 headers: {
@@ -888,8 +987,15 @@
                         `;
                     }
                     
-                    // Update badge immediately
-                    updateNotificationBadge();
+                    // Déclencher la synchronisation globale
+                    if (window.notificationSync) {
+                        window.notificationSync.syncAll();
+                    } else {
+                        updateNotificationBadge();
+                    }
+                    
+                    // Déclencher l'événement personnalisé pour informer les autres composants
+                    document.dispatchEvent(new CustomEvent('allNotificationsRead'));
                 }
             })
             .catch(error => {

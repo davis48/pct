@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Légalisation de Document - Mairie d'Abidjan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Légalisation de Document - Mairie d'Abidjan</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #f8fafc 0%, #e1f5fe 100%);
@@ -509,3 +510,5 @@
     </script>
 </body>
 </html>
+
+

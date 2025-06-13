@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -13,6 +13,7 @@
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/navbar-blue-standalone.css') }}">
     
     <style>
         * {
@@ -57,11 +58,10 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
-        .navbar-icon {
+          .navbar-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #1976d2, #1565c0);
+            background: #2563eb;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -273,10 +273,9 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="navbar-content">
-            <a href="{{ route('home') }}" class="navbar-brand">
+        <div class="navbar-content">            <a href="{{ route('home') }}" class="navbar-brand">
                 <div class="navbar-icon">
-                    <i class="fas fa-university"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -333,3 +332,5 @@
     </main>
 </body>
 </html>
+
+

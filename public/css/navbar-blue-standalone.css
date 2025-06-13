@@ -1,0 +1,208 @@
+/* 
+ * CSS pour navbar bleue Cocody - Interfaces Standalone
+ * À inclure dans tous les fichiers standalone sauf la page d'accueil
+ * Utilise des sélecteurs spécifiques pour éviter les conflits
+ */
+
+/* Override des styles de navbar pour le thème bleu Cocody */
+body:not(.homepage) .navbar,
+body:not(.welcome-page) #navbar {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%) !important;
+    border-bottom: 1px solid rgba(25, 118, 210, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+}
+
+body:not(.homepage) .navbar-brand,
+body:not(.welcome-page) .navbar-brand {
+    color: white !important;
+}
+
+body:not(.homepage) .navbar-brand:hover,
+body:not(.welcome-page) .navbar-brand:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body:not(.homepage) .navbar-icon,
+body:not(.welcome-page) .navbar-icon {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+body:not(.homepage) .nav-link,
+body:not(.welcome-page) .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body:not(.homepage) .nav-link:hover,
+body:not(.welcome-page) .nav-link:hover {
+    color: white !important;
+}
+
+/* Correction spécifique pour les navbars avec gradient bleu */
+.navbar .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.navbar .nav-link:hover {
+    color: white !important;
+}
+
+body:not(.homepage) .navbar-text,
+body:not(.welcome-page) .navbar-text {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Boutons dans la navbar */
+body:not(.homepage) .navbar .btn-primary,
+body:not(.welcome-page) .navbar .btn-primary {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+}
+
+body:not(.homepage) .navbar .btn-primary:hover,
+body:not(.welcome-page) .navbar .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+body:not(.homepage) .navbar .btn-outline-primary,
+body:not(.welcome-page) .navbar .btn-outline-primary {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+}
+
+body:not(.homepage) .navbar .btn-outline-primary:hover,
+body:not(.welcome-page) .navbar .btn-outline-primary:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: white !important;
+    color: white !important;
+}
+
+/* Dropdown dans la navbar */
+body:not(.homepage) .navbar .dropdown-menu,
+body:not(.welcome-page) .navbar .dropdown-menu {
+    background: white !important;
+    border: 1px solid rgba(25, 118, 210, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15) !important;
+}
+
+body:not(.homepage) .navbar .dropdown-item,
+body:not(.welcome-page) .navbar .dropdown-item {
+    color: #1976d2 !important;
+}
+
+body:not(.homepage) .navbar .dropdown-item:hover,
+body:not(.welcome-page) .navbar .dropdown-item:hover {
+    background: rgba(25, 118, 210, 0.1) !important;
+    color: #1565c0 !important;
+}
+
+/* Règles spécifiques pour la lisibilité des navbars bleues */
+
+/* Links dans les navbars bleues - Navigation générale */
+body:not(.homepage) .navbar a,
+body:not(.welcome-page) .navbar a,
+.navbar a[class*="text-gray"] {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.3s ease !important;
+}
+
+body:not(.homepage) .navbar a:hover,
+body:not(.welcome-page) .navbar a:hover,
+.navbar a[class*="text-gray"]:hover {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Spécifique aux dashboards et profils */
+#navbar a[class*="text-gray-700"],
+.navbar a[class*="text-gray-700"] {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+#navbar a[class*="text-gray-700"]:hover,
+.navbar a[class*="text-gray-700"]:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    padding: 0.5rem !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Sidebar avec gradient bleu */
+.sidebar a[class*="text-blue"],
+.sidebar-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.3s ease !important;
+}
+
+.sidebar a[class*="text-blue"]:hover,
+.sidebar-item:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    transform: translateX(8px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+}
+
+/* Amélioration des icônes dans les navbars bleues */
+.navbar i[class*="fas"],
+.sidebar i[class*="fas"] {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease !important;
+}
+
+.navbar a:hover i[class*="fas"],
+.sidebar a:hover i[class*="fas"] {
+    color: white !important;
+    transform: scale(1.1) !important;
+}
+
+/* Buttons dans les navbars bleues */
+.navbar button[class*="text-gray"],
+.sidebar button[class*="text-gray"] {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.3s ease !important;
+}
+
+.navbar button[class*="text-gray"]:hover,
+.sidebar button[class*="text-gray"]:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    body:not(.homepage) .navbar-nav,
+    body:not(.welcome-page) .navbar-nav {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    body:not(.homepage) .nav-link,
+    body:not(.welcome-page) .nav-link {
+        padding: 0.5rem 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    body:not(.homepage) .nav-link:last-child,
+    body:not(.welcome-page) .nav-link:last-child {
+        border-bottom: none;
+    }
+    
+    .mobile-menu a[class*="text-gray"] {
+        color: #374151 !important; /* Garder gris foncé pour mobile menu blanc */
+    }
+    
+    .mobile-menu a[class*="text-gray"]:hover {
+        color: #1976d2 !important;
+        background: rgba(25, 118, 210, 0.1) !important;
+    }
+}

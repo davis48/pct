@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -10,9 +10,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+      <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar-blue-standalone.css') }}">
     
     <style>
         * {
@@ -67,16 +68,15 @@
             list-style: none;
             align-items: center;
         }
-        
-        .nav-links a {
+          .nav-links a {
             text-decoration: none;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             transition: color 0.3s;
         }
         
         .nav-links a:hover {
-            color: #2563eb;
+            color: white;
         }
         
         .container {
@@ -1071,3 +1071,5 @@
     </script>
 </body>
 </html>
+
+

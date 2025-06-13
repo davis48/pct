@@ -25,9 +25,11 @@ class NotificationSync {
     
     setup() {
         console.log('🔔 Initialisation du système de synchronisation des notifications');
-        
-        // Configuration CSRF pour tous les appels AJAX
+          // Configuration CSRF pour tous les appels AJAX
         this.setupCSRF();
+        
+        // Créer les badges manquants si nécessaire
+        this.createSidebarBadgeIfNeeded();
         
         // Première synchronisation
         this.syncAll();
@@ -117,16 +119,29 @@ class NotificationSync {
         }
         
         return await response.json();
-    }
-      updateBadge(count) {
-        // Chercher les différents types de badges de notification
-        const badges = [
+    }      updateBadge(count) {
+        console.log('🔔 Mise à jour des badges avec le compteur:', count);
+        
+        // Chercher les différents types de badges de notification (navbar)
+        const navbarBadges = [
             document.querySelector('.notification-badge'),
             document.getElementById('notification-badge'),
             document.getElementById('notification-count'),
             document.querySelector('.badge.bg-danger'),
             document.querySelector('.bg-red-500')
         ].filter(Boolean);
+        
+        // Chercher les badges du sidebar
+        const sidebarBadges = [
+            document.querySelector('a[href*="notifications.center"] .bg-red-500'),
+            document.querySelector('a[href*="notifications.center"] .rounded-full'),
+            document.querySelector('.sidebar-item .bg-red-500'),
+            document.querySelector('[href*="notifications"] .badge'),
+            document.querySelector('[href*="notifications"] .notification-badge')
+        ].filter(Boolean);
+        
+        // Combiner tous les badges
+        const allBadges = [...navbarBadges, ...sidebarBadges];
         
         const notificationToggles = [
             document.getElementById('notificationToggle'),
@@ -135,7 +150,7 @@ class NotificationSync {
         ].filter(Boolean);
         
         if (count > 0) {
-            badges.forEach(badge => {
+            allBadges.forEach(badge => {
                 badge.textContent = count > 99 ? '99+' : count;
                 badge.style.display = 'flex';
                 if (badge.classList.contains('hidden')) {
@@ -143,8 +158,8 @@ class NotificationSync {
                 }
             });
             
-            // Créer un badge s'il n'existe pas
-            if (badges.length === 0 && notificationToggles.length > 0) {
+            // Créer un badge s'il n'existe pas pour le navbar
+            if (navbarBadges.length === 0 && notificationToggles.length > 0) {
                 notificationToggles.forEach(toggle => {
                     const existingBadge = toggle.querySelector('.notification-badge, .badge, .bg-red-500');
                     if (!existingBadge) {
@@ -165,7 +180,7 @@ class NotificationSync {
                 });
             }
         } else {
-            badges.forEach(badge => {
+            allBadges.forEach(badge => {
                 badge.style.display = 'none';
                 if (!badge.classList.contains('hidden')) {
                     badge.classList.add('hidden');
@@ -241,14 +256,44 @@ class NotificationSync {
             }
         }
     }
-    
-    updateSidebar(notifications) {
+      updateSidebar(notifications) {
+        // Compter les notifications non lues
+        const unreadCount = notifications.filter(notification => !notification.read_at).length;
+        
+        // Mettre à jour tous les badges du sidebar
+        const sidebarBadges = [
+            // Badge du lien "Notifications" dans le sidebar
+            document.querySelector('a[href*="notifications.center"] .bg-red-500'),
+            document.querySelector('a[href*="notifications.center"] .rounded-full'),
+            // Autres sélecteurs possibles pour le badge du sidebar
+            document.querySelector('.sidebar-item .bg-red-500'),
+            document.querySelector('[href*="notifications"] .badge'),
+            document.querySelector('[href*="notifications"] .notification-badge')
+        ].filter(Boolean);
+        
+        console.log('🔔 Mise à jour des badges du sidebar:', unreadCount, 'badges trouvés:', sidebarBadges.length);
+        
+        sidebarBadges.forEach(badge => {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.style.display = 'block';
+                if (badge.classList.contains('hidden')) {
+                    badge.classList.remove('hidden');
+                }
+            } else {
+                badge.style.display = 'none';
+                if (!badge.classList.contains('hidden')) {
+                    badge.classList.add('hidden');
+                }
+            }
+        });
+        
         // Mettre à jour le widget de notification dans le sidebar s'il existe
         const notificationWidget = document.getElementById('notifications-container');
         if (notificationWidget && notifications) {
             // Déclencher un événement personnalisé pour que d'autres composants puissent réagir
             const event = new CustomEvent('notificationsUpdated', {
-                detail: { notifications, count: notifications.length }
+                detail: { notifications, count: unreadCount }
             });
             document.dispatchEvent(event);
         }
@@ -354,6 +399,22 @@ class NotificationSync {
             clearInterval(this.refreshInterval);
         }
         this.isInitialized = false;
+    }
+    
+    // Fonction utilitaire pour créer un badge du sidebar s'il n'existe pas
+    createSidebarBadgeIfNeeded() {
+        const notificationLink = document.querySelector('a[href*="notifications.center"]');
+        if (notificationLink && !notificationLink.querySelector('.bg-red-500, .badge, .notification-badge')) {
+            console.log('🔔 Création du badge du sidebar manquant');
+            
+            // Créer le badge
+            const badge = document.createElement('span');
+            badge.className = 'ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full';
+            badge.style.display = 'none';
+            
+            // L'ajouter au lien
+            notificationLink.appendChild(badge);
+        }
     }
 }
 

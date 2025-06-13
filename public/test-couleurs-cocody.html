@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Lisibilité - Couleurs Cocody</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/cocody-theme.css') }}">
+    
+    <style>
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .dark-theme {
+            background-color: #0f172a !important;
+            color: white !important;
+        }
+        
+        .dark-theme .card {
+            background-color: #1e293b !important;
+            color: white !important;
+            border-color: #334155 !important;
+        }
+        
+        .dark-theme .bg-light {
+            background-color: #334155 !important;
+        }
+        
+        .sidebar-demo {
+            background: linear-gradient(145deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+            min-height: 400px;
+            padding: 20px;
+            color: white;
+        }
+        
+        .nav-item-demo {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item-demo:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #43a047;
+            transform: translateX(4px);
+        }
+        
+        .nav-item-demo.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #43a047;
+            font-weight: 600;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toggle Theme Button -->
+    <button class="btn btn-cocody-primary theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+        <span id="theme-text">Mode Sombre</span>
+    </button>
+
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center text-cocody-primary mb-4">
+                    <i class="fas fa-palette"></i> Test de Lisibilité - Couleurs Cocody
+                </h1>
+                <p class="text-center text-muted">
+                    Cette page teste la lisibilité des couleurs sur fond clair et sombre
+                </p>
+            </div>
+        </div>
+
+        <!-- Section Sidebar Demo -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="sidebar-demo rounded">
+                    <h4 class="mb-3">
+                        <i class="fas fa-user-shield"></i> Interface Agent
+                    </h4>
+                    <div class="nav-item-demo active">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Tableau de bord
+                    </div>
+                    <div class="nav-item-demo">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Demandes
+                        <span class="badge bg-danger ms-auto">5</span>
+                    </div>
+                    <div class="nav-item-demo">
+                        <i class="fas fa-users me-2"></i>
+                        Citoyens
+                    </div>
+                    <div class="nav-item-demo">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Statistiques
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="sidebar-demo rounded">
+                    <h4 class="mb-3">
+                        <i class="fas fa-user"></i> Interface Citoyen
+                    </h4>
+                    <div class="nav-item-demo active">
+                        <i class="fas fa-home me-2"></i>
+                        Accueil
+                    </div>
+                    <div class="nav-item-demo">
+                        <i class="fas fa-file-signature me-2"></i>
+                        Nouvelle demande
+                    </div>
+                    <div class="nav-item-demo">
+                        <i class="fas fa-folder-open me-2"></i>
+                        Mes demandes
+                        <span class="badge bg-primary ms-auto">3</span>
+                    </div>
+                    <div class="nav-item-demo">
+                        <i class="fas fa-id-card me-2"></i>
+                        Mon profil
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle text-cocody-primary"></i>
+                            Informations de Test
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Couleurs Principales:</strong></p>
+                        <ul>
+                            <li><span class="text-cocody-primary">Bleu Principal Cocody: #1976d2</span></li>
+                            <li><span class="text-cocody-secondary">Vert Secondaire Cocody: #43a047</span></li>
+                        </ul>
+                        
+                        <p><strong>Tests de Contraste:</strong></p>
+                        <div class="p-2 mb-2 bg-light rounded">
+                            <span class="text-cocody-primary">Texte bleu sur fond clair</span>
+                        </div>
+                        <div class="p-2 mb-2 bg-dark rounded text-white">
+                            Texte blanc sur fond sombre
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Buttons -->
+        <div class="test-section bg-light rounded">
+            <h3 class="text-cocody-primary mb-3">
+                <i class="fas fa-mouse-pointer"></i> Tests de Boutons
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Boutons Primaires (Bleu)</h5>
+                    <button class="btn btn-cocody-primary me-2 mb-2">
+                        <i class="fas fa-check"></i> Valider
+                    </button>
+                    <button class="btn btn-cocody-primary me-2 mb-2" disabled>
+                        <i class="fas fa-spinner fa-spin"></i> Chargement...
+                    </button>
+                    <a href="#" class="btn btn-outline-cocody-primary me-2 mb-2">
+                        <i class="fas fa-eye"></i> Voir
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <h5>Boutons Secondaires (Vert)</h5>
+                    <button class="btn btn-cocody-secondary me-2 mb-2">
+                        <i class="fas fa-download"></i> Télécharger
+                    </button>
+                    <button class="btn btn-cocody-secondary me-2 mb-2">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                    <a href="#" class="btn btn-outline-cocody-secondary me-2 mb-2">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Alerts -->
+        <div class="test-section">
+            <h3 class="text-cocody-primary mb-3">
+                <i class="fas fa-exclamation-triangle"></i> Tests d'Alertes
+            </h3>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <strong>Succès!</strong> Votre demande a été traitée avec succès.
+            </div>
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Erreur!</strong> Une erreur s'est produite lors du traitement.
+            </div>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Attention!</strong> Veuillez vérifier vos informations.
+            </div>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Information:</strong> Votre demande est en cours de traitement.
+            </div>
+        </div>
+
+        <!-- Section Cards -->
+        <div class="test-section">
+            <h3 class="text-cocody-primary mb-3">
+                <i class="fas fa-id-card"></i> Tests de Cartes
+            </h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-cocody">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-alt fa-3x text-cocody-primary mb-3"></i>
+                            <h5 class="card-title">Demandes en attente</h5>
+                            <h2 class="text-cocody-primary">15</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-check-circle fa-3x text-cocody-secondary mb-3"></i>
+                            <h5 class="card-title">Demandes traitées</h5>
+                            <h2 class="text-cocody-secondary">42</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="card-title">Citoyens inscrits</h5>
+                            <h2 class="text-muted">1,234</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Links -->
+        <div class="test-section bg-light rounded">
+            <h3 class="text-cocody-primary mb-3">
+                <i class="fas fa-link"></i> Tests de Liens
+            </h3>
+            <p>
+                <a href="#" class="link-cocody-primary">Lien principal Cocody</a> |
+                <a href="#" class="link-cocody-secondary">Lien secondaire Cocody</a> |
+                <a href="#" class="text-decoration-none text-muted">Lien neutre</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isDarkTheme = false;
+        
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            
+            if (isDarkTheme) {
+                body.classList.remove('dark-theme');
+                icon.className = 'fas fa-moon';
+                text.textContent = 'Mode Sombre';
+                isDarkTheme = false;
+            } else {
+                body.classList.add('dark-theme');
+                icon.className = 'fas fa-sun';
+                text.textContent = 'Mode Clair';
+                isDarkTheme = true;
+            }
+        }
+        
+        // Détection automatique du thème système
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            toggleTheme();
+        }
+        
+        // Écouter les changements de thème système
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (e.matches && !isDarkTheme) {
+                toggleTheme();
+            } else if (!e.matches && isDarkTheme) {
+                toggleTheme();
+            }
+        });
+    </script>
+</body>
+</html>

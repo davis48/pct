@@ -401,10 +401,8 @@ Route::get('/admin-view-test', function() {
 // Routes protégées par authentification
 Route::middleware(['auth'])->group(function () {
     // Gestion du profil - Version standalone
-    Route::get('/profile/edit', function() {
-        return response()->file(public_path('profile-edit-standalone.html'));
-    })->name('profile.edit');
-    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/edit', [\App\Http\Controllers\Front\ProfileController::class, 'editStandalone'])->name('profile.edit');
+    Route::put('/profile/update', [\App\Http\Controllers\Front\ProfileController::class, 'update'])->name('profile.update');
 
     // Gestion des documents
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');

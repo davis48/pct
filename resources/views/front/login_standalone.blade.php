@@ -1,18 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion | PCT UVCI</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <!-- Fonts -->
+      <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Icons -->    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/standalone-hover-effects.css') }}">
     
     <style>
         * {
@@ -46,8 +45,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
-        .navbar-brand {
+          .navbar-brand {
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -55,6 +53,24 @@
             color: #1f2937;
             font-weight: 600;
             font-size: 1.25rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .navbar-brand:hover {
+            color: #1f2937;
+            transform: scale(1.05);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .navbar-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover .navbar-icon {
+            transform: rotate(5deg) scale(1.1);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         
         .navbar-icon {
@@ -69,16 +85,25 @@
             gap: 2rem;
             align-items: center;
         }
-        
-        .nav-link {
+          .nav-link {
             text-decoration: none;
             color: #6b7280;
             font-weight: 500;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            position: relative;
         }
         
         .nav-link:hover {
             color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .nav-link:active {
+            transform: translateY(0);
         }
         
         .main-content {
@@ -203,7 +228,7 @@
             justify-content: center;
         }
           .btn-primary {
-            background: linear-gradient(135deg, #1976d2, #1565c0);
+            background: #2563eb;
             color: white;
         }
         
@@ -278,10 +303,9 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="navbar-content">
-            <a href="{{ route('home') }}" class="navbar-brand">
+        <div class="navbar-content">            <a href="{{ route('home') }}" class="navbar-brand pulse-on-hover">
                 <div class="navbar-icon">
-                    <i class="fas fa-university"></i>
+                    <i class="fas fa-file-contract"></i>
                 </div>
                 PCT UVCI
             </a>
@@ -388,14 +412,17 @@
                             <i class="fas fa-sign-in-alt"></i>
                             Se connecter
                         </button>
-                    </div>
-                </form>
+                    </div>                </form>
 
+                @if($selectedRole !== 'agent')
                 <div class="register-link">
                     <p>Pas encore de compte ? <a href="{{ route('register.standalone') }}">S'inscrire</a></p>
                 </div>
+                @endif
             </div>
         </div>
     </main>
 </body>
 </html>
+
+

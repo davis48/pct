@@ -1,6 +1,151 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('title', 'Centre de Notifications')
+
+@push('styles')
+<style>
+    /* Navbar bleu spécifique pour le centre de notifications */
+    .navbar-glass {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%) !important;
+        border-bottom: 1px solid rgba(25, 118, 210, 0.3) !important;
+    }
+    
+    /* Liens de navigation en blanc */
+    .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .nav-link:hover {
+        color: white !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 6px !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* Logo en blanc */
+    .logo-container span {
+        color: white !important;
+    }
+    
+    .logo-icon {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+    }
+    
+    /* Menu mobile en blanc */
+    .mobile-menu-item {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .mobile-menu-item:hover {
+        color: white !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Bouton menu mobile */
+    #mobile-menu-button {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    #mobile-menu-button:hover {
+        color: white !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 6px !important;
+    }
+    
+    /* Icônes en blanc */
+    .nav-link i {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    .nav-link:hover i {
+        color: white !important;
+    }
+      /* Dropdown de profil visible sur navbar bleu */
+    .dropdown-menu {
+        background: white !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+        z-index: 10000 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(-10px) !important;
+        transition: all 0.3s ease !important;
+        pointer-events: none !important;
+    }
+    
+    .dropdown.active .dropdown-menu {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+        pointer-events: auto !important;
+        position: absolute !important;
+        z-index: 10000 !important;
+        background: white !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Force le z-index pour que le dropdown soit au-dessus de tout */
+    .dropdown.active .dropdown-menu {
+        z-index: 99999 !important;
+        position: fixed !important;
+        top: auto !important;
+        right: 1rem !important;
+        margin-top: 0.5rem !important;
+    }
+    
+    /* Debug: couleur de fond pour voir si le dropdown est là */
+    .dropdown.active .dropdown-menu {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(5px) !important;
+    }
+    
+    /* Force la visibilité lors du hover aussi */
+    .dropdown:hover .dropdown-menu {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Amélioration de la visibilité du bouton profile sur navbar bleu */
+    #profileToggle {
+        color: rgba(255, 255, 255, 0.9) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1rem !important;
+        transition: all 0.3s ease !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    #profileToggle:hover {
+        color: white !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-1px) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+    
+    /* Avatar dans le bouton profile */
+    #profileToggle .rounded-full {
+        border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    /* Debug - montrer le dropdown avec une bordure rouge si visible */
+    .dropdown.active .dropdown-menu:before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        bottom: -1px;
+        border: 2px solid red;
+        z-index: -1;
+        opacity: 0.5;
+    }
+</style>
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">

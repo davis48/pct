@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Synchronisation Badge Notifications</title>
+    <meta name="csrf-token" content="test-token">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex">
+        <!-- Sidebar simulé -->
+        <div class="w-64 bg-blue-900 text-white p-4">
+            <h2 class="text-xl font-bold mb-6">Menu</h2>
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white rounded">
+                    <i class="fas fa-home mr-3"></i>
+                    Accueil
+                </a>
+                <a href="#" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white rounded">
+                    <i class="fas fa-file-alt mr-3"></i>
+                    Mes Demandes
+                </a>
+                <a href="/citizen/notifications-center" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white rounded">
+                    <i class="fas fa-clipboard-check mr-3"></i>
+                    Notifications
+                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full" id="sidebar-badge">5</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center p-3 text-blue-100 hover:text-white rounded">
+                    <i class="fas fa-id-card mr-3"></i>
+                    Mon Profil
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Contenu principal -->
+        <div class="flex-1">            <!-- Navbar harmonisé -->
+            <nav class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <!-- Logo PCT UVCI -->
+                        <div class="flex items-center mr-8">
+                            <div class="bg-blue-600 p-2 rounded-lg mr-3">
+                                <i class="fas fa-file-contract text-white text-lg"></i>
+                            </div>
+                            <span class="text-xl font-bold" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">PCT UVCI</span>
+                        </div>
+                        <h1 class="text-xl font-semibold text-gray-800">Test Synchronisation Badges</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Cloche de notification -->
+                        <div class="relative">
+                            <button id="notificationToggle" class="relative text-gray-600 hover:text-blue-600 p-2">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="navbar-badge">
+                                    5
+                                </span>
+                            </button>
+                            
+                            <!-- Dropdown des notifications -->
+                            <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-100 py-2 max-h-96 overflow-y-auto hidden">
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <div class="text-sm font-medium text-gray-900 flex justify-between items-center">
+                                        <span>Notifications</span>
+                                        <button onclick="testMarkAllAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
+                                            Tout marquer lu
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="notificationsList">
+                                    <div class="px-4 py-3 border-b border-gray-100" data-id="1">
+                                        <div class="flex items-start">
+                                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-info text-white text-sm"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <div class="text-sm font-medium text-gray-900">Notification test 1</div>
+                                                <div class="text-xs text-gray-500">Il y a 5 minutes</div>
+                                            </div>
+                                            <button onclick="testMarkAsRead(1)" class="text-blue-600 hover:text-blue-800 text-xs ml-2">
+                                                Marquer lu
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="px-4 py-3 border-b border-gray-100" data-id="2">
+                                        <div class="flex items-start">
+                                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-check text-white text-sm"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <div class="text-sm font-medium text-gray-900">Notification test 2</div>
+                                                <div class="text-xs text-gray-500">Il y a 10 minutes</div>
+                                            </div>
+                                            <button onclick="testMarkAsRead(2)" class="text-blue-600 hover:text-blue-800 text-xs ml-2">
+                                                Marquer lu
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="flex items-center text-gray-600 hover:text-blue-600 px-3 py-2 rounded">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-2">
+                                <span class="text-white text-sm font-semibold">U</span>
+                            </div>
+                            <span>Utilisateur</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Contenu principal -->
+            <div class="p-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-2xl font-bold mb-4">Test de synchronisation des badges de notification</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-blue-900 mb-2">Instructions de test :</h3>
+                            <ol class="list-decimal list-inside space-y-1 text-blue-800">
+                                <li>Cliquez sur la cloche de notification pour ouvrir le dropdown</li>
+                                <li>Marquez une notification comme lue en cliquant sur "Marquer lu"</li>
+                                <li>Vérifiez que le badge de la cloche ET le badge du sidebar se mettent à jour</li>
+                                <li>Testez aussi "Tout marquer lu" pour marquer toutes les notifications</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-yellow-900 mb-2">État actuel des badges :</h3>
+                            <div class="space-y-2 text-yellow-800">
+                                <p>Badge navbar : <span id="navbar-count">5</span></p>
+                                <p>Badge sidebar : <span id="sidebar-count">5</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-x-4">
+                            <button onclick="testMarkAsRead(1)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Test : Marquer notification 1 comme lue
+                            </button>
+                            <button onclick="testMarkAllAsRead()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                Test : Marquer toutes comme lues
+                            </button>
+                            <button onclick="resetTest()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                                Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let notificationCount = 5;
+        
+        // Toggle du dropdown
+        document.getElementById('notificationToggle').addEventListener('click', function() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+        
+        // Fermer le dropdown en cliquant ailleurs
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#notificationToggle') && !e.target.closest('#notificationDropdown')) {
+                document.getElementById('notificationDropdown').classList.add('hidden');
+            }
+        });
+        
+        function testMarkAsRead(notificationId) {
+            console.log('🔔 Test: Marquage de la notification', notificationId, 'comme lue');
+            
+            // Simuler la suppression de la notification
+            const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+            if (notificationElement) {
+                notificationElement.remove();
+                notificationCount = Math.max(0, notificationCount - 1);
+                updateBadges();
+            }
+            
+            // Simuler l'appel à la fonction de synchronisation
+            if (window.notificationSync) {
+                window.notificationSync.syncAll();
+                console.log('✅ Système de synchronisation appelé');
+            } else {
+                console.log('⚠️ Système de synchronisation non disponible');
+                // Mettre à jour manuellement pour le test
+                updateBadgesManually();
+            }
+        }
+        
+        function testMarkAllAsRead() {
+            console.log('🔔 Test: Marquage de toutes les notifications comme lues');
+            
+            // Vider la liste des notifications
+            document.getElementById('notificationsList').innerHTML = `
+                <div class="px-4 py-8 text-center text-gray-500">
+                    <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                    <p>Aucune notification</p>
+                </div>
+            `;
+            
+            notificationCount = 0;
+            updateBadges();
+            
+            // Simuler l'appel à la fonction de synchronisation
+            if (window.notificationSync) {
+                window.notificationSync.syncAll();
+                console.log('✅ Système de synchronisation appelé');
+            } else {
+                console.log('⚠️ Système de synchronisation non disponible');
+                updateBadgesManually();
+            }
+        }
+        
+        function updateBadges() {
+            document.getElementById('navbar-count').textContent = notificationCount;
+            document.getElementById('sidebar-count').textContent = notificationCount;
+        }
+        
+        function updateBadgesManually() {
+            // Mettre à jour le badge de la navbar
+            const navbarBadge = document.getElementById('navbar-badge');
+            const sidebarBadge = document.getElementById('sidebar-badge');
+            
+            if (notificationCount > 0) {
+                navbarBadge.textContent = notificationCount;
+                navbarBadge.style.display = 'flex';
+                
+                sidebarBadge.textContent = notificationCount;
+                sidebarBadge.style.display = 'block';
+            } else {
+                navbarBadge.style.display = 'none';
+                sidebarBadge.style.display = 'none';
+            }
+            
+            updateBadges();
+            
+            console.log('🔔 Badges mis à jour manuellement:', notificationCount);
+        }
+        
+        function resetTest() {
+            notificationCount = 5;
+            
+            document.getElementById('notificationsList').innerHTML = `
+                <div class="px-4 py-3 border-b border-gray-100" data-id="1">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-info text-white text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">Notification test 1</div>
+                            <div class="text-xs text-gray-500">Il y a 5 minutes</div>
+                        </div>
+                        <button onclick="testMarkAsRead(1)" class="text-blue-600 hover:text-blue-800 text-xs ml-2">
+                            Marquer lu
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="px-4 py-3 border-b border-gray-100" data-id="2">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-check text-white text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">Notification test 2</div>
+                            <div class="text-xs text-gray-500">Il y a 10 minutes</div>
+                        </div>
+                        <button onclick="testMarkAsRead(2)" class="text-blue-600 hover:text-blue-800 text-xs ml-2">
+                            Marquer lu
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            updateBadgesManually();
+            console.log('🔄 Test réinitialisé');
+        }
+        
+        // Initialisation
+        updateBadges();
+        console.log('✅ Page de test initialisée');
+    </script>
+    
+    <!-- Charger le système de synchronisation -->
+    <script src="/js/notification-sync.js"></script>
+</body>
+</html>

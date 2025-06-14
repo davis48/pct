@@ -147,11 +147,32 @@ DB_PASSWORD=votre_mot_de_passe
 php artisan migrate
 ```
 
-### 7. Créer les données de base (optionnel)
+### 7. Créer les données de base et les comptes par défaut
 
 ```powershell
 php artisan db:seed
 ```
+
+Cette commande créera automatiquement les comptes par défaut suivants :
+
+#### 🔑 Comptes créés automatiquement
+
+- **Administrateur**
+  - Email : `admin@pct-uvci.ci`
+  - Mot de passe : `admin123`
+  - Accès : `/admin/login`
+
+- **Agent Municipal**
+  - Email : `agent@pct-uvci.ci`
+  - Mot de passe : `agent123`
+  - Accès : `/agent/login`
+
+- **Citoyen Test**
+  - Email : `citoyen@pct-uvci.ci`
+  - Mot de passe : `citoyen123`
+  - Accès : `/connexion`
+
+> ⚠️ **Important** : Changez ces mots de passe par défaut avant de déployer en production !
 
 ### 8. Compiler les assets
 
@@ -216,26 +237,51 @@ chmod -R 755 bootstrap/cache/
 
 ## 👥 Comptes par défaut
 
-Après l'installation, vous pouvez créer des comptes de test :
+Après l'installation et l'exécution de `php artisan db:seed`, les comptes suivants sont créés automatiquement :
 
 ### Administrateur
 
-- Accès : `/admin/login`
-- Vous devrez créer ce compte manuellement via la commande :
+- **Email** : `admin@pct-uvci.ci`
+- **Mot de passe** : `admin123`
+- **Accès** : `/admin/login`
+- **Rôle** : Gestion complète du système
 
-```powershell
-php artisan make:admin
-```
+### Agent Municipal
 
-### Agent
+- **Email** : `agent@pct-uvci.ci`
+- **Mot de passe** : `agent123`
+- **Accès** : `/agent/login`
+- **Rôle** : Traitement des demandes citoyennes
 
-- Accès : `/agent/login`
-- Inscription via l'interface d'administration
+### Citoyen Test
 
-### Citoyen
+- **Email** : `citoyen@pct-uvci.ci`
+- **Mot de passe** : `citoyen123`
+- **Accès** : `/connexion`
+- **Rôle** : Faire des demandes de documents
 
-- Accès : `/connexion`
-- Inscription libre via `/inscription`
+> ⚠️ **Sécurité** : Ces comptes sont destinés aux tests et au développement. En production, changez immédiatement ces mots de passe ou supprimez ces comptes après avoir créé vos propres utilisateurs.
+
+## 🚀 Démarrage rapide
+
+Une fois l'installation terminée et les comptes créés, vous pouvez immédiatement tester l'application :
+
+1. **Démarrez le serveur** : `php artisan serve`
+2. **Accédez à l'application** : `http://localhost:8000`
+3. **Testez les différents rôles** :
+   - Connectez-vous en tant qu'admin pour configurer le système
+   - Connectez-vous en tant qu'agent pour voir l'interface de gestion
+   - Connectez-vous en tant que citoyen pour faire une demande de document
+
+### Premier test recommandé
+
+1. Connectez-vous avec le compte citoyen (`citoyen@pct-uvci.ci` / `citoyen123`)
+2. Allez sur "Formulaires interactifs" depuis le tableau de bord
+3. Choisissez "Extrait d'acte de naissance"
+4. Remplissez le formulaire et soumettez-le
+5. Procédez au paiement de test
+6. Connectez-vous en tant qu'agent pour traiter la demande
+7. Retournez sur le compte citoyen pour voir le statut mis à jour
 
 ## 🔄 Utilisation
 
